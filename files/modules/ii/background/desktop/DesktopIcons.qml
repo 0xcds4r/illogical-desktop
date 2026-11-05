@@ -44,6 +44,7 @@ Item {
     property var dragGroupNames: []
     property var dragGroupBase: ({})
 
+    property bool settingsOpen: false
     property string openWithPath: ""
     property real lastMenuX: 0
     property real lastMenuY: 0
@@ -827,6 +828,7 @@ Item {
             { label: Translation.tr("Arrange icons"), icon: "grid_view", action: () => root.openArrangeMenu() },
             { label: Translation.tr("Refresh"), icon: "refresh", action: () => root.refresh() },
             { separator: true },
+            { label: Translation.tr("Desktop settings"), icon: "settings", action: () => root.settingsOpen = true },
             { label: Translation.tr("Open terminal"), icon: "terminal", action: () => root.openTerminal() }
         ];
     }
@@ -898,6 +900,11 @@ Item {
         border.color: Qt.rgba(0.29, 0.56, 0.85, 0.85)
     }
 
+    Item {
+        id: iconsContainer
+        anchors.fill: parent
+        visible: root.cfg.enable
+
     Repeater {
         id: iconRepeater
         model: folderModel
@@ -936,6 +943,7 @@ Item {
                 root.finishDrag(model.fileName, model.filePath, pointerX, pointerY)
         }
     }
+    }
 
     MouseArea {
         anchors.fill: parent
@@ -951,6 +959,16 @@ Item {
 
     DesktopContextMenu {
         id: menu
+    }
+
+    Loader {
+        id: settingsLoader
+        active: root.settingsOpen
+
+        sourceComponent: DesktopSettings {
+            desktop: root
+            onDismissed: root.settingsOpen = false
+        }
     }
 
     // ---------------------------------------------------------------- rename
