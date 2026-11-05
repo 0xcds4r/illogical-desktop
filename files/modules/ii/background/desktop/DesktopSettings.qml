@@ -53,7 +53,7 @@ PanelWindow {
         spacing: 8
 
         StyledText {
-            Layout.preferredWidth: 165
+            Layout.preferredWidth: 200
             text: colorRow.label
             color: Appearance.colors.colOnSecondaryContainer
         }
@@ -330,7 +330,7 @@ PanelWindow {
                     ConfigSlider {
                         Layout.fillWidth: true
                         text: Translation.tr("Icon selection opacity")
-                        textWidth: 165
+                        textWidth: 200
                         buttonIcon: "opacity"
                         usePercentTooltip: true
                         from: 0.05
@@ -354,7 +354,7 @@ PanelWindow {
                     ConfigSlider {
                         Layout.fillWidth: true
                         text: Translation.tr("Selection rectangle opacity")
-                        textWidth: 165
+                        textWidth: 200
                         buttonIcon: "opacity"
                         usePercentTooltip: true
                         from: 0.05
