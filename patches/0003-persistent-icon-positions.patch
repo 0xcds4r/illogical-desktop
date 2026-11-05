@@ -1,5 +1,5 @@
 --- a/modules/common/Persistent.qml	2026-11-06 01:29:16.394841946 +1000
-+++ b/modules/common/Persistent.qml	2026-11-06 01:29:16.394859224 +1000
++++ b/modules/common/Persistent.qml	2026-11-06 01:46:29.184836632 +1000
 @@ -83,6 +83,10 @@
                  property bool inhibit: true
              }

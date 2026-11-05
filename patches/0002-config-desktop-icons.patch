@@ -1,5 +1,5 @@
 --- a/modules/common/Config.qml	2026-11-06 01:29:16.394716658 +1000
-+++ b/modules/common/Config.qml	2026-11-06 01:29:16.394777704 +1000
++++ b/modules/common/Config.qml	2026-11-06 01:46:29.184042157 +1000
 @@ -221,6 +221,17 @@
                      property bool enableSidebar: false
                      property real widgetsFactor: 1.2

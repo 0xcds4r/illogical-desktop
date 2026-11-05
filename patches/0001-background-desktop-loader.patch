@@ -1,5 +1,5 @@
 --- a/modules/ii/background/Background.qml	2026-11-06 01:29:16.394535417 +1000
-+++ b/modules/ii/background/Background.qml	2026-11-06 01:29:16.394562606 +1000
++++ b/modules/ii/background/Background.qml	2026-11-06 01:46:29.183478016 +1000
 @@ -17,6 +17,7 @@
  import qs.modules.ii.background.widgets
  import qs.modules.ii.background.widgets.clock
@@ -16,7 +16,7 @@
          // WlrLayershell.layer: WlrLayer.Bottom
          WlrLayershell.namespace: "quickshell:background"
          anchors {
-@@ -224,6 +226,19 @@
+@@ -224,6 +226,18 @@
                  }
              }
  
@@ -24,9 +24,8 @@
 +                id: desktopIconsLoader
 +                anchors.fill: parent
 +                z: 5
-+                active: Config.options.background.desktopIcons.enable &&
-+                    (Config.options.background.desktopIcons.showOnAllScreens ||
-+                        (Quickshell.screens.length > 0 && modelData.name === Quickshell.screens[0].name))
++                active: Config.options.background.desktopIcons.showOnAllScreens ||
++                    (Quickshell.screens.length > 0 && modelData.name === Quickshell.screens[0].name)
 +                sourceComponent: DesktopIcons {
 +                    screenName: modelData.name
 +                    screenRef: modelData
