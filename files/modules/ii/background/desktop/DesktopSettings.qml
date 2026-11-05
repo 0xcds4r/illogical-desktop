@@ -53,7 +53,7 @@ PanelWindow {
         spacing: 8
 
         StyledText {
-            Layout.preferredWidth: 120
+            Layout.preferredWidth: 165
             text: colorRow.label
             color: Appearance.colors.colOnSecondaryContainer
         }
@@ -316,14 +316,21 @@ PanelWindow {
                     SectionLabel { text: Translation.tr("Colors") }
 
                     ColorRow {
-                        label: Translation.tr("Selection color")
+                        label: Translation.tr("Icon selection color")
                         value: root.cfg.selectionColor
-                        onChanged: newValue => root.cfg.selectionColor = newValue
+                        onChanged: newValue => {
+                            const previous = root.cfg.selectionColor;
+                            root.cfg.selectionColor = newValue;
+                            // Keep the rubber-band color in sync until it is customized.
+                            if (root.cfg.bandColor.toLowerCase() === previous.toLowerCase())
+                                root.cfg.bandColor = newValue;
+                        }
                     }
 
                     ConfigSlider {
                         Layout.fillWidth: true
-                        text: Translation.tr("Selection opacity")
+                        text: Translation.tr("Icon selection opacity")
+                        textWidth: 165
                         buttonIcon: "opacity"
                         usePercentTooltip: true
                         from: 0.05
@@ -339,14 +346,15 @@ PanelWindow {
                     }
 
                     ColorRow {
-                        label: Translation.tr("Band color")
+                        label: Translation.tr("Selection rectangle color")
                         value: root.cfg.bandColor
                         onChanged: newValue => root.cfg.bandColor = newValue
                     }
 
                     ConfigSlider {
                         Layout.fillWidth: true
-                        text: Translation.tr("Band opacity")
+                        text: Translation.tr("Selection rectangle opacity")
+                        textWidth: 165
                         buttonIcon: "opacity"
                         usePercentTooltip: true
                         from: 0.05
