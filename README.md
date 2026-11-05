@@ -10,18 +10,18 @@ desktop-entry aware icons/launching.
 
 - Icons for everything in `~/Desktop`, laid out on a grid (columns or rows).
 - Single click selects, double click opens with the system default application.
-- Rubber-band selection (blue rectangle), `Ctrl+Click` toggles, `Ctrl+A`, `Esc`.
-- Group drag: moving one selected icon moves the whole selection.
+- Selection:
+  - rubber-band selection (blue rectangle, color/opacity configurable);
+  - `Ctrl+Click` (or `Ctrl+RightClick`) toggles an icon;
+  - `Ctrl+A` selects all, `Esc` clears;
+  - group drag moves the whole selection;
+  - group actions: `Delete`, `Ctrl+C`, `Ctrl+X`, `Ctrl+V`, context menu.
 - Drag an icon onto a folder to move it there (with groups).
 - `Snap to grid`: dropped icons align to cells and swap with the occupant instead of
   overlapping.
 - Context menu on icons: Open, Open with, Rename, Copy, Cut, Move to Trash.
 - Context menu on the desktop: New Folder, New File, Paste, Select all, Arrange icons,
   Refresh, Desktop settings, Open terminal.
-- **Desktop settings modal**: live toggles and sliders for everything — enable icons,
-  show on all screens, remember positions, auto arrange, snap to grid, grid direction,
-  cell width/height, margin, selection/text/band colors (presets or hex) with opacities,
-  arrange actions and reset positions.
 - Arrange: by name, by type, by size, by date modified; auto arrange; grid direction;
   snap to grid; reset positions.
 - Clipboard: `Ctrl+C` / `Ctrl+X` / `Ctrl+V` (copies get `name (copy).ext`).
@@ -32,6 +32,22 @@ desktop-entry aware icons/launching.
   (e.g. `.txt` shows the text editor icon, `.zip` the archive manager icon).
 - "Open" resolves the default app for the MIME type explicitly, so files without an
   association (e.g. empty files) do not fall back to the browser via `$BROWSER`.
+
+## Desktop settings
+
+Right-click the desktop → **Desktop settings**. Everything applies live:
+
+- **General**: show icons, show on all screens, remember positions, auto arrange,
+  snap to grid.
+- **Grid**: direction (columns/rows), cell width, cell height, margin.
+- **Colors**: icon selection color and opacity, text color, selection rectangle
+  (rubber band) color and opacity. Each color has presets and a HEX field. The
+  rectangle color follows the icon selection color until it is customized separately.
+- **Arrange**: by name/type/size/date, reset positions.
+- **Done** closes the modal (it also closes from the `×` button or `Esc`; clicking the
+  desktop does not dismiss it).
+
+![settings](assets/settings.png)
 
 ## Requirements
 
@@ -75,7 +91,12 @@ Settings live in `~/.config/illogical-impulse/config.json`:
     "gridMode": "columns",
     "cellWidth": 96,
     "cellHeight": 104,
-    "margin": 24
+    "margin": 24,
+    "selectionColor": "#4A90D9",
+    "selectionOpacity": 0.35,
+    "textColor": "#FFFFFF",
+    "bandColor": "#4A90D9",
+    "bandOpacity": 0.18
   }
 }
 ```
@@ -83,15 +104,26 @@ Settings live in `~/.config/illogical-impulse/config.json`:
 - `gridMode`: `"columns"` (top to bottom, then next column) or `"rows"`.
 - `snapToGrid`: align positions to cells; dropping onto an occupied cell swaps icons.
 - `autoArrange`: always use the automatic grid (drops do not persist).
+- `selectionColor` / `selectionOpacity`: icon selection highlight.
+- `textColor`: icon labels.
+- `bandColor` / `bandOpacity`: rubber-band selection rectangle.
 - Icon positions are stored in `~/.local/state/quickshell/states.json` under
   `desktop.iconPositions`.
+
+## Repository layout
+
+```
+files/modules/ii/background/desktop/   new QML module (icons, menus, settings, cache)
+files/scripts/                         helper scripts (open, open-with, file icons)
+patches/                               changes to existing ii files
+install.sh                             installer
+```
 
 ## Limitations
 
 - Clipboard is internal to the shell; dragging files in from a file manager or out to
   another app is not implemented (Wayland layer-shell data devices).
-- No multi-select rubber band over other windows (desktop only), no thumbnails for
-  videos.
+- Rubber-band selection works on the desktop surface only.
 - The rename editor uses a fullscreen overlay layer (needed for keyboard focus).
 
 ## Uninstall
