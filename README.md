@@ -20,7 +20,8 @@ desktop-entry aware icons/launching.
   Refresh, Desktop settings, Open terminal.
 - **Desktop settings modal**: live toggles and sliders for everything — enable icons,
   show on all screens, remember positions, auto arrange, snap to grid, grid direction,
-  cell width/height, margin, arrange actions and reset positions.
+  cell width/height, margin, selection/text/band colors (presets or hex) with opacities,
+  arrange actions and reset positions.
 - Arrange: by name, by type, by size, by date modified; auto arrange; grid direction;
   snap to grid; reset positions.
 - Clipboard: `Ctrl+C` / `Ctrl+X` / `Ctrl+V` (copies get `name (copy).ext`).
