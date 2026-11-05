@@ -31,7 +31,7 @@ PanelWindow {
     }
 
     readonly property var cfg: Config.options.background.desktopIcons
-    readonly property int cardWidth: Math.min(680, width - 80)
+    readonly property int cardWidth: Math.min(1000, width - 80)
     readonly property int cardMaxHeight: height - 100
 
 
