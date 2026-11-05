@@ -31,7 +31,7 @@ PanelWindow {
     }
 
     readonly property var cfg: Config.options.background.desktopIcons
-    readonly property int cardWidth: Math.min(580, width - 80)
+    readonly property int cardWidth: Math.min(680, width - 80)
     readonly property int cardMaxHeight: height - 100
 
 
@@ -131,10 +131,10 @@ PanelWindow {
         }
     }
 
-    // Dim + click-outside-to-close.
+    // Swallow clicks outside the card: the modal closes only from its controls
+    // (Done / close button / Escape), never by clicking the desktop.
     MouseArea {
         anchors.fill: parent
-        onClicked: root.dismissed()
     }
 
     Rectangle {
