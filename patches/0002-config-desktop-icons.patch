@@ -1,0 +1,20 @@
+--- a/modules/common/Config.qml	2026-11-06 01:29:16.394716658 +1000
++++ b/modules/common/Config.qml	2026-11-06 01:29:16.394777704 +1000
+@@ -221,6 +221,17 @@
+                     property bool enableSidebar: false
+                     property real widgetsFactor: 1.2
+                 }
++                property JsonObject desktopIcons: JsonObject {
++                    property bool enable: true
++                    property bool showOnAllScreens: false // Otherwise only on the primary screen
++                    property bool persistPositions: true
++                    property bool autoArrange: false
++                    property bool snapToGrid: false
++                    property string gridMode: "columns" // "columns" or "rows"
++                    property int cellWidth: 96
++                    property int cellHeight: 104
++                    property int margin: 24
++                }
+             }
+ 
+             property JsonObject bar: JsonObject {
