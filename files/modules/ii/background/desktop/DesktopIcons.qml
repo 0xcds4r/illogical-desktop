@@ -17,7 +17,22 @@ Item {
 
     required property string screenName
     property var screenRef: null
-    property color textColor: "white"
+    property color textColor: root.cfg.textColor
+    readonly property color selectionColorValue: root.cfg.selectionColor
+    readonly property color bandColorValue: root.cfg.bandColor
+
+    function withAlpha(colorValue, alpha) {
+        const color = Qt.color(colorValue);
+        return Qt.rgba(color.r, color.g, color.b, Math.max(0, Math.min(1, alpha)));
+    }
+
+    function selectionFill(alpha) {
+        return root.withAlpha(root.selectionColorValue, alpha);
+    }
+
+    function bandFill(alpha) {
+        return root.withAlpha(root.bandColorValue, alpha);
+    }
 
     readonly property var cfg: Config.options.background.desktopIcons
     readonly property int cellWidthValue: cfg.cellWidth
@@ -895,9 +910,9 @@ Item {
         width: 0
         height: 0
         z: 3000
-        color: Qt.rgba(0.29, 0.56, 0.85, 0.18)
+        color: root.bandFill(root.cfg.bandOpacity)
         border.width: 1
-        border.color: Qt.rgba(0.29, 0.56, 0.85, 0.85)
+        border.color: root.bandFill(Math.min(1, root.cfg.bandOpacity * 3))
     }
 
     Item {

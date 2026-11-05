@@ -43,6 +43,54 @@ PanelWindow {
         opacity: 0.9
     }
 
+    component ColorRow: RowLayout {
+        id: colorRow
+        property string label: ""
+        property string value: "#FFFFFF"
+        signal changed(string newValue)
+
+        Layout.fillWidth: true
+        spacing: 8
+
+        StyledText {
+            Layout.preferredWidth: 120
+            text: colorRow.label
+            color: Appearance.colors.colOnSecondaryContainer
+        }
+
+        Repeater {
+            model: ["#4A90D9", "#4CAF50", "#FF9800", "#F44336", "#9C27B0", "#FFFFFF"]
+            delegate: Rectangle {
+                width: 20
+                height: 20
+                radius: 10
+                color: modelData
+                border.width: colorRow.value.toLowerCase() === modelData.toLowerCase() ? 2 : 1
+                border.color: Appearance.colors.colOnLayer2
+
+                MouseArea {
+                    anchors.fill: parent
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: colorRow.changed(modelData)
+                }
+            }
+        }
+
+        TextInput {
+            Layout.preferredWidth: 86
+            text: colorRow.value
+            color: Appearance.colors.colOnLayer1
+            font.pixelSize: Appearance.font.pixelSize.small
+            selectByMouse: true
+            onEditingFinished: {
+                if (/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(text))
+                    colorRow.changed(text);
+                else
+                    text = colorRow.value;
+            }
+        }
+    }
+
     component ActionButton: Rectangle {
         id: button
         property string label: ""
@@ -263,6 +311,48 @@ PanelWindow {
                         to: 64
                         value: root.cfg.margin
                         onValueChanged: root.cfg.margin = Math.round(value)
+                    }
+
+                    SectionLabel { text: Translation.tr("Colors") }
+
+                    ColorRow {
+                        label: Translation.tr("Selection color")
+                        value: root.cfg.selectionColor
+                        onChanged: newValue => root.cfg.selectionColor = newValue
+                    }
+
+                    ConfigSlider {
+                        Layout.fillWidth: true
+                        text: Translation.tr("Selection opacity")
+                        buttonIcon: "opacity"
+                        usePercentTooltip: true
+                        from: 0.05
+                        to: 1
+                        value: root.cfg.selectionOpacity
+                        onValueChanged: root.cfg.selectionOpacity = value
+                    }
+
+                    ColorRow {
+                        label: Translation.tr("Text color")
+                        value: root.cfg.textColor
+                        onChanged: newValue => root.cfg.textColor = newValue
+                    }
+
+                    ColorRow {
+                        label: Translation.tr("Band color")
+                        value: root.cfg.bandColor
+                        onChanged: newValue => root.cfg.bandColor = newValue
+                    }
+
+                    ConfigSlider {
+                        Layout.fillWidth: true
+                        text: Translation.tr("Band opacity")
+                        buttonIcon: "opacity"
+                        usePercentTooltip: true
+                        from: 0.05
+                        to: 0.6
+                        value: root.cfg.bandOpacity
+                        onValueChanged: root.cfg.bandOpacity = value
                     }
 
                     SectionLabel { text: Translation.tr("Arrange") }

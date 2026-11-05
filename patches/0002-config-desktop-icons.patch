@@ -1,6 +1,6 @@
 --- a/modules/common/Config.qml	2026-11-06 01:29:16.394716658 +1000
-+++ b/modules/common/Config.qml	2026-11-06 01:46:29.184042157 +1000
-@@ -221,6 +221,17 @@
++++ b/modules/common/Config.qml	2026-11-06 01:49:19.927175320 +1000
+@@ -221,6 +221,22 @@
                      property bool enableSidebar: false
                      property real widgetsFactor: 1.2
                  }
@@ -14,6 +14,11 @@
 +                    property int cellWidth: 96
 +                    property int cellHeight: 104
 +                    property int margin: 24
++                    property string selectionColor: "#4A90D9"
++                    property real selectionOpacity: 0.35
++                    property string textColor: "#FFFFFF"
++                    property string bandColor: "#4A90D9"
++                    property real bandOpacity: 0.18
 +                }
              }
  

@@ -141,12 +141,12 @@ Item {
         anchors.fill: parent
         anchors.margins: 4
         radius: Appearance.rounding.normal
-        color: root.isDropTarget ? ColorUtils.transparentize(Appearance.colors.colPrimary, 0.55)
-             : root.isSelected ? ColorUtils.transparentize(Appearance.colors.colPrimary, 0.45)
-             : mouseArea.containsMouse ? ColorUtils.transparentize(Appearance.colors.colPrimary, 0.82)
+        color: root.isDropTarget ? root.container.selectionFill(root.container.cfg.selectionOpacity + 0.2)
+             : root.isSelected ? root.container.selectionFill(root.container.cfg.selectionOpacity)
+             : mouseArea.containsMouse ? root.container.selectionFill(root.container.cfg.selectionOpacity * 0.45)
              : "transparent"
         border.width: root.isDropTarget ? 1 : 0
-        border.color: Appearance.colors.colPrimary
+        border.color: root.container.selectionColorValue
     }
 
     Item {
