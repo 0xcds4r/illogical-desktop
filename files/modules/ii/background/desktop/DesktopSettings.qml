@@ -379,7 +379,7 @@ PanelWindow {
                         ConfigSlider {
                             Layout.fillWidth: true
                             text: DesktopTranslation.tr("Icon selection opacity")
-                            textWidth: 200
+                            textWidth: 290
                             buttonIcon: "opacity"
                             usePercentTooltip: true
                             from: 0.05
@@ -403,7 +403,7 @@ PanelWindow {
                         ConfigSlider {
                             Layout.fillWidth: true
                             text: DesktopTranslation.tr("Selection rectangle opacity")
-                            textWidth: 200
+                            textWidth: 290
                             buttonIcon: "opacity"
                             usePercentTooltip: true
                             from: 0.05
