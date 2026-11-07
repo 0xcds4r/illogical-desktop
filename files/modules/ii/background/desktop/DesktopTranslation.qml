@@ -336,7 +336,7 @@ Singleton {
             "Open Trash": "Открыть корзину", "Empty Trash": "Очистить корзину",
             "No preview available": "Предпросмотр недоступен",
             "ZIP (fast)": "ZIP (быстро)", "ZIP (normal)": "ZIP (обычно)", "ZIP (max)": "ZIP (максимум)", "tar.gz": "tar.gz",
-            "Undo": "Отменить"
+            "Undo": "Отменить", "Show trash icon": "Показывать корзину"
         },
         "uk": {
             "Desktop folder": "Тека робочого столу", "Confirm before deleting": "Підтверджувати видалення",
@@ -344,7 +344,7 @@ Singleton {
             "Open Trash": "Відкрити кошик", "Empty Trash": "Очистити кошик",
             "No preview available": "Попередній перегляд недоступний",
             "ZIP (fast)": "ZIP (швидко)", "ZIP (normal)": "ZIP (звичайно)", "ZIP (max)": "ZIP (максимум)", "tar.gz": "tar.gz",
-            "Undo": "Скасувати дію"
+            "Undo": "Скасувати дію", "Show trash icon": "Показувати кошик"
         },
         "be": {
             "Desktop folder": "Папка працоўнага стала", "Confirm before deleting": "Пацвярджаць выдаленне",
@@ -352,7 +352,7 @@ Singleton {
             "Open Trash": "Адкрыць кошык", "Empty Trash": "Ачысціць кошык",
             "No preview available": "Прадпрагляд недоступны",
             "ZIP (fast)": "ZIP (хутка)", "ZIP (normal)": "ZIP (звычайна)", "ZIP (max)": "ZIP (максімум)", "tar.gz": "tar.gz",
-            "Undo": "Адмяніць"
+            "Undo": "Адмяніць", "Show trash icon": "Паказваць кошык"
         },
         "pl": {
             "Desktop folder": "Folder pulpitu", "Confirm before deleting": "Potwierdzaj usuwanie",
@@ -360,7 +360,7 @@ Singleton {
             "Open Trash": "Otwórz kosz", "Empty Trash": "Opróżnij kosz",
             "No preview available": "Podgląd niedostępny",
             "ZIP (fast)": "ZIP (szybko)", "ZIP (normal)": "ZIP (normalnie)", "ZIP (max)": "ZIP (maks.)", "tar.gz": "tar.gz",
-            "Undo": "Cofnij"
+            "Undo": "Cofnij", "Show trash icon": "Pokaż kosz"
         },
         "de": {
             "Desktop folder": "Desktopordner", "Confirm before deleting": "Löschen bestätigen",
@@ -368,7 +368,7 @@ Singleton {
             "Open Trash": "Papierkorb öffnen", "Empty Trash": "Papierkorb leeren",
             "No preview available": "Keine Vorschau verfügbar",
             "ZIP (fast)": "ZIP (schnell)", "ZIP (normal)": "ZIP (normal)", "ZIP (max)": "ZIP (maximal)", "tar.gz": "tar.gz",
-            "Undo": "Rückgängig"
+            "Undo": "Rückgängig", "Show trash icon": "Papierkorb anzeigen"
         },
         "fr": {
             "Desktop folder": "Dossier du bureau", "Confirm before deleting": "Confirmer la suppression",
@@ -376,7 +376,7 @@ Singleton {
             "Open Trash": "Ouvrir la corbeille", "Empty Trash": "Vider la corbeille",
             "No preview available": "Aperçu indisponible",
             "ZIP (fast)": "ZIP (rapide)", "ZIP (normal)": "ZIP (normal)", "ZIP (max)": "ZIP (maximal)", "tar.gz": "tar.gz",
-            "Undo": "Annuler"
+            "Undo": "Annuler", "Show trash icon": "Afficher la corbeille"
         },
         "es": {
             "Desktop folder": "Carpeta del escritorio", "Confirm before deleting": "Confirmar eliminación",
@@ -384,7 +384,7 @@ Singleton {
             "Open Trash": "Abrir papelera", "Empty Trash": "Vaciar papelera",
             "No preview available": "Vista previa no disponible",
             "ZIP (fast)": "ZIP (rápido)", "ZIP (normal)": "ZIP (normal)", "ZIP (max)": "ZIP (máximo)", "tar.gz": "tar.gz",
-            "Undo": "Deshacer"
+            "Undo": "Deshacer", "Show trash icon": "Mostrar papelera"
         },
         "ja": {
             "Desktop folder": "デスクトップフォルダー", "Confirm before deleting": "削除前に確認",
@@ -392,7 +392,7 @@ Singleton {
             "Open Trash": "ゴミ箱を開く", "Empty Trash": "ゴミ箱を空にする",
             "No preview available": "プレビューできません",
             "ZIP (fast)": "ZIP (高速)", "ZIP (normal)": "ZIP (標準)", "ZIP (max)": "ZIP (最大)", "tar.gz": "tar.gz",
-            "Undo": "元に戻す"
+            "Undo": "元に戻す", "Show trash icon": "ゴミ箱を表示"
         },
         "zh": {
             "Desktop folder": "桌面文件夹", "Confirm before deleting": "删除前确认",
@@ -400,7 +400,7 @@ Singleton {
             "Open Trash": "打开回收站", "Empty Trash": "清空回收站",
             "No preview available": "无法预览",
             "ZIP (fast)": "ZIP（快速）", "ZIP (normal)": "ZIP（标准）", "ZIP (max)": "ZIP（最大）", "tar.gz": "tar.gz",
-            "Undo": "撤销"
+            "Undo": "撤销", "Show trash icon": "显示回收站"
         },
         "ko": {
             "Desktop folder": "데스크톱 폴더", "Confirm before deleting": "삭제 전 확인",
@@ -408,7 +408,7 @@ Singleton {
             "Open Trash": "휴지통 열기", "Empty Trash": "휴지통 비우기",
             "No preview available": "미리보기를 사용할 수 없음",
             "ZIP (fast)": "ZIP (빠름)", "ZIP (normal)": "ZIP (보통)", "ZIP (max)": "ZIP (최대)", "tar.gz": "tar.gz",
-            "Undo": "실행 취소"
+            "Undo": "실행 취소", "Show trash icon": "휴지통 표시"
         }
     })
 

@@ -54,6 +54,7 @@ defaults = {
     "language": "en",
     "folder": "",
     "confirmDelete": False,
+    "showTrash": True,
 }
 
 if not os.path.exists(config_path):
