@@ -41,7 +41,19 @@ Item {
     readonly property int leftMargin: cfg.margin
     readonly property int topMargin: Appearance.sizes.barHeight + cfg.margin
     readonly property real zoomScale: cellWidthValue / 96
-    readonly property string desktopFolder: Directories.home + "/Desktop"
+    readonly property string customFolderPath: {
+        let folder = (root.cfg.folder ?? "").trim();
+        if (folder.startsWith("file://"))
+            folder = FileUtils.trimFileProtocol(folder);
+        if (folder.startsWith("~/"))
+            folder = Directories.home.replace("file://", "") + folder.substring(1);
+        return folder;
+    }
+    readonly property string desktopFolder: {
+        if (root.customFolderPath === "")
+            return Directories.home + "/Desktop";
+        return "file://" + root.customFolderPath;
+    }
     readonly property string desktopFolderPath: FileUtils.trimFileProtocol(root.desktopFolder)
 
     property var positions: ({})
@@ -110,11 +122,19 @@ Item {
     property bool settingsOpen: false
     property bool propertiesOpen: false
     property string propertiesPath: ""
+    property bool previewOpen: false
+    property string previewPath: ""
+    property bool confirmOpen: false
+    property var pendingTrashPaths: []
+    property var undoStack: []
+    property string selectionAnchor: ""
+    property int trashCount: 0
     property string openWithPath: ""
     property real lastMenuX: 0
     property real lastMenuY: 0
     property string renamingPath: ""
     property string renamingName: ""
+    property string renamingExtension: ""
     property real renameX: 0
     property real renameY: 0
 
@@ -125,7 +145,26 @@ Item {
     // so keep item focus here for Delete / Ctrl+C / Ctrl+V / F2 / F5.
     focus: true
 
-    Component.onCompleted: root.loadPositions()
+    Component.onCompleted: {
+        root.loadPositions();
+        root.refreshTrashCount();
+    }
+
+    Process {
+        id: trashCountProcess
+        running: false
+        command: ["python3", Directories.scriptPath + "/desktop-trash.py", "count"]
+        stdout: StdioCollector {
+            onStreamFinished: root.trashCount = parseInt(text.trim()) || 0
+        }
+    }
+
+    Timer {
+        interval: 5000
+        running: true
+        repeat: true
+        onTriggered: root.refreshTrashCount()
+    }
 
     Keys.onDeletePressed: root.trashSelected()
     Keys.onPressed: event => {
@@ -150,6 +189,36 @@ Item {
                 event.accepted = true;
                 return;
             }
+            if (event.key === Qt.Key_Z) {
+                root.undo();
+                event.accepted = true;
+                return;
+            }
+        }
+        if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
+            root.openSelected();
+            event.accepted = true;
+        } else if (event.key === Qt.Key_Space) {
+            root.toggleQuickLook();
+            event.accepted = true;
+        } else if (event.key === Qt.Key_Left) {
+            root.moveSelection(-1, 0);
+            event.accepted = true;
+        } else if (event.key === Qt.Key_Right) {
+            root.moveSelection(1, 0);
+            event.accepted = true;
+        } else if (event.key === Qt.Key_Up) {
+            root.moveSelection(0, -1);
+            event.accepted = true;
+        } else if (event.key === Qt.Key_Down) {
+            root.moveSelection(0, 1);
+            event.accepted = true;
+        } else if (event.key === Qt.Key_Home) {
+            root.selectIndex(0);
+            event.accepted = true;
+        } else if (event.key === Qt.Key_End) {
+            root.selectIndex(iconRepeater.count - 1);
+            event.accepted = true;
         }
         if (event.key === Qt.Key_Escape) {
             root.clearSelection();
@@ -304,6 +373,115 @@ Item {
         else
             map[name] = true;
         root.selectedNames = map;
+    }
+
+    function modelIndexOf(fileName) {
+        for (let i = 0; i < folderModel.count; i++) {
+            if (String(folderModel.get(i, "fileName")) === fileName)
+                return i;
+        }
+        return -1;
+    }
+
+    readonly property int perColumnCount: Math.max(1,
+        Math.floor(Math.max(root.cellHeightValue, root.height - root.topMargin - root.leftMargin) / root.cellHeightValue))
+    readonly property int perRowCount: Math.max(1,
+        Math.floor(Math.max(root.cellWidthValue, root.width - root.leftMargin * 2) / root.cellWidthValue))
+
+    function selectionIndex() {
+        const names = root.selectedNamesList();
+        if (names.length === 0)
+            return -1;
+        return root.modelIndexOf(names[0]);
+    }
+
+    function selectIndex(index) {
+        if (index < 0 || index >= iconRepeater.count)
+            return;
+        const item = iconRepeater.itemAt(index);
+        if (!item)
+            return;
+        root.selectOnly(item.fileName);
+        root.selectionAnchor = item.fileName;
+        root.forceActiveFocus();
+    }
+
+    function moveSelection(dx, dy) {
+        const current = root.selectionIndex();
+        let next;
+        if (current < 0) {
+            next = 0;
+        } else if (root.cfg.gridMode === "rows") {
+            next = current + dx + dy * root.perRowCount;
+        } else {
+            next = current + dx * root.perColumnCount + dy;
+        }
+        next = Math.max(0, Math.min(iconRepeater.count - 1, next));
+        root.selectIndex(next);
+    }
+
+    function selectRange(fromName, toName) {
+        const from = root.modelIndexOf(fromName);
+        const to = root.modelIndexOf(toName);
+        if (from < 0 || to < 0)
+            return;
+        const start = Math.min(from, to);
+        const end = Math.max(from, to);
+        const map = {};
+        for (let i = start; i <= end; i++) {
+            const item = iconRepeater.itemAt(i);
+            if (item)
+                map[item.fileName] = true;
+        }
+        root.selectedNames = map;
+    }
+
+    function openSelected() {
+        for (const path of root.selectedPaths())
+            root.openPath(path);
+    }
+
+    function toggleQuickLook() {
+        if (root.previewOpen) {
+            root.previewOpen = false;
+            return;
+        }
+        if (root.selectedCount !== 1)
+            return;
+        const path = root.selectedPaths()[0];
+        if (!path)
+            return;
+        root.previewPath = path;
+        root.previewOpen = true;
+    }
+
+    function pushUndo(entry) {
+        const stack = root.undoStack.slice(-29);
+        stack.push(entry);
+        root.undoStack = stack;
+    }
+
+    function undo() {
+        const stack = root.undoStack;
+        if (stack.length === 0)
+            return;
+        const entry = stack[stack.length - 1];
+        root.undoStack = stack.slice(0, -1);
+        if (entry.type === "trash") {
+            DesktopFileOps.restoreTrash(entry.paths);
+        } else if (entry.type === "rename") {
+            Quickshell.execDetached(["mv", "--", entry.to, entry.from]);
+        } else if (entry.type === "move") {
+            for (const pair of entry.pairs)
+                Quickshell.execDetached(["mv", "-n", "--", pair.to, pair.from]);
+        }
+        root.scheduleRefresh();
+        root.refreshTrashCount();
+    }
+
+    function refreshTrashCount() {
+        trashCountProcess.running = false;
+        trashCountProcess.running = true;
     }
 
     function selectAll() {
@@ -576,12 +754,12 @@ Item {
         return candidate;
     }
 
-    function uniqueArchiveName(base) {
+    function uniqueArchiveName(base, extension) {
         const existing = root.existingDesktopNames();
-        let candidate = `${base}.zip`;
+        let candidate = `${base}.${extension}`;
         let counter = 2;
         while (existing[candidate]) {
-            candidate = `${base} (${counter}).zip`;
+            candidate = `${base} (${counter}).${extension}`;
             counter++;
         }
         return candidate;
@@ -615,7 +793,7 @@ Item {
         root.scheduleRefresh();
     }
 
-    function compressSelected() {
+    function compressSelected(format, level) {
         const names = root.selectedNamesList();
         if (names.length === 0)
             return;
@@ -627,9 +805,26 @@ Item {
         } else {
             base = DesktopTranslation.tr("Archive");
         }
-        const archive = root.uniqueArchiveName(base);
-        DesktopFileOps.compress(`${root.desktopFolderPath}/${archive}`, root.desktopFolderPath, names);
+        const extension = format === "targz" ? "tar.gz" : "zip";
+        const archive = root.uniqueArchiveName(base, extension);
+        DesktopFileOps.compress(`${root.desktopFolderPath}/${archive}`, root.desktopFolderPath, names, format, level);
         slowRefreshTimer.restart();
+    }
+
+    function openCompressMenu() {
+        const items = [
+            { label: DesktopTranslation.tr("Compress"), icon: "archive", enabled: false },
+            { separator: true },
+            { label: DesktopTranslation.tr("ZIP (fast)"), icon: "bolt",
+              action: () => root.compressSelected("zip", 1) },
+            { label: DesktopTranslation.tr("ZIP (normal)"), icon: "archive",
+              action: () => root.compressSelected("zip", 6) },
+            { label: DesktopTranslation.tr("ZIP (max)"), icon: "compress",
+              action: () => root.compressSelected("zip", 9) },
+            { label: DesktopTranslation.tr("tar.gz"), icon: "folder_zip",
+              action: () => root.compressSelected("targz", 6) }
+        ];
+        menu.openAt(root.lastMenuX, root.lastMenuY, items);
     }
 
     function openProperties(path) {
@@ -643,6 +838,11 @@ Item {
             return;
         if (DesktopFileOps.clipboardCut) {
             DesktopFileOps.moveInto(paths, root.desktopFolderPath);
+            const pairs = paths.map(path => ({
+                from: path,
+                to: `${root.desktopFolderPath}/${path.substring(path.lastIndexOf("/") + 1)}`
+            }));
+            root.pushUndo({ type: "move", pairs: pairs });
         } else {
             for (const path of paths) {
                 const name = path.substring(path.lastIndexOf("/") + 1);
@@ -653,17 +853,30 @@ Item {
     }
 
     function trashSelected() {
-        const names = root.selectedNamesList();
-        if (names.length === 0)
+        const paths = root.selectedPaths();
+        if (paths.length === 0)
             return;
-        root.clearSelection();
-        for (const name of names) {
-            const path = root.pathForName(name);
-            if (path === "")
-                continue;
-            root.removePosition(name);
-            DesktopFileOps.trash(path);
+        if (root.cfg.confirmDelete) {
+            root.pendingTrashPaths = paths;
+            root.confirmOpen = true;
+            return;
         }
+        root.performTrash(paths);
+    }
+
+    function performTrash(paths) {
+        for (const name of root.selectedNamesList())
+            root.removePosition(name);
+        root.clearSelection();
+        DesktopFileOps.trash(paths);
+        root.pushUndo({ type: "trash", paths: paths });
+        root.scheduleRefresh();
+        root.refreshTrashCount();
+    }
+
+    function emptyTrash() {
+        DesktopFileOps.emptyTrash();
+        root.trashCount = 0;
         root.scheduleRefresh();
     }
 
@@ -706,7 +919,7 @@ Item {
         root.dropTargetName = root.folderNameAt(pointerX, pointerY, name);
     }
 
-    function finishDrag(name, path, pointerX, pointerY) {
+    function finishDrag(name, path, pointerX, pointerY, ctrl) {
         const names = root.dragGroupNames.length > 0 ? root.dragGroupNames : [name];
         const moved = root.dragPositions;
         const origins = root.dragGroupBase;
@@ -730,10 +943,35 @@ Item {
                         continue;
                     paths.push(selectedPath);
                 }
-                if (paths.length > 0)
+                if (ctrl) {
+                    // Ctrl+drag copies instead of moving.
+                    for (const selectedPath of paths) {
+                        const baseName = selectedPath.substring(selectedPath.lastIndexOf("/") + 1);
+                        DesktopFileOps.copyTo(selectedPath, `${targetPath}/${root.uniqueCopyName(baseName)}`);
+                    }
+                } else if (paths.length > 0) {
                     DesktopFileOps.moveInto(paths, targetPath);
-                for (const selected of names)
-                    root.removePosition(selected);
+                    const pairs = paths.map(selectedPath => ({
+                        from: selectedPath,
+                        to: `${targetPath}/${selectedPath.substring(selectedPath.lastIndexOf("/") + 1)}`
+                    }));
+                    root.pushUndo({ type: "move", pairs: pairs });
+                    for (const selected of names)
+                        root.removePosition(selected);
+                }
+            }
+            root.scheduleRefresh();
+            return;
+        }
+
+        if (pointerX >= 0 && ctrl) {
+            // Ctrl+drag into empty space duplicates the selection on the desktop.
+            for (const selected of names) {
+                const source = root.pathForName(selected);
+                if (source === "")
+                    continue;
+                DesktopFileOps.copyTo(source,
+                    `${root.desktopFolderPath}/${root.uniqueCopyName(selected)}`);
             }
             root.scheduleRefresh();
             return;
@@ -846,9 +1084,13 @@ Item {
             x = point.x;
             y = point.y + 20;
         }
+        const dot = name.lastIndexOf(".");
+        const base = dot > 0 ? name.substring(0, dot) : name;
+        const extension = dot > 0 ? name.substring(dot) : "";
         root.renameX = Math.max(8, Math.min(x, root.width - 248));
         root.renameY = Math.max(8, Math.min(y, root.height - 56));
-        root.renamingName = name;
+        root.renamingName = base;
+        root.renamingExtension = extension;
         root.renamingPath = path;
         root.selectOnly(name);
     }
@@ -856,21 +1098,32 @@ Item {
     function cancelRename() {
         root.renamingPath = "";
         root.renamingName = "";
+        root.renamingExtension = "";
     }
 
     function commitRename(newName) {
         const oldPath = root.renamingPath;
         const oldName = root.renamingName;
-        const trimmed = String(newName).trim();
+        const extension = root.renamingExtension;
+        let trimmed = String(newName).trim();
         root.renamingPath = "";
         root.renamingName = "";
-        if (oldPath === "" || trimmed === "" || trimmed === oldName || trimmed.indexOf("/") !== -1)
+        root.renamingExtension = "";
+        if (oldPath === "" || trimmed === "" || trimmed.indexOf("/") !== -1)
             return;
-        DesktopFileOps.rename(oldPath, `${root.desktopFolderPath}/${trimmed}`);
+        // Keep the original extension unless the user typed a new one.
+        let finalName = trimmed;
+        if (extension !== "" && !trimmed.includes("."))
+            finalName = trimmed + extension;
+        const newPath = `${root.desktopFolderPath}/${finalName}`;
+        if (newPath === oldPath)
+            return;
+        DesktopFileOps.rename(oldPath, newPath);
+        root.pushUndo({ type: "rename", from: oldPath, to: newPath });
         root.scheduleRefresh();
         if (root.positions[oldName]) {
             const map = Object.assign({}, root.positions);
-            map[trimmed] = map[oldName];
+            map[finalName] = map[oldName];
             delete map[oldName];
             root.positions = map;
             root.savePositions();
@@ -878,7 +1131,7 @@ Item {
         if (root.isNameSelected(oldName)) {
             const map = Object.assign({}, root.selectedNames);
             delete map[oldName];
-            map[trimmed] = true;
+            map[finalName] = true;
             root.selectedNames = map;
         }
     }
@@ -959,7 +1212,7 @@ Item {
             { label: DesktopTranslation.tr("Create link"), icon: "link",
               action: () => root.createLinkSelected() },
             { label: DesktopTranslation.tr("Compress"), icon: "archive",
-              action: () => root.compressSelected() },
+              action: () => root.openCompressMenu() },
             { separator: true },
             { label: DesktopTranslation.tr("Move to Trash"), icon: "delete", action: () => root.trashSelected() },
             { separator: true },
@@ -1055,6 +1308,8 @@ Item {
             { label: DesktopTranslation.tr("Select all"), icon: "select_all", action: () => root.selectAll() },
             { label: DesktopTranslation.tr("Arrange icons"), icon: "grid_view", action: () => root.openArrangeMenu() },
             { label: DesktopTranslation.tr("Refresh"), icon: "refresh", action: () => root.refreshWithAnimation() },
+            { label: DesktopTranslation.tr("Undo"), icon: "undo",
+              enabled: root.undoStack.length > 0, action: () => root.undo() },
             { separator: true },
             { label: DesktopTranslation.tr("Desktop settings"), icon: "settings", action: () => root.settingsOpen = true },
             { label: DesktopTranslation.tr("Open terminal"), icon: "terminal", action: () => root.openTerminal() }
@@ -1154,11 +1409,17 @@ Item {
             isSelected: root.isNameSelected(model.fileName)
             isDropTarget: root.dropTargetName === model.fileName
 
-            onPicked: ctrl => {
-                if (ctrl)
+            onPicked: (ctrl, shift) => {
+                if (shift && root.selectionAnchor !== "") {
+                    root.selectRange(root.selectionAnchor, model.fileName);
+                } else if (ctrl) {
                     root.toggleNameSelection(model.fileName);
-                else if (!root.isNameSelected(model.fileName))
-                    root.selectOnly(model.fileName);
+                    root.selectionAnchor = model.fileName;
+                } else {
+                    if (!root.isNameSelected(model.fileName))
+                        root.selectOnly(model.fileName);
+                    root.selectionAnchor = model.fileName;
+                }
                 root.forceActiveFocus();
                 menu.close();
             }
@@ -1173,8 +1434,8 @@ Item {
             onDragStarted: root.beginDrag(model.fileName)
             onDragMoved: (targetX, targetY, pointerX, pointerY) =>
                 root.updateDrag(model.fileName, targetX, targetY, pointerX, pointerY)
-            onDragFinished: (pointerX, pointerY) =>
-                root.finishDrag(model.fileName, model.filePath, pointerX, pointerY)
+            onDragFinished: (pointerX, pointerY, ctrl) =>
+                root.finishDrag(model.fileName, model.filePath, pointerX, pointerY, ctrl)
         }
     }
     }
@@ -1188,6 +1449,75 @@ Item {
                 return;
             root.setZoom(root.cellWidthValue + (event.angleDelta.y >= 0 ? 8 : -8));
             event.accepted = true;
+        }
+    }
+
+    Item {
+        id: trashWidget
+        anchors {
+            right: parent.right
+            bottom: parent.bottom
+            margins: 28
+        }
+        width: 64
+        height: 64
+        visible: root.cfg.enable
+        z: 400
+
+        Rectangle {
+            anchors.fill: parent
+            radius: Appearance.rounding.normal
+            color: trashMouse.containsMouse ? Appearance.colors.colLayer1Hover : "transparent"
+            opacity: 0.9
+        }
+
+        MaterialSymbol {
+            anchors.centerIn: parent
+            text: "delete"
+            iconSize: 38
+            color: Appearance.colors.colOnLayer1
+        }
+
+        Rectangle {
+            visible: root.trashCount > 0
+            anchors {
+                top: parent.top
+                right: parent.right
+                topMargin: 2
+                rightMargin: 2
+            }
+            width: 22
+            height: 22
+            radius: 11
+            color: Appearance.colors.colPrimary
+
+            StyledText {
+                anchors.centerIn: parent
+                text: root.trashCount > 99 ? "99+" : String(root.trashCount)
+                color: Appearance.colors.colOnPrimary
+                font.pixelSize: Appearance.font.pixelSize.smallest
+            }
+        }
+
+        MouseArea {
+            id: trashMouse
+            anchors.fill: parent
+            hoverEnabled: true
+            acceptedButtons: Qt.LeftButton | Qt.RightButton
+            onDoubleClicked: Quickshell.execDetached(["xdg-open", "trash://"])
+            onPressed: event => {
+                if (event.button !== Qt.RightButton)
+                    return;
+                const point = trashMouse.mapToItem(root, event.x, event.y);
+                root.lastMenuX = point.x;
+                root.lastMenuY = point.y;
+                menu.openAt(point.x, point.y, [
+                    { label: DesktopTranslation.tr("Open Trash"), icon: "folder_open",
+                      action: () => Quickshell.execDetached(["xdg-open", "trash://"]) },
+                    { label: DesktopTranslation.tr("Empty Trash"), icon: "delete_forever",
+                      enabled: root.trashCount > 0, action: () => root.emptyTrash() }
+                ]);
+            }
         }
     }
 
@@ -1213,6 +1543,37 @@ Item {
             desktop: root
             filePath: root.propertiesPath
             onDismissed: root.propertiesOpen = false
+        }
+    }
+
+    Loader {
+        id: previewLoader
+        active: root.previewOpen
+
+        sourceComponent: DesktopPreview {
+            desktop: root
+            filePath: root.previewPath
+            onDismissed: root.previewOpen = false
+        }
+    }
+
+    Loader {
+        id: confirmLoader
+        active: root.confirmOpen
+
+        sourceComponent: DesktopConfirm {
+            desktop: root
+            message: DesktopTranslation.tr("Delete selected items?")
+            onConfirmed: {
+                root.confirmOpen = false;
+                const paths = root.pendingTrashPaths;
+                root.pendingTrashPaths = [];
+                root.performTrash(paths);
+            }
+            onDismissed: {
+                root.confirmOpen = false;
+                root.pendingTrashPaths = [];
+            }
         }
     }
 

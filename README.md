@@ -12,11 +12,13 @@ desktop-entry aware icons/launching.
 - Single click selects, double click opens with the system default application.
 - Selection:
   - rubber-band selection (blue rectangle, color/opacity configurable);
-  - `Ctrl+Click` (or `Ctrl+RightClick`) toggles an icon;
+  - `Ctrl+Click` / `Ctrl+RightClick` toggles, `Shift+Click` selects a range;
+  - arrow keys move the selection, `Home`/`End`, `Enter` opens, `Space` previews;
   - `Ctrl+A` selects all, `Esc` clears;
   - group drag moves the whole selection;
   - group actions: `Delete`, `Ctrl+C`, `Ctrl+X`, `Ctrl+V`, context menu.
-- Drag an icon onto a folder to move it there (with groups).
+- `Ctrl+Z` undoes the last delete (restores from trash), rename or move.
+- Drag an icon onto a folder to move it there (with groups); `Ctrl+drag` copies instead.
 - `Snap to grid`: dropped icons align to cells and swap with the occupant instead of
   overlapping.
 - `Ctrl+wheel` zooms the grid; snapped positions are re-aligned to the new cell size,
@@ -30,10 +32,17 @@ desktop-entry aware icons/launching.
 - Arrange: by name, by type, by size, by date modified; auto arrange; grid direction;
   snap to grid; reset positions.
 - Clipboard: `Ctrl+C` / `Ctrl+X` / `Ctrl+V` (copies get `name (copy).ext`).
-- **Create link** makes a symlink (`name (link).ext`), **Compress** packs the selection
-  into a `.zip` (symlinks are stored as their target contents), **Properties** shows
-  type, MIME, size, dates, permissions and owner.
-- `Delete` moves the selection to trash, `F2` renames, `F5` refreshes.
+- **Create link** makes a symlink (`name (link).ext`); **Compress** offers ZIP
+  (fast/normal/max) and tar.gz; **Properties** shows type, MIME, size, dates,
+  permissions and owner.
+- **Empty Trash** shortcut with a live item count in the bottom-right corner.
+  Right-click it to open or empty the trash.
+- **Quick look** (`Space`): images, text files, and thumbnails for video/PDF.
+- File badges: symlink, executable and read-only markers on the icon.
+- **Video and PDF thumbnails** (needs `ffmpeg` / `pdftoppm`).
+- Icon metadata is cached, so refreshing the desktop does not re-run MIME lookups.
+- `Delete` moves the selection to trash (optional confirmation), `F2` renames
+  (the extension is preserved), `F5` refreshes.
 - `.desktop` entries show their real `Name=` and `Icon=` and are launched with
   `gio launch` (so `Exec`, `Terminal`, placeholders work).
 - Regular files use the icon of their default application for that MIME type
@@ -49,6 +58,11 @@ desktop-entry aware icons/launching.
 | Toggle icon in selection | `Ctrl+Click` / `Ctrl+RightClick` |
 | Select all | `Ctrl+A` |
 | Clear selection | `Esc` |
+| Move selection | arrow keys / `Home` / `End` |
+| Open selected | `Enter` |
+| Quick look | `Space` |
+| Select range | `Shift+Click` |
+| Undo last delete/rename/move | `Ctrl+Z` |
 | Delete selection to trash | `Delete` |
 | Rename | `F2` |
 | Refresh (with pop-in wave) | `F5` |
@@ -98,7 +112,9 @@ Properties dialog for any icon:
 
 - illogical-impulse (quickshell `ii`) on Hyprland, tested with Quickshell 0.3.2.
 - `gio` (glib2), `file`, `xdg-utils` (`xdg-mime`).
-- `zip` for the Compress action.
+- `zip` for the Compress action, `tar` for tar.gz.
+- `python3` (trash helper).
+- `ffmpeg` (video thumbnails) and `pdftoppm` from poppler (PDF thumbnails) — optional.
 - `Qt.labs.folderlistmodel` (ships with Qt 6 declarative).
 
 ## Install
@@ -146,7 +162,9 @@ The add-on keeps its settings in its own file,
     "textColor": "#FFFFFF",
     "bandColor": "#4A90D9",
     "bandOpacity": 0.18,
-    "language": "en"
+    "language": "en",
+    "folder": "",
+    "confirmDelete": false
 }
 ```
 
@@ -162,6 +180,8 @@ The add-on keeps its settings in its own file,
 - `bandColor` / `bandOpacity`: rubber-band selection rectangle.
 - `language`: language of the add-on UI only (`en`, `ru`, `uk`, `be`, `pl`, `de`, `fr`,
   `es`, `ja`, `zh`, `ko`). The shell language is not changed.
+- `folder`: custom folder to show instead of `~/Desktop` (empty means `~/Desktop`).
+- `confirmDelete`: ask before moving the selection to trash.
 - Icon positions are stored in `~/.local/state/quickshell/user/desktop-positions.json`.
 - Older installs migrated automatically from `config.json` / `states.json` on first run.
 

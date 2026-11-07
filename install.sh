@@ -22,8 +22,8 @@ echo "Installing into $TARGET"
 # 1. Module files and helper scripts.
 mkdir -p "$TARGET/modules/ii/background/desktop"
 cp "$HERE/files/modules/ii/background/desktop/"*.qml "$TARGET/modules/ii/background/desktop/"
-cp "$HERE/files/scripts/"desktop-*.sh "$TARGET/scripts/"
-chmod +x "$TARGET/scripts/"desktop-*.sh
+cp "$HERE/files/scripts/"desktop-* "$TARGET/scripts/"
+chmod +x "$TARGET/scripts/"desktop-*
 
 # 2. Migrate settings/positions from the old location (only on first install).
 python3 - "$TARGET" <<'PY'
@@ -51,6 +51,9 @@ defaults = {
     "textColor": "#FFFFFF",
     "bandColor": "#4A90D9",
     "bandOpacity": 0.18,
+    "language": "en",
+    "folder": "",
+    "confirmDelete": False,
 }
 
 if not os.path.exists(config_path):
