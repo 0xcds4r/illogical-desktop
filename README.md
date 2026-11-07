@@ -56,7 +56,7 @@ desktop-entry aware icons/launching.
 
 ## Desktop settings
 
-Right-click the desktop → **Desktop settings**. Everything applies live:
+Right-click the desktop → **Desktop settings**. Everything applies live, split into tabs:
 
 - **General**: show icons, show on all screens (multi-monitor), show icon labels,
   remember positions, auto arrange, snap to grid.

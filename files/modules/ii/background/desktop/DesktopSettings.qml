@@ -34,15 +34,7 @@ PanelWindow {
     readonly property var cfg: DesktopConfig
     readonly property int cardWidth: Math.min(1000, width - 80)
     readonly property int cardMaxHeight: height - 100
-
-
-    component SectionLabel: StyledText {
-        Layout.topMargin: 10
-        font.pixelSize: Appearance.font.pixelSize.small
-        font.weight: Font.DemiBold
-        color: Appearance.colors.colPrimary
-        opacity: 0.9
-    }
+    property int settingsTab: 0
 
     component ColorRow: RowLayout {
         id: colorRow
@@ -132,8 +124,7 @@ PanelWindow {
         }
     }
 
-    // Swallow clicks outside the card: the modal closes only from its controls
-    // (Done / close button / Escape), never by clicking the desktop.
+    // Dim + swallow clicks outside the card.
     MouseArea {
         anchors.fill: parent
     }
@@ -142,7 +133,7 @@ PanelWindow {
         id: card
         anchors.centerIn: parent
         width: root.cardWidth
-        height: Math.min(root.cardMaxHeight, 150 + settingsColumn.implicitHeight)
+        height: Math.min(root.cardMaxHeight, 560)
         radius: Appearance.rounding.large
         color: Appearance.m3colors.m3surfaceContainer
         border.width: 1
@@ -151,7 +142,6 @@ PanelWindow {
 
         Keys.onEscapePressed: root.dismissed()
 
-        // Swallow clicks so they do not reach the dim background.
         MouseArea {
             anchors.fill: parent
         }
@@ -202,6 +192,18 @@ PanelWindow {
                 }
             }
 
+            ConfigSelectionArray {
+                Layout.fillWidth: true
+                currentValue: root.settingsTab
+                options: [
+                    { displayName: Translation.tr("General"), icon: "tune", value: 0 },
+                    { displayName: Translation.tr("Grid"), icon: "grid_view", value: 1 },
+                    { displayName: Translation.tr("Colors"), icon: "palette", value: 2 },
+                    { displayName: Translation.tr("Arrange"), icon: "sort", value: 3 }
+                ]
+                onSelected: newValue => root.settingsTab = newValue
+            }
+
             Flickable {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
@@ -214,219 +216,234 @@ PanelWindow {
                     width: parent.width
                     spacing: 6
 
-                    SectionLabel { text: Translation.tr("General") }
-
-                    ConfigSwitch {
-                        buttonIcon: "desktop_windows"
-                        text: Translation.tr("Show desktop icons")
-                        checked: root.cfg.enable
-                        onCheckedChanged: root.cfg.enable = checked
-                    }
-
-                    ConfigSwitch {
-                        buttonIcon: "branding_watermark"
-                        text: Translation.tr("Show on all screens")
-                        checked: root.cfg.showOnAllScreens
-                        onCheckedChanged: root.cfg.showOnAllScreens = checked
-                    }
-
-                    ConfigSwitch {
-                        buttonIcon: "label"
-                        text: Translation.tr("Show icon labels")
-                        checked: root.cfg.showLabels
-                        onCheckedChanged: root.cfg.showLabels = checked
-                    }
-
-                    ConfigSwitch {
-                        buttonIcon: "save"
-                        text: Translation.tr("Remember positions")
-                        checked: root.cfg.persistPositions
-                        onCheckedChanged: root.cfg.persistPositions = checked
-                    }
-
-                    ConfigSwitch {
-                        buttonIcon: "grid_on"
-                        text: Translation.tr("Auto arrange")
-                        checked: root.cfg.autoArrange
-                        onCheckedChanged: {
-                            root.cfg.autoArrange = checked;
-                            if (checked)
-                                root.desktop.resetPositions();
-                        }
-                    }
-
-                    ConfigSwitch {
-                        buttonIcon: "grid_4x4"
-                        text: Translation.tr("Snap to grid")
-                        checked: root.cfg.snapToGrid
-                        onCheckedChanged: root.cfg.snapToGrid = checked
-                    }
-
-                    SectionLabel { text: Translation.tr("Grid") }
-
-                    RowLayout {
+                    // ------------------------------------------------------- General
+                    ColumnLayout {
+                        visible: root.settingsTab === 0
                         Layout.fillWidth: true
-                        spacing: 10
+                        spacing: 6
 
-                        StyledText {
-                            Layout.preferredWidth: 120
-                            text: Translation.tr("Direction")
-                            color: Appearance.colors.colOnSecondaryContainer
+                        ConfigSwitch {
+                            buttonIcon: "desktop_windows"
+                            text: Translation.tr("Show desktop icons")
+                            checked: root.cfg.enable
+                            onCheckedChanged: root.cfg.enable = checked
                         }
 
-                        ConfigSelectionArray {
+                        ConfigSwitch {
+                            buttonIcon: "branding_watermark"
+                            text: Translation.tr("Show on all screens")
+                            checked: root.cfg.showOnAllScreens
+                            onCheckedChanged: root.cfg.showOnAllScreens = checked
+                        }
+
+                        ConfigSwitch {
+                            buttonIcon: "label"
+                            text: Translation.tr("Show icon labels")
+                            checked: root.cfg.showLabels
+                            onCheckedChanged: root.cfg.showLabels = checked
+                        }
+
+                        ConfigSwitch {
+                            buttonIcon: "save"
+                            text: Translation.tr("Remember positions")
+                            checked: root.cfg.persistPositions
+                            onCheckedChanged: root.cfg.persistPositions = checked
+                        }
+
+                        ConfigSwitch {
+                            buttonIcon: "grid_on"
+                            text: Translation.tr("Auto arrange")
+                            checked: root.cfg.autoArrange
+                            onCheckedChanged: {
+                                root.cfg.autoArrange = checked;
+                                if (checked)
+                                    root.desktop.resetPositions();
+                            }
+                        }
+
+                        ConfigSwitch {
+                            buttonIcon: "grid_4x4"
+                            text: Translation.tr("Snap to grid")
+                            checked: root.cfg.snapToGrid
+                            onCheckedChanged: root.cfg.snapToGrid = checked
+                        }
+                    }
+
+                    // ---------------------------------------------------------- Grid
+                    ColumnLayout {
+                        visible: root.settingsTab === 1
+                        Layout.fillWidth: true
+                        spacing: 6
+
+                        RowLayout {
                             Layout.fillWidth: true
-                            currentValue: root.cfg.gridMode
-                            options: [
-                                { displayName: Translation.tr("Columns"), icon: "view_column", value: "columns" },
-                                { displayName: Translation.tr("Rows"), icon: "view_stream", value: "rows" }
-                            ]
-                            onSelected: newValue => {
-                                root.cfg.gridMode = newValue;
-                                root.desktop.resetPositions();
+                            spacing: 10
+
+                            StyledText {
+                                Layout.preferredWidth: 200
+                                text: Translation.tr("Direction")
+                                color: Appearance.colors.colOnSecondaryContainer
+                            }
+
+                            ConfigSelectionArray {
+                                Layout.fillWidth: true
+                                currentValue: root.cfg.gridMode
+                                options: [
+                                    { displayName: Translation.tr("Columns"), icon: "view_column", value: "columns" },
+                                    { displayName: Translation.tr("Rows"), icon: "view_stream", value: "rows" }
+                                ]
+                                onSelected: newValue => {
+                                    root.cfg.gridMode = newValue;
+                                    root.desktop.resetPositions();
+                                }
+                            }
+                        }
+
+                        ConfigSlider {
+                            Layout.fillWidth: true
+                            text: Translation.tr("Cell width")
+                            buttonIcon: "width"
+                            usePercentTooltip: false
+                            from: 64
+                            to: 220
+                            value: root.cfg.cellWidth
+                            onValueChanged: {
+                                root.cfg.cellWidth = Math.round(value);
+                                root.desktop.resnapPositions();
+                            }
+                        }
+
+                        ConfigSlider {
+                            Layout.fillWidth: true
+                            text: Translation.tr("Cell height")
+                            buttonIcon: "height"
+                            usePercentTooltip: false
+                            from: 64
+                            to: 240
+                            value: root.cfg.cellHeight
+                            onValueChanged: {
+                                root.cfg.cellHeight = Math.round(value);
+                                root.desktop.resnapPositions();
+                            }
+                        }
+
+                        ConfigSlider {
+                            Layout.fillWidth: true
+                            text: Translation.tr("Margin")
+                            buttonIcon: "border_outer"
+                            usePercentTooltip: false
+                            from: 8
+                            to: 64
+                            value: root.cfg.margin
+                            onValueChanged: {
+                                root.cfg.margin = Math.round(value);
+                                root.desktop.resnapPositions();
                             }
                         }
                     }
 
-                    ConfigSlider {
+                    // -------------------------------------------------------- Colors
+                    ColumnLayout {
+                        visible: root.settingsTab === 2
                         Layout.fillWidth: true
-                        text: Translation.tr("Cell width")
-                        buttonIcon: "width"
-                        usePercentTooltip: false
-                        from: 64
-                        to: 220
-                        value: root.cfg.cellWidth
-                        onValueChanged: {
-                            root.cfg.cellWidth = Math.round(value);
-                            root.desktop.resnapPositions();
+                        spacing: 6
+
+                        ColorRow {
+                            label: Translation.tr("Icon selection color")
+                            value: root.cfg.selectionColor
+                            onChanged: newValue => {
+                                const previous = root.cfg.selectionColor;
+                                root.cfg.selectionColor = newValue;
+                                // Keep the rubber-band color in sync until it is customized.
+                                if (root.cfg.bandColor.toLowerCase() === previous.toLowerCase())
+                                    root.cfg.bandColor = newValue;
+                            }
+                        }
+
+                        ConfigSlider {
+                            Layout.fillWidth: true
+                            text: Translation.tr("Icon selection opacity")
+                            textWidth: 200
+                            buttonIcon: "opacity"
+                            usePercentTooltip: true
+                            from: 0.05
+                            to: 1
+                            value: root.cfg.selectionOpacity
+                            onValueChanged: root.cfg.selectionOpacity = value
+                        }
+
+                        ColorRow {
+                            label: Translation.tr("Text color")
+                            value: root.cfg.textColor
+                            onChanged: newValue => root.cfg.textColor = newValue
+                        }
+
+                        ColorRow {
+                            label: Translation.tr("Selection rectangle color")
+                            value: root.cfg.bandColor
+                            onChanged: newValue => root.cfg.bandColor = newValue
+                        }
+
+                        ConfigSlider {
+                            Layout.fillWidth: true
+                            text: Translation.tr("Selection rectangle opacity")
+                            textWidth: 200
+                            buttonIcon: "opacity"
+                            usePercentTooltip: true
+                            from: 0.05
+                            to: 0.6
+                            value: root.cfg.bandOpacity
+                            onValueChanged: root.cfg.bandOpacity = value
                         }
                     }
 
-                    ConfigSlider {
+                    // ------------------------------------------------------- Arrange
+                    ColumnLayout {
+                        visible: root.settingsTab === 3
                         Layout.fillWidth: true
-                        text: Translation.tr("Cell height")
-                        buttonIcon: "height"
-                        usePercentTooltip: false
-                        from: 64
-                        to: 240
-                        value: root.cfg.cellHeight
-                        onValueChanged: {
-                            root.cfg.cellHeight = Math.round(value);
-                            root.desktop.resnapPositions();
+                        spacing: 6
+
+                        ActionButton {
+                            label: Translation.tr("Arrange by name")
+                            icon: "sort_by_alpha"
+                            onActivated: {
+                                root.desktop.arrangeIcons("name");
+                                root.dismissed();
+                            }
                         }
-                    }
 
-                    ConfigSlider {
-                        Layout.fillWidth: true
-                        text: Translation.tr("Margin")
-                        buttonIcon: "border_outer"
-                        usePercentTooltip: false
-                        from: 8
-                        to: 64
-                        value: root.cfg.margin
-                        onValueChanged: {
-                            root.cfg.margin = Math.round(value);
-                            root.desktop.resnapPositions();
+                        ActionButton {
+                            label: Translation.tr("Arrange by type")
+                            icon: "category"
+                            onActivated: {
+                                root.desktop.arrangeIcons("type");
+                                root.dismissed();
+                            }
                         }
-                    }
 
-                    SectionLabel { text: Translation.tr("Colors") }
-
-                    ColorRow {
-                        label: Translation.tr("Icon selection color")
-                        value: root.cfg.selectionColor
-                        onChanged: newValue => {
-                            const previous = root.cfg.selectionColor;
-                            root.cfg.selectionColor = newValue;
-                            // Keep the rubber-band color in sync until it is customized.
-                            if (root.cfg.bandColor.toLowerCase() === previous.toLowerCase())
-                                root.cfg.bandColor = newValue;
+                        ActionButton {
+                            label: Translation.tr("Arrange by size")
+                            icon: "data_usage"
+                            onActivated: {
+                                root.desktop.arrangeIcons("size");
+                                root.dismissed();
+                            }
                         }
-                    }
 
-                    ConfigSlider {
-                        Layout.fillWidth: true
-                        text: Translation.tr("Icon selection opacity")
-                        textWidth: 200
-                        buttonIcon: "opacity"
-                        usePercentTooltip: true
-                        from: 0.05
-                        to: 1
-                        value: root.cfg.selectionOpacity
-                        onValueChanged: root.cfg.selectionOpacity = value
-                    }
-
-                    ColorRow {
-                        label: Translation.tr("Text color")
-                        value: root.cfg.textColor
-                        onChanged: newValue => root.cfg.textColor = newValue
-                    }
-
-                    ColorRow {
-                        label: Translation.tr("Selection rectangle color")
-                        value: root.cfg.bandColor
-                        onChanged: newValue => root.cfg.bandColor = newValue
-                    }
-
-                    ConfigSlider {
-                        Layout.fillWidth: true
-                        text: Translation.tr("Selection rectangle opacity")
-                        textWidth: 200
-                        buttonIcon: "opacity"
-                        usePercentTooltip: true
-                        from: 0.05
-                        to: 0.6
-                        value: root.cfg.bandOpacity
-                        onValueChanged: root.cfg.bandOpacity = value
-                    }
-
-                    SectionLabel { text: Translation.tr("Arrange") }
-
-                    ActionButton {
-                        label: Translation.tr("Arrange by name")
-                        icon: "sort_by_alpha"
-                        onActivated: {
-                            root.desktop.arrangeIcons("name");
-                            root.dismissed();
+                        ActionButton {
+                            label: Translation.tr("Arrange by date modified")
+                            icon: "schedule"
+                            onActivated: {
+                                root.desktop.arrangeIcons("date");
+                                root.dismissed();
+                            }
                         }
-                    }
 
-                    ActionButton {
-                        label: Translation.tr("Arrange by type")
-                        icon: "category"
-                        onActivated: {
-                            root.desktop.arrangeIcons("type");
-                            root.dismissed();
+                        ActionButton {
+                            label: Translation.tr("Reset positions")
+                            icon: "restart_alt"
+                            onActivated: root.desktop.resetPositions()
                         }
-                    }
-
-                    ActionButton {
-                        label: Translation.tr("Arrange by size")
-                        icon: "data_usage"
-                        onActivated: {
-                            root.desktop.arrangeIcons("size");
-                            root.dismissed();
-                        }
-                    }
-
-                    ActionButton {
-                        label: Translation.tr("Arrange by date modified")
-                        icon: "schedule"
-                        onActivated: {
-                            root.desktop.arrangeIcons("date");
-                            root.dismissed();
-                        }
-                    }
-
-                    ActionButton {
-                        label: Translation.tr("Reset positions")
-                        icon: "restart_alt"
-                        onActivated: root.desktop.resetPositions()
-                    }
-
-                    Item {
-                        Layout.fillWidth: true
-                        Layout.preferredHeight: 6
                     }
                 }
             }
