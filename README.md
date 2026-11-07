@@ -4,7 +4,7 @@ A Windows-like active desktop for **illogical-impulse** (quickshell `ii`) on Hyp
 icons for `~/Desktop`, selection, drag & drop, context menus, file operations and
 desktop-entry aware icons/launching.
 
-![screenshot](assets/screenshot.png)
+![screenshot](assets/screenshot.jpg)
 
 ## Features
 
@@ -68,7 +68,7 @@ Right-click the desktop → **Desktop settings**. Everything applies live:
 - **Done** closes the modal (it also closes from the `×` button or `Esc`; clicking the
   desktop does not dismiss it).
 
-![settings](assets/settings.png)
+![settings](assets/settings.jpg)
 
 ## Context menus
 
@@ -84,7 +84,7 @@ Desktop actions:
 
 Properties dialog for any icon:
 
-![properties](assets/properties.png)
+![properties](assets/properties.jpg)
 
 ## Requirements
 
