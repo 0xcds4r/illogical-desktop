@@ -14,10 +14,33 @@ Item {
 
     readonly property int itemHeight: 34
     readonly property int padding: 6
+    readonly property int iconSlot: 18
+    readonly property int iconSpacing: 10
+    readonly property int rowMargins: 20
+    readonly property int minWidth: 170
+    readonly property int maxWidth: 480
+
+    TextMetrics {
+        id: labelMetrics
+        font.pixelSize: Appearance.font.pixelSize.small
+    }
+
+    // Width follows the longest label (plus icon slot and row margins).
+    readonly property real longestLabelWidth: {
+        let longest = 0;
+        for (const item of root.items) {
+            if (!item || item.separator)
+                continue;
+            labelMetrics.text = item.label ?? "";
+            longest = Math.max(longest, labelMetrics.width);
+        }
+        return longest;
+    }
 
     visible: shown
     z: 5000
-    width: 232
+    width: Math.min(root.maxWidth, Math.max(root.minWidth,
+        root.longestLabelWidth + root.iconSlot + root.iconSpacing + root.rowMargins + root.padding * 2 + 4))
     height: column.implicitHeight + padding * 2
     x: Math.max(4, Math.min(menuX, parent ? parent.width - width - 4 : menuX))
     y: Math.max(4, Math.min(menuY, parent ? parent.height - height - 4 : menuY))
