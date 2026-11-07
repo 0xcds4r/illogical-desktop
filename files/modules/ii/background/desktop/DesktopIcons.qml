@@ -3,6 +3,7 @@ import Qt.labs.folderlistmodel
 import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
+import Quickshell.Hyprland
 import qs.services
 import qs.modules.common
 import qs.modules.common.widgets
@@ -48,6 +49,44 @@ Item {
     property var selectedNames: ({})
     readonly property int selectedCount: Object.keys(selectedNames).length
     property string dropTargetName: ""
+
+    // Workspace switch transition for the icon layer (layer-shell surfaces do not
+    // get Hyprland's window animation).
+    readonly property var hyprMonitor: Hyprland.monitorFor(root.screenRef)
+    readonly property int activeWorkspaceId: root.hyprMonitor?.activeWorkspace?.id ?? 0
+    property int previousWorkspaceId: 0
+    property real switchOffset: 0
+    property real switchOpacity: 1
+
+    onActiveWorkspaceIdChanged: {
+        if (root.previousWorkspaceId === 0 || root.activeWorkspaceId === root.previousWorkspaceId) {
+            root.previousWorkspaceId = root.activeWorkspaceId;
+            return;
+        }
+        const direction = root.activeWorkspaceId > root.previousWorkspaceId ? 1 : -1;
+        root.previousWorkspaceId = root.activeWorkspaceId;
+        root.switchOffset = direction * 48;
+        root.switchOpacity = 0;
+        workspaceSwitchAnim.restart();
+    }
+
+    ParallelAnimation {
+        id: workspaceSwitchAnim
+        NumberAnimation {
+            target: root
+            property: "switchOffset"
+            to: 0
+            duration: 300
+            easing.type: Easing.OutCubic
+        }
+        NumberAnimation {
+            target: root
+            property: "switchOpacity"
+            to: 1
+            duration: 240
+            easing.type: Easing.OutCubic
+        }
+    }
 
     // Rubber-band selection
     property bool banding: false
@@ -276,6 +315,9 @@ Item {
             if (intersects)
                 map[item.fileName] = true;
         }
+        // Avoid re-evaluating every delegate binding on each mouse move.
+        if (Object.keys(map).sort().join("\n") === Object.keys(root.selectedNames).sort().join("\n"))
+            return;
         root.selectedNames = map;
     }
 
@@ -919,6 +961,10 @@ Item {
         id: iconsContainer
         anchors.fill: parent
         visible: root.cfg.enable
+        opacity: root.switchOpacity
+        transform: Translate {
+            x: root.switchOffset
+        }
 
     Repeater {
         id: iconRepeater
