@@ -38,6 +38,10 @@ Singleton {
         Quickshell.execDetached(args);
     }
 
+    function openTrash() {
+        Quickshell.execDetached([Directories.scriptPath + "/desktop-open-trash.sh"]);
+    }
+
     function emptyTrash() {
         Quickshell.execDetached(["python3", Directories.scriptPath + "/desktop-trash.py", "empty"]);
     }
