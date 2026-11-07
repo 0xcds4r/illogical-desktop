@@ -160,7 +160,8 @@ Item {
                     root.startRename(name, path);
             }
         } else if (event.key === Qt.Key_F5) {
-            root.refresh();
+            if (!event.isAutoRepeat)
+                root.refresh();
         }
     }
 
@@ -412,7 +413,22 @@ Item {
         return `${base} ${counter}`;
     }
 
+    property bool refreshCooldown: false
+
+    Timer {
+        id: refreshCooldownTimer
+        interval: 200
+        repeat: false
+        onTriggered: root.refreshCooldown = false
+    }
+
     function refresh() {
+        if (root.refreshCooldown)
+            return;
+        root.refreshCooldown = true;
+        refreshCooldownTimer.restart();
+        root.refreshAnimating = true;
+        refreshAnimTimer.restart();
         const current = root.desktopFolder;
         // Bounce through a non-existent path so FolderListModel reloads.
         folderModel.folder = "file:///nonexistent-desktop-refresh";
@@ -438,8 +454,6 @@ Item {
     }
 
     function refreshWithAnimation() {
-        root.refreshAnimating = true;
-        refreshAnimTimer.restart();
         root.refresh();
     }
 
@@ -920,6 +934,7 @@ Item {
         acceptedButtons: Qt.LeftButton | Qt.RightButton
 
         onPressed: event => {
+            root.forceActiveFocus();
             menu.close();
             if (event.button === Qt.RightButton) {
                 root.clearSelection();
