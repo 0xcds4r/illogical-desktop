@@ -29,8 +29,9 @@ desktop-entry aware icons/launching.
 - Arrange: by name, by type, by size, by date modified; auto arrange; grid direction;
   snap to grid; reset positions.
 - Clipboard: `Ctrl+C` / `Ctrl+X` / `Ctrl+V` (copies get `name (copy).ext`).
-- **Create link** makes a symlink (`name (link).ext`), **Compress** packs the selection into
-  a `.zip`, **Properties** shows type, MIME, size, dates, permissions and owner.
+- **Create link** makes a symlink (`name (link).ext`), **Compress** packs the selection
+  into a `.zip` (symlinks are stored as their target contents), **Properties** shows
+  type, MIME, size, dates, permissions and owner.
 - `Delete` moves the selection to trash, `F2` renames, `F5` refreshes.
 - `.desktop` entries show their real `Name=` and `Icon=` and are launched with
   `gio launch` (so `Exec`, `Terminal`, placeholders work).
@@ -38,6 +39,20 @@ desktop-entry aware icons/launching.
   (e.g. `.txt` shows the text editor icon, `.zip` the archive manager icon).
 - "Open" resolves the default app for the MIME type explicitly, so files without an
   association (e.g. empty files) do not fall back to the browser via `$BROWSER`.
+
+## Keyboard shortcuts
+
+| Action | Shortcut |
+|---|---|
+| Open selected icon | double click |
+| Toggle icon in selection | `Ctrl+Click` / `Ctrl+RightClick` |
+| Select all | `Ctrl+A` |
+| Clear selection | `Esc` |
+| Delete selection to trash | `Delete` |
+| Rename | `F2` |
+| Refresh (with pop-in wave) | `F5` |
+| Copy / cut / paste | `Ctrl+C` / `Ctrl+X` / `Ctrl+V` |
+| Zoom grid | `Ctrl+wheel` |
 
 ## Desktop settings
 
@@ -59,6 +74,7 @@ Right-click the desktop → **Desktop settings**. Everything applies live:
 
 - illogical-impulse (quickshell `ii`) on Hyprland, tested with Quickshell 0.3.2.
 - `gio` (glib2), `file`, `xdg-utils` (`xdg-mime`).
+- `zip` for the Compress action.
 - `Qt.labs.folderlistmodel` (ships with Qt 6 declarative).
 
 ## Install
@@ -124,10 +140,21 @@ Settings live in `~/.config/illogical-impulse/config.json`:
 ## Repository layout
 
 ```
-files/modules/ii/background/desktop/   new QML module (icons, menus, settings, cache)
-files/scripts/                         helper scripts (open, open-with, file icons)
-patches/                               changes to existing ii files
-install.sh                             installer
+files/modules/ii/background/desktop/
+  DesktopIcons.qml        grid, selection, drag & drop, menus, actions
+  DesktopIcon.qml         icon delegate (labels, .desktop icons, file icons)
+  DesktopContextMenu.qml  context menu renderer
+  DesktopFileOps.qml      file operations (copy, trash, link, compress, ...)
+  DesktopSettings.qml     settings modal
+  DesktopProperties.qml   properties modal
+  DesktopIconCache.qml    metadata cache for smooth refreshes
+files/scripts/
+  desktop-open.sh         open with the default application
+  desktop-open-with.sh    list applications for a file type
+  desktop-file-icon.sh    icon from the default application
+  desktop-file-props.sh   properties for the Properties dialog
+patches/                  changes to existing ii files
+install.sh                installer
 ```
 
 ## Limitations
@@ -137,7 +164,9 @@ install.sh                             installer
 - Rubber-band selection works on the desktop surface only.
 - With `showOnAllScreens` off, secondary monitors have no desktop context menu or
   settings modal (the module is not loaded there).
-- The rename editor uses a fullscreen overlay layer (needed for keyboard focus).
+- The rename editor and both modals use fullscreen overlay layers (needed for keyboard
+  focus).
+- Compress follows symlinks: the archive stores the link target's contents.
 
 ## Uninstall
 
