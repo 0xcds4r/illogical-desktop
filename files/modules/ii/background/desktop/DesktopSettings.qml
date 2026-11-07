@@ -6,6 +6,7 @@ import qs.services
 import qs.modules.common
 import qs.modules.common.widgets
 import qs.modules.common.functions
+import qs.modules.ii.background.desktop
 
 // Modal desktop settings. Opened from the desktop context menu.
 PanelWindow {
@@ -30,7 +31,7 @@ PanelWindow {
         right: true
     }
 
-    readonly property var cfg: Config.options.background.desktopIcons
+    readonly property var cfg: DesktopConfig
     readonly property int cardWidth: Math.min(1000, width - 80)
     readonly property int cardMaxHeight: height - 100
 
