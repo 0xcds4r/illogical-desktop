@@ -147,6 +147,13 @@ Item {
              : "transparent"
         border.width: root.isDropTarget ? 1 : 0
         border.color: root.container.selectionColorValue
+
+        Behavior on color {
+            ColorAnimation {
+                duration: 90
+                easing.type: Easing.OutCubic
+            }
+        }
     }
 
     Item {
