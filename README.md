@@ -26,6 +26,7 @@ desktop-entry aware icons/launching.
   Move to Trash, Properties.
 - Context menu on the desktop: New Folder, New File, Paste, Select all, Arrange icons,
   Refresh, Desktop settings, Open terminal.
+- Menus size themselves to the longest label, so longer translations are never cut off.
 - Arrange: by name, by type, by size, by date modified; auto arrange; grid direction;
   snap to grid; reset positions.
 - Clipboard: `Ctrl+C` / `Ctrl+X` / `Ctrl+V` (copies get `name (copy).ext`).
@@ -72,6 +73,10 @@ Right-click the desktop → **Desktop settings**. Everything applies live, split
   desktop does not dismiss it).
 
 ![settings](assets/settings.jpg)
+
+Language tab:
+
+![language](assets/language.jpg)
 
 ## Context menus
 
