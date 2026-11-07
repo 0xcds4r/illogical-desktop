@@ -40,8 +40,8 @@ desktop-entry aware icons/launching.
 
 Right-click the desktop → **Desktop settings**. Everything applies live:
 
-- **General**: show icons, show on all screens, show icon labels, remember positions,
-  auto arrange, snap to grid.
+- **General**: show icons, show on all screens (multi-monitor), show icon labels,
+  remember positions, auto arrange, snap to grid.
 - **Grid**: direction (columns/rows), cell width, cell height, margin.
 - **Colors**: icon selection color and opacity, text color, selection rectangle
   (rubber band) color and opacity. Each color has presets and a HEX field. The
@@ -105,6 +105,9 @@ Settings live in `~/.config/illogical-impulse/config.json`:
 }
 ```
 
+- `showOnAllScreens`: load the desktop on every monitor. With a single monitor it has
+  no visible effect (icons always show there); with several, each screen gets its own
+  grid and its own saved positions.
 - `gridMode`: `"columns"` (top to bottom, then next column) or `"rows"`.
 - `snapToGrid`: align positions to cells; dropping onto an occupied cell swaps icons.
 - `autoArrange`: always use the automatic grid (drops do not persist).
@@ -129,6 +132,8 @@ install.sh                             installer
 - Clipboard is internal to the shell; dragging files in from a file manager or out to
   another app is not implemented (Wayland layer-shell data devices).
 - Rubber-band selection works on the desktop surface only.
+- With `showOnAllScreens` off, secondary monitors have no desktop context menu or
+  settings modal (the module is not loaded there).
 - The rename editor uses a fullscreen overlay layer (needed for keyboard focus).
 
 ## Uninstall
