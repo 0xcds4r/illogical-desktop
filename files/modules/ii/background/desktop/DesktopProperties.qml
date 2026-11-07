@@ -6,6 +6,7 @@ import Quickshell.Wayland
 import qs.services
 import qs.modules.common
 import qs.modules.common.widgets
+import qs.modules.ii.background.desktop
 
 // File/folder properties dialog, opened from the icon context menu.
 PanelWindow {
@@ -53,7 +54,12 @@ PanelWindow {
             const parts = line.split("\t");
             if (parts.length < 2)
                 continue;
-            rows.push({ label: parts[0], value: parts.slice(1).join("\t") });
+            const label = parts[0];
+            const value = parts.slice(1).join("\t");
+            rows.push({
+                label: DesktopTranslation.tr(label),
+                value: label === "Type" ? DesktopTranslation.tr(value) : value
+            });
         }
         root.infoRows = rows;
     }
@@ -99,7 +105,7 @@ PanelWindow {
                 }
                 StyledText {
                     Layout.fillWidth: true
-                    text: Translation.tr("Properties")
+                    text: DesktopTranslation.tr("Properties")
                     font.pixelSize: Appearance.font.pixelSize.large
                     font.weight: Font.DemiBold
                     color: Appearance.colors.colOnLayer1
@@ -174,7 +180,7 @@ PanelWindow {
 
                 StyledText {
                     anchors.centerIn: parent
-                    text: Translation.tr("Done")
+                    text: DesktopTranslation.tr("Done")
                     color: Appearance.colors.colOnLayer1
                 }
 

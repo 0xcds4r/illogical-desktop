@@ -164,7 +164,7 @@ PanelWindow {
                 }
                 StyledText {
                     Layout.fillWidth: true
-                    text: Translation.tr("Desktop settings")
+                    text: DesktopTranslation.tr("Desktop settings")
                     font.pixelSize: Appearance.font.pixelSize.large
                     font.weight: Font.DemiBold
                     color: Appearance.colors.colOnLayer1
@@ -196,10 +196,11 @@ PanelWindow {
                 Layout.fillWidth: true
                 currentValue: root.settingsTab
                 options: [
-                    { displayName: Translation.tr("General"), icon: "tune", value: 0 },
-                    { displayName: Translation.tr("Grid"), icon: "grid_view", value: 1 },
-                    { displayName: Translation.tr("Colors"), icon: "palette", value: 2 },
-                    { displayName: Translation.tr("Arrange"), icon: "sort", value: 3 }
+                    { displayName: DesktopTranslation.tr("General"), icon: "tune", value: 0 },
+                    { displayName: DesktopTranslation.tr("Grid"), icon: "grid_view", value: 1 },
+                    { displayName: DesktopTranslation.tr("Colors"), icon: "palette", value: 2 },
+                    { displayName: DesktopTranslation.tr("Arrange"), icon: "sort", value: 3 },
+                    { displayName: DesktopTranslation.tr("Language"), icon: "translate", value: 4 }
                 ]
                 onSelected: newValue => root.settingsTab = newValue
             }
@@ -224,35 +225,35 @@ PanelWindow {
 
                         ConfigSwitch {
                             buttonIcon: "desktop_windows"
-                            text: Translation.tr("Show desktop icons")
+                            text: DesktopTranslation.tr("Show desktop icons")
                             checked: root.cfg.enable
                             onCheckedChanged: root.cfg.enable = checked
                         }
 
                         ConfigSwitch {
                             buttonIcon: "branding_watermark"
-                            text: Translation.tr("Show on all screens")
+                            text: DesktopTranslation.tr("Show on all screens")
                             checked: root.cfg.showOnAllScreens
                             onCheckedChanged: root.cfg.showOnAllScreens = checked
                         }
 
                         ConfigSwitch {
                             buttonIcon: "label"
-                            text: Translation.tr("Show icon labels")
+                            text: DesktopTranslation.tr("Show icon labels")
                             checked: root.cfg.showLabels
                             onCheckedChanged: root.cfg.showLabels = checked
                         }
 
                         ConfigSwitch {
                             buttonIcon: "save"
-                            text: Translation.tr("Remember positions")
+                            text: DesktopTranslation.tr("Remember positions")
                             checked: root.cfg.persistPositions
                             onCheckedChanged: root.cfg.persistPositions = checked
                         }
 
                         ConfigSwitch {
                             buttonIcon: "grid_on"
-                            text: Translation.tr("Auto arrange")
+                            text: DesktopTranslation.tr("Auto arrange")
                             checked: root.cfg.autoArrange
                             onCheckedChanged: {
                                 root.cfg.autoArrange = checked;
@@ -263,7 +264,7 @@ PanelWindow {
 
                         ConfigSwitch {
                             buttonIcon: "grid_4x4"
-                            text: Translation.tr("Snap to grid")
+                            text: DesktopTranslation.tr("Snap to grid")
                             checked: root.cfg.snapToGrid
                             onCheckedChanged: root.cfg.snapToGrid = checked
                         }
@@ -281,7 +282,7 @@ PanelWindow {
 
                             StyledText {
                                 Layout.preferredWidth: 200
-                                text: Translation.tr("Direction")
+                                text: DesktopTranslation.tr("Direction")
                                 color: Appearance.colors.colOnSecondaryContainer
                             }
 
@@ -289,8 +290,8 @@ PanelWindow {
                                 Layout.fillWidth: true
                                 currentValue: root.cfg.gridMode
                                 options: [
-                                    { displayName: Translation.tr("Columns"), icon: "view_column", value: "columns" },
-                                    { displayName: Translation.tr("Rows"), icon: "view_stream", value: "rows" }
+                                    { displayName: DesktopTranslation.tr("Columns"), icon: "view_column", value: "columns" },
+                                    { displayName: DesktopTranslation.tr("Rows"), icon: "view_stream", value: "rows" }
                                 ]
                                 onSelected: newValue => {
                                     root.cfg.gridMode = newValue;
@@ -301,7 +302,7 @@ PanelWindow {
 
                         ConfigSlider {
                             Layout.fillWidth: true
-                            text: Translation.tr("Cell width")
+                            text: DesktopTranslation.tr("Cell width")
                             buttonIcon: "width"
                             usePercentTooltip: false
                             from: 64
@@ -315,7 +316,7 @@ PanelWindow {
 
                         ConfigSlider {
                             Layout.fillWidth: true
-                            text: Translation.tr("Cell height")
+                            text: DesktopTranslation.tr("Cell height")
                             buttonIcon: "height"
                             usePercentTooltip: false
                             from: 64
@@ -329,7 +330,7 @@ PanelWindow {
 
                         ConfigSlider {
                             Layout.fillWidth: true
-                            text: Translation.tr("Margin")
+                            text: DesktopTranslation.tr("Margin")
                             buttonIcon: "border_outer"
                             usePercentTooltip: false
                             from: 8
@@ -349,7 +350,7 @@ PanelWindow {
                         spacing: 6
 
                         ColorRow {
-                            label: Translation.tr("Icon selection color")
+                            label: DesktopTranslation.tr("Icon selection color")
                             value: root.cfg.selectionColor
                             onChanged: newValue => {
                                 const previous = root.cfg.selectionColor;
@@ -362,7 +363,7 @@ PanelWindow {
 
                         ConfigSlider {
                             Layout.fillWidth: true
-                            text: Translation.tr("Icon selection opacity")
+                            text: DesktopTranslation.tr("Icon selection opacity")
                             textWidth: 200
                             buttonIcon: "opacity"
                             usePercentTooltip: true
@@ -373,20 +374,20 @@ PanelWindow {
                         }
 
                         ColorRow {
-                            label: Translation.tr("Text color")
+                            label: DesktopTranslation.tr("Text color")
                             value: root.cfg.textColor
                             onChanged: newValue => root.cfg.textColor = newValue
                         }
 
                         ColorRow {
-                            label: Translation.tr("Selection rectangle color")
+                            label: DesktopTranslation.tr("Selection rectangle color")
                             value: root.cfg.bandColor
                             onChanged: newValue => root.cfg.bandColor = newValue
                         }
 
                         ConfigSlider {
                             Layout.fillWidth: true
-                            text: Translation.tr("Selection rectangle opacity")
+                            text: DesktopTranslation.tr("Selection rectangle opacity")
                             textWidth: 200
                             buttonIcon: "opacity"
                             usePercentTooltip: true
@@ -404,7 +405,7 @@ PanelWindow {
                         spacing: 6
 
                         ActionButton {
-                            label: Translation.tr("Arrange by name")
+                            label: DesktopTranslation.tr("Arrange by name")
                             icon: "sort_by_alpha"
                             onActivated: {
                                 root.desktop.arrangeIcons("name");
@@ -413,7 +414,7 @@ PanelWindow {
                         }
 
                         ActionButton {
-                            label: Translation.tr("Arrange by type")
+                            label: DesktopTranslation.tr("Arrange by type")
                             icon: "category"
                             onActivated: {
                                 root.desktop.arrangeIcons("type");
@@ -422,7 +423,7 @@ PanelWindow {
                         }
 
                         ActionButton {
-                            label: Translation.tr("Arrange by size")
+                            label: DesktopTranslation.tr("Arrange by size")
                             icon: "data_usage"
                             onActivated: {
                                 root.desktop.arrangeIcons("size");
@@ -431,7 +432,7 @@ PanelWindow {
                         }
 
                         ActionButton {
-                            label: Translation.tr("Arrange by date modified")
+                            label: DesktopTranslation.tr("Arrange by date modified")
                             icon: "schedule"
                             onActivated: {
                                 root.desktop.arrangeIcons("date");
@@ -440,16 +441,41 @@ PanelWindow {
                         }
 
                         ActionButton {
-                            label: Translation.tr("Reset positions")
+                            label: DesktopTranslation.tr("Reset positions")
                             icon: "restart_alt"
                             onActivated: root.desktop.resetPositions()
+                        }
+                    }
+
+                    // ----------------------------------------------------- Language
+                    ColumnLayout {
+                        visible: root.settingsTab === 4
+                        Layout.fillWidth: true
+                        spacing: 8
+
+                        StyledText {
+                            text: DesktopTranslation.tr("Language")
+                            font.pixelSize: Appearance.font.pixelSize.small
+                            font.weight: Font.DemiBold
+                            color: Appearance.colors.colPrimary
+                        }
+
+                        ConfigSelectionArray {
+                            Layout.fillWidth: true
+                            currentValue: DesktopConfig.language
+                            options: DesktopTranslation.languageOptions.map(option => ({
+                                displayName: option.name,
+                                icon: "translate",
+                                value: option.code
+                            }))
+                            onSelected: newValue => DesktopConfig.language = newValue
                         }
                     }
                 }
             }
 
             ActionButton {
-                label: Translation.tr("Done")
+                label: DesktopTranslation.tr("Done")
                 icon: "check"
                 onActivated: root.dismissed()
             }
