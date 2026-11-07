@@ -253,6 +253,13 @@ PanelWindow {
 
                         ConfigSwitch {
                             buttonIcon: "delete"
+                            text: DesktopTranslation.tr("Show trash icon")
+                            checked: root.cfg.showTrash
+                            onCheckedChanged: root.cfg.showTrash = checked
+                        }
+
+                        ConfigSwitch {
+                            buttonIcon: "delete"
                             text: DesktopTranslation.tr("Confirm before deleting")
                             checked: root.cfg.confirmDelete
                             onCheckedChanged: root.cfg.confirmDelete = checked

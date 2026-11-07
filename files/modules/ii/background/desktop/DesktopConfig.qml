@@ -25,6 +25,7 @@ Singleton {
     property alias margin: adapter.margin
     property alias folder: adapter.folder
     property alias confirmDelete: adapter.confirmDelete
+    property alias showTrash: adapter.showTrash
     property alias selectionColor: adapter.selectionColor
     property alias selectionOpacity: adapter.selectionOpacity
     property alias textColor: adapter.textColor
@@ -72,6 +73,7 @@ Singleton {
             property int margin: 24
             property string folder: ""
             property bool confirmDelete: false
+            property bool showTrash: true
             property string selectionColor: "#4A90D9"
             property real selectionOpacity: 0.35
             property string textColor: "#FFFFFF"

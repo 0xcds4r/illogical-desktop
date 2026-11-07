@@ -1461,7 +1461,7 @@ Item {
         }
         width: 64
         height: 64
-        visible: root.cfg.enable
+        visible: root.cfg.enable && root.cfg.showTrash
         z: 400
 
         Rectangle {

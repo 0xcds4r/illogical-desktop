@@ -35,8 +35,8 @@ desktop-entry aware icons/launching.
 - **Create link** makes a symlink (`name (link).ext`); **Compress** offers ZIP
   (fast/normal/max) and tar.gz; **Properties** shows type, MIME, size, dates,
   permissions and owner.
-- **Empty Trash** shortcut with a live item count in the bottom-right corner.
-  Right-click it to open or empty the trash.
+- **Empty Trash** shortcut with a live item count in the bottom-right corner
+  (can be hidden in settings). Right-click it to open or empty the trash.
 - **Quick look** (`Space`): images, text files, and thumbnails for video/PDF.
 - File badges: symlink, executable and read-only markers on the icon.
 - **Video and PDF thumbnails** (needs `ffmpeg` / `pdftoppm`).
@@ -164,7 +164,8 @@ The add-on keeps its settings in its own file,
     "bandOpacity": 0.18,
     "language": "en",
     "folder": "",
-    "confirmDelete": false
+    "confirmDelete": false,
+    "showTrash": true
 }
 ```
 
@@ -182,6 +183,7 @@ The add-on keeps its settings in its own file,
   `es`, `ja`, `zh`, `ko`). The shell language is not changed.
 - `folder`: custom folder to show instead of `~/Desktop` (empty means `~/Desktop`).
 - `confirmDelete`: ask before moving the selection to trash.
+- `showTrash`: show the trash shortcut in the bottom-right corner.
 - Icon positions are stored in `~/.local/state/quickshell/user/desktop-positions.json`.
 - Older installs migrated automatically from `config.json` / `states.json` on first run.
 
