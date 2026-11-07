@@ -19,6 +19,9 @@ desktop-entry aware icons/launching.
 - Drag an icon onto a folder to move it there (with groups).
 - `Snap to grid`: dropped icons align to cells and swap with the occupant instead of
   overlapping.
+- `Ctrl+wheel` zooms the grid; snapped positions are re-aligned to the new cell size,
+  with overlaps resolved to free cells. Changing cell size or margin in the settings
+  modal behaves the same way.
 - Context menu on icons: Open, Open with, Rename, Copy, Cut, Move to Trash.
 - Context menu on the desktop: New Folder, New File, Paste, Select all, Arrange icons,
   Refresh, Desktop settings, Open terminal.
