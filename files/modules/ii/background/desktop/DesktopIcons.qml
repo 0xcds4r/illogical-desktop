@@ -1504,7 +1504,7 @@ Item {
             anchors.fill: parent
             hoverEnabled: true
             acceptedButtons: Qt.LeftButton | Qt.RightButton
-            onDoubleClicked: Quickshell.execDetached(["xdg-open", "trash://"])
+            onDoubleClicked: DesktopFileOps.openTrash()
             onPressed: event => {
                 if (event.button !== Qt.RightButton)
                     return;
@@ -1513,7 +1513,7 @@ Item {
                 root.lastMenuY = point.y;
                 menu.openAt(point.x, point.y, [
                     { label: DesktopTranslation.tr("Open Trash"), icon: "folder_open",
-                      action: () => Quickshell.execDetached(["xdg-open", "trash://"]) },
+                      action: () => DesktopFileOps.openTrash() },
                     { label: DesktopTranslation.tr("Empty Trash"), icon: "delete_forever",
                       enabled: root.trashCount > 0, action: () => root.emptyTrash() }
                 ]);
