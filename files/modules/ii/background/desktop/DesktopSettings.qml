@@ -288,7 +288,10 @@ PanelWindow {
                         from: 64
                         to: 220
                         value: root.cfg.cellWidth
-                        onValueChanged: root.cfg.cellWidth = Math.round(value)
+                        onValueChanged: {
+                            root.cfg.cellWidth = Math.round(value);
+                            root.desktop.resnapPositions();
+                        }
                     }
 
                     ConfigSlider {
@@ -299,7 +302,10 @@ PanelWindow {
                         from: 64
                         to: 240
                         value: root.cfg.cellHeight
-                        onValueChanged: root.cfg.cellHeight = Math.round(value)
+                        onValueChanged: {
+                            root.cfg.cellHeight = Math.round(value);
+                            root.desktop.resnapPositions();
+                        }
                     }
 
                     ConfigSlider {
@@ -310,7 +316,10 @@ PanelWindow {
                         from: 8
                         to: 64
                         value: root.cfg.margin
-                        onValueChanged: root.cfg.margin = Math.round(value)
+                        onValueChanged: {
+                            root.cfg.margin = Math.round(value);
+                            root.desktop.resnapPositions();
+                        }
                     }
 
                     SectionLabel { text: Translation.tr("Colors") }

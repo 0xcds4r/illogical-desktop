@@ -464,10 +464,72 @@ Item {
             DesktopFileOps.open(path);
     }
 
+    function cellIndexFor(column, row) {
+        if (root.cfg.gridMode === "rows") {
+            const usableWidth = Math.max(root.cellWidthValue, root.width - root.leftMargin * 2);
+            const perRow = Math.max(1, Math.floor(usableWidth / root.cellWidthValue));
+            return row * perRow + column;
+        }
+        const usableHeight = Math.max(root.cellHeightValue, root.height - root.topMargin - root.leftMargin);
+        const perColumn = Math.max(1, Math.floor(usableHeight / root.cellHeightValue));
+        return column * perColumn + row;
+    }
+
+    function findFreeCell(position, occupied) {
+        const column = Math.max(0, Math.round((position.x - root.leftMargin) / root.cellWidthValue));
+        const row = Math.max(0, Math.round((position.y - root.topMargin) / root.cellHeightValue));
+        const start = Math.max(0, root.cellIndexFor(column, row));
+        for (let index = start; index < start + 800; index++) {
+            const cell = root.cellAt(index);
+            if (!occupied[root.cellKey(cell)])
+                return cell;
+        }
+        return root.cellAt(start);
+    }
+
+    // Re-align explicit positions to the current cell size. Used after zooming or
+    // changing cell dimensions, so snapping never produces overlaps.
+    function resnapPositions() {
+        if (!root.cfg.snapToGrid)
+            return;
+        const pinnedNames = Object.keys(root.positions);
+        if (pinnedNames.length === 0)
+            return;
+
+        const occupied = {};
+        const next = {};
+        const ordered = [];
+        for (let i = 0; i < folderModel.count; i++) {
+            const name = String(folderModel.get(i, "fileName"));
+            if (root.positions[name])
+                ordered.push(name);
+        }
+        for (const name of pinnedNames) {
+            if (!ordered.includes(name))
+                ordered.push(name);
+        }
+
+        for (const name of ordered) {
+            const cell = root.findFreeCell(
+                root.snapPosition(root.positions[name].x, root.positions[name].y), occupied);
+            next[name] = cell;
+            occupied[root.cellKey(cell)] = true;
+        }
+
+        root.positions = next;
+        root.savePositions();
+    }
+
     function setZoom(cellWidth) {
-        const width = Math.max(64, Math.min(160, Math.round(cellWidth)));
+        const previousWidth = root.cellWidthValue;
+        const previousHeight = root.cellHeightValue;
+        const width = Math.max(64, Math.min(220, Math.round(cellWidth)));
+        if (width === previousWidth)
+            return;
+        const height = Math.max(64, Math.min(240, Math.round(previousHeight * width / previousWidth)));
         root.cfg.cellWidth = width;
-        root.cfg.cellHeight = Math.round(width * 104 / 96);
+        root.cfg.cellHeight = height;
+        root.resnapPositions();
     }
 
     // ------------------------------------------------------------- clipboard
@@ -843,16 +905,8 @@ Item {
 
     function toggleSnapToGrid() {
         root.cfg.snapToGrid = !root.cfg.snapToGrid;
-        if (root.cfg.snapToGrid) {
-            // Align existing free positions to the grid.
-            const map = {};
-            for (const name of Object.keys(root.positions)) {
-                const position = root.positions[name];
-                map[name] = root.snapPosition(position.x, position.y);
-            }
-            root.positions = map;
-            root.savePositions();
-        }
+        if (root.cfg.snapToGrid)
+            root.resnapPositions();
     }
 
     function openArrangeMenu() {
