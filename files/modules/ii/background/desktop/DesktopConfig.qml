@@ -28,6 +28,7 @@ Singleton {
     property alias textColor: adapter.textColor
     property alias bandColor: adapter.bandColor
     property alias bandOpacity: adapter.bandOpacity
+    property alias language: adapter.language
 
     Timer {
         id: writeTimer
@@ -72,6 +73,7 @@ Singleton {
             property string textColor: "#FFFFFF"
             property string bandColor: "#4A90D9"
             property real bandOpacity: 0.18
+            property string language: "en"
         }
     }
 }

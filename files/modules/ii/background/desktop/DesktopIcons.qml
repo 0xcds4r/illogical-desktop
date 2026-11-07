@@ -625,7 +625,7 @@ Item {
             const dot = name.lastIndexOf(".");
             base = dot > 0 ? name.substring(0, dot) : name;
         } else {
-            base = Translation.tr("Archive");
+            base = DesktopTranslation.tr("Archive");
         }
         const archive = root.uniqueArchiveName(base);
         DesktopFileOps.compress(`${root.desktopFolderPath}/${archive}`, root.desktopFolderPath, names);
@@ -802,7 +802,7 @@ Item {
     // --------------------------------------------------------------- actions
 
     function createFolder() {
-        const name = root.uniqueName(Translation.tr("New Folder"));
+        const name = root.uniqueName(DesktopTranslation.tr("New Folder"));
         const path = `${root.desktopFolderPath}/${name}`;
         DesktopFileOps.newFolder(root.desktopFolderPath, name);
         pendingRenameTimer.pendingPath = path;
@@ -812,7 +812,7 @@ Item {
     }
 
     function createFile() {
-        const name = root.uniqueName(Translation.tr("New File"));
+        const name = root.uniqueName(DesktopTranslation.tr("New File"));
         const path = `${root.desktopFolderPath}/${name}`;
         DesktopFileOps.newFile(root.desktopFolderPath, name);
         pendingRenameTimer.pendingPath = path;
@@ -912,7 +912,7 @@ Item {
     function showOpenWith(output) {
         const targetPath = root.openWithPath;
         const items = [
-            { label: Translation.tr("Open with"), icon: "open_in_new", enabled: false },
+            { label: DesktopTranslation.tr("Open with"), icon: "open_in_new", enabled: false },
             { separator: true }
         ];
         for (const line of String(output).split("\n")) {
@@ -935,7 +935,7 @@ Item {
             });
         }
         if (items.length === 2)
-            items.push({ label: Translation.tr("No applications found"), icon: "error", enabled: false });
+            items.push({ label: DesktopTranslation.tr("No applications found"), icon: "error", enabled: false });
         menu.openAt(root.lastMenuX, root.lastMenuY, items);
     }
 
@@ -943,27 +943,27 @@ Item {
         const multiple = root.selectedCount > 1;
         const paths = multiple ? root.selectedPaths() : [path];
         return [
-            { label: Translation.tr("Open"), icon: "open_in_new", action: () => {
+            { label: DesktopTranslation.tr("Open"), icon: "open_in_new", action: () => {
                 for (const target of paths)
                     root.openPath(target);
             } },
-            { label: Translation.tr("Open with"), icon: "apps", enabled: !multiple,
+            { label: DesktopTranslation.tr("Open with"), icon: "apps", enabled: !multiple,
               action: () => root.openWith(name, path) },
             { separator: true },
-            { label: Translation.tr("Rename"), icon: "edit", enabled: !multiple,
+            { label: DesktopTranslation.tr("Rename"), icon: "edit", enabled: !multiple,
               action: () => root.startRename(name, path) },
-            { label: Translation.tr("Copy"), icon: "content_copy",
+            { label: DesktopTranslation.tr("Copy"), icon: "content_copy",
               action: () => DesktopFileOps.copy(paths) },
-            { label: Translation.tr("Cut"), icon: "content_cut",
+            { label: DesktopTranslation.tr("Cut"), icon: "content_cut",
               action: () => DesktopFileOps.cut(paths) },
-            { label: Translation.tr("Create link"), icon: "link",
+            { label: DesktopTranslation.tr("Create link"), icon: "link",
               action: () => root.createLinkSelected() },
-            { label: Translation.tr("Compress"), icon: "archive",
+            { label: DesktopTranslation.tr("Compress"), icon: "archive",
               action: () => root.compressSelected() },
             { separator: true },
-            { label: Translation.tr("Move to Trash"), icon: "delete", action: () => root.trashSelected() },
+            { label: DesktopTranslation.tr("Move to Trash"), icon: "delete", action: () => root.trashSelected() },
             { separator: true },
-            { label: Translation.tr("Properties"), icon: "info", enabled: !multiple,
+            { label: DesktopTranslation.tr("Properties"), icon: "info", enabled: !multiple,
               action: () => root.openProperties(path) }
         ];
     }
@@ -992,20 +992,20 @@ Item {
 
     function openArrangeMenu() {
         const items = [
-            { label: Translation.tr("Arrange icons"), icon: "grid_view", enabled: false },
+            { label: DesktopTranslation.tr("Arrange icons"), icon: "grid_view", enabled: false },
             { separator: true },
-            { label: Translation.tr("By name (A-Z)"), icon: "sort_by_alpha", action: () => root.arrangeIcons("name") },
-            { label: Translation.tr("By type"), icon: "category", action: () => root.arrangeIcons("type") },
-            { label: Translation.tr("By size"), icon: "data_usage", action: () => root.arrangeIcons("size") },
-            { label: Translation.tr("By date modified"), icon: "schedule", action: () => root.arrangeIcons("date") },
+            { label: DesktopTranslation.tr("By name (A-Z)"), icon: "sort_by_alpha", action: () => root.arrangeIcons("name") },
+            { label: DesktopTranslation.tr("By type"), icon: "category", action: () => root.arrangeIcons("type") },
+            { label: DesktopTranslation.tr("By size"), icon: "data_usage", action: () => root.arrangeIcons("size") },
+            { label: DesktopTranslation.tr("By date modified"), icon: "schedule", action: () => root.arrangeIcons("date") },
             { separator: true },
-            { label: root.cfg.autoArrange ? Translation.tr("Auto arrange: on") : Translation.tr("Auto arrange: off"),
+            { label: root.cfg.autoArrange ? DesktopTranslation.tr("Auto arrange: on") : DesktopTranslation.tr("Auto arrange: off"),
               icon: "grid_on", action: () => root.toggleAutoArrange() },
-            { label: root.cfg.gridMode === "columns" ? Translation.tr("Grid: columns") : Translation.tr("Grid: rows"),
+            { label: root.cfg.gridMode === "columns" ? DesktopTranslation.tr("Grid: columns") : DesktopTranslation.tr("Grid: rows"),
               icon: "view_column", action: () => root.toggleGridMode() },
-            { label: root.cfg.snapToGrid ? Translation.tr("Snap to grid: on") : Translation.tr("Snap to grid: off"),
+            { label: root.cfg.snapToGrid ? DesktopTranslation.tr("Snap to grid: on") : DesktopTranslation.tr("Snap to grid: off"),
               icon: "grid_4x4", action: () => root.toggleSnapToGrid() },
-            { label: Translation.tr("Reset positions"), icon: "restart_alt", action: () => root.resetPositions() }
+            { label: DesktopTranslation.tr("Reset positions"), icon: "restart_alt", action: () => root.resetPositions() }
         ];
         menu.openAt(root.lastMenuX, root.lastMenuY, items);
     }
@@ -1047,17 +1047,17 @@ Item {
 
     function desktopMenu() {
         return [
-            { label: Translation.tr("New Folder"), icon: "create_new_folder", action: () => root.createFolder() },
-            { label: Translation.tr("New File"), icon: "note_add", action: () => root.createFile() },
-            { label: Translation.tr("Paste"), icon: "content_paste", enabled: DesktopFileOps.canPaste(),
+            { label: DesktopTranslation.tr("New Folder"), icon: "create_new_folder", action: () => root.createFolder() },
+            { label: DesktopTranslation.tr("New File"), icon: "note_add", action: () => root.createFile() },
+            { label: DesktopTranslation.tr("Paste"), icon: "content_paste", enabled: DesktopFileOps.canPaste(),
               action: () => root.pasteClipboard() },
             { separator: true },
-            { label: Translation.tr("Select all"), icon: "select_all", action: () => root.selectAll() },
-            { label: Translation.tr("Arrange icons"), icon: "grid_view", action: () => root.openArrangeMenu() },
-            { label: Translation.tr("Refresh"), icon: "refresh", action: () => root.refreshWithAnimation() },
+            { label: DesktopTranslation.tr("Select all"), icon: "select_all", action: () => root.selectAll() },
+            { label: DesktopTranslation.tr("Arrange icons"), icon: "grid_view", action: () => root.openArrangeMenu() },
+            { label: DesktopTranslation.tr("Refresh"), icon: "refresh", action: () => root.refreshWithAnimation() },
             { separator: true },
-            { label: Translation.tr("Desktop settings"), icon: "settings", action: () => root.settingsOpen = true },
-            { label: Translation.tr("Open terminal"), icon: "terminal", action: () => root.openTerminal() }
+            { label: DesktopTranslation.tr("Desktop settings"), icon: "settings", action: () => root.settingsOpen = true },
+            { label: DesktopTranslation.tr("Open terminal"), icon: "terminal", action: () => root.openTerminal() }
         ];
     }
 

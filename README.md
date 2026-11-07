@@ -65,6 +65,9 @@ Right-click the desktop → **Desktop settings**. Everything applies live, split
   (rubber band) color and opacity. Each color has presets and a HEX field. The
   rectangle color follows the icon selection color until it is customized separately.
 - **Arrange**: by name/type/size/date, reset positions.
+- **Language**: switches the add-on's language only (English, Russian, Ukrainian,
+  Belarusian, Polish, German, French, Spanish, Japanese, Chinese, Korean). The rest of
+  the shell keeps its own language.
 - **Done** closes the modal (it also closes from the `×` button or `Esc`; clicking the
   desktop does not dismiss it).
 
@@ -137,7 +140,8 @@ The add-on keeps its settings in its own file,
     "selectionOpacity": 0.35,
     "textColor": "#FFFFFF",
     "bandColor": "#4A90D9",
-    "bandOpacity": 0.18
+    "bandOpacity": 0.18,
+    "language": "en"
 }
 ```
 
@@ -151,6 +155,8 @@ The add-on keeps its settings in its own file,
 - `selectionColor` / `selectionOpacity`: icon selection highlight.
 - `textColor`: icon labels.
 - `bandColor` / `bandOpacity`: rubber-band selection rectangle.
+- `language`: language of the add-on UI only (`en`, `ru`, `uk`, `be`, `pl`, `de`, `fr`,
+  `es`, `ja`, `zh`, `ko`). The shell language is not changed.
 - Icon positions are stored in `~/.local/state/quickshell/user/desktop-positions.json`.
 - Older installs migrated automatically from `config.json` / `states.json` on first run.
 
