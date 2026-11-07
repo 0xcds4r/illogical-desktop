@@ -108,6 +108,8 @@ Item {
 
     property bool refreshAnimating: false
     property bool settingsOpen: false
+    property bool propertiesOpen: false
+    property string propertiesPath: ""
     property string openWithPath: ""
     property real lastMenuX: 0
     property real lastMenuY: 0
@@ -442,6 +444,13 @@ Item {
         onTriggered: root.refresh()
     }
 
+    Timer {
+        id: slowRefreshTimer
+        interval: 1500
+        repeat: false
+        onTriggered: root.refresh()
+    }
+
     function scheduleRefresh() {
         autoRefresh.restart();
     }
@@ -546,6 +555,38 @@ Item {
             DesktopFileOps.cut(paths);
     }
 
+    function existingDesktopNames() {
+        const existing = {};
+        for (let i = 0; i < folderModel.count; i++)
+            existing[folderModel.get(i, "fileName")] = true;
+        return existing;
+    }
+
+    function uniqueLinkName(fileName) {
+        const existing = root.existingDesktopNames();
+        const dot = fileName.lastIndexOf(".");
+        const base = dot > 0 ? fileName.substring(0, dot) : fileName;
+        const extension = dot > 0 ? fileName.substring(dot) : "";
+        let candidate = `${base} (link)${extension}`;
+        let counter = 2;
+        while (existing[candidate]) {
+            candidate = `${base} (link ${counter})${extension}`;
+            counter++;
+        }
+        return candidate;
+    }
+
+    function uniqueArchiveName(base) {
+        const existing = root.existingDesktopNames();
+        let candidate = `${base}.zip`;
+        let counter = 2;
+        while (existing[candidate]) {
+            candidate = `${base} (${counter}).zip`;
+            counter++;
+        }
+        return candidate;
+    }
+
     function uniqueCopyName(fileName) {
         const existing = {};
         for (let i = 0; i < folderModel.count; i++)
@@ -561,6 +602,39 @@ Item {
             counter++;
         }
         return candidate;
+    }
+
+    function createLinkSelected() {
+        const names = root.selectedNamesList();
+        for (const name of names) {
+            const path = root.pathForName(name);
+            if (path === "")
+                continue;
+            DesktopFileOps.createLink(path, `${root.desktopFolderPath}/${root.uniqueLinkName(name)}`);
+        }
+        root.scheduleRefresh();
+    }
+
+    function compressSelected() {
+        const names = root.selectedNamesList();
+        if (names.length === 0)
+            return;
+        let base;
+        if (names.length === 1) {
+            const name = names[0];
+            const dot = name.lastIndexOf(".");
+            base = dot > 0 ? name.substring(0, dot) : name;
+        } else {
+            base = Translation.tr("Archive");
+        }
+        const archive = root.uniqueArchiveName(base);
+        DesktopFileOps.compress(`${root.desktopFolderPath}/${archive}`, root.desktopFolderPath, names);
+        slowRefreshTimer.restart();
+    }
+
+    function openProperties(path) {
+        root.propertiesPath = path;
+        root.propertiesOpen = true;
     }
 
     function pasteClipboard() {
@@ -882,8 +956,15 @@ Item {
               action: () => DesktopFileOps.copy(paths) },
             { label: Translation.tr("Cut"), icon: "content_cut",
               action: () => DesktopFileOps.cut(paths) },
+            { label: Translation.tr("Create link"), icon: "link",
+              action: () => root.createLinkSelected() },
+            { label: Translation.tr("Compress"), icon: "archive",
+              action: () => root.compressSelected() },
             { separator: true },
-            { label: Translation.tr("Move to Trash"), icon: "delete", action: () => root.trashSelected() }
+            { label: Translation.tr("Move to Trash"), icon: "delete", action: () => root.trashSelected() },
+            { separator: true },
+            { label: Translation.tr("Properties"), icon: "info", enabled: !multiple,
+              action: () => root.openProperties(path) }
         ];
     }
 
@@ -1121,6 +1202,17 @@ Item {
         sourceComponent: DesktopSettings {
             desktop: root
             onDismissed: root.settingsOpen = false
+        }
+    }
+
+    Loader {
+        id: propertiesLoader
+        active: root.propertiesOpen
+
+        sourceComponent: DesktopProperties {
+            desktop: root
+            filePath: root.propertiesPath
+            onDismissed: root.propertiesOpen = false
         }
     }
 

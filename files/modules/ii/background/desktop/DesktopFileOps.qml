@@ -74,6 +74,18 @@ Singleton {
         Quickshell.execDetached(["touch", "--", `${parentDir}/${name}`]);
     }
 
+    function createLink(source, destination) {
+        Quickshell.execDetached(["ln", "-s", "--", source, destination]);
+    }
+
+    function compress(destination, parentDir, names) {
+        const script = 'cd "$1" || exit 1; dest="$2"; shift 2; zip -r "$dest" -- "$@"';
+        const args = ["bash", "-c", script, "compress", parentDir, destination];
+        for (const name of names)
+            args.push(name);
+        Quickshell.execDetached(args);
+    }
+
     function launchDesktopFile(path) {
         Quickshell.execDetached(["gio", "launch", path]);
     }

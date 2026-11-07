@@ -22,12 +22,15 @@ desktop-entry aware icons/launching.
 - `Ctrl+wheel` zooms the grid; snapped positions are re-aligned to the new cell size,
   with overlaps resolved to free cells. Changing cell size or margin in the settings
   modal behaves the same way.
-- Context menu on icons: Open, Open with, Rename, Copy, Cut, Move to Trash.
+- Context menu on icons: Open, Open with, Rename, Copy, Cut, Create link, Compress,
+  Move to Trash, Properties.
 - Context menu on the desktop: New Folder, New File, Paste, Select all, Arrange icons,
   Refresh, Desktop settings, Open terminal.
 - Arrange: by name, by type, by size, by date modified; auto arrange; grid direction;
   snap to grid; reset positions.
 - Clipboard: `Ctrl+C` / `Ctrl+X` / `Ctrl+V` (copies get `name (copy).ext`).
+- **Create link** makes a symlink (`name (link).ext`), **Compress** packs the selection into
+  a `.zip`, **Properties** shows type, MIME, size, dates, permissions and owner.
 - `Delete` moves the selection to trash, `F2` renames, `F5` refreshes.
 - `.desktop` entries show their real `Name=` and `Icon=` and are launched with
   `gio launch` (so `Exec`, `Terminal`, placeholders work).
