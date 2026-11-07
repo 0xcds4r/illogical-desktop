@@ -35,7 +35,7 @@ Item {
         return root.withAlpha(root.bandColorValue, alpha);
     }
 
-    readonly property var cfg: Config.options.background.desktopIcons
+    readonly property var cfg: DesktopConfig
     readonly property int cellWidthValue: cfg.cellWidth
     readonly property int cellHeightValue: cfg.cellHeight
     readonly property int leftMargin: cfg.margin
@@ -168,9 +168,9 @@ Item {
     }
 
     Connections {
-        target: Persistent
+        target: DesktopPositions
         function onReadyChanged() {
-            if (Persistent.ready)
+            if (DesktopPositions.ready)
                 root.loadPositions();
         }
     }
@@ -347,7 +347,7 @@ Item {
 
     function loadPositions() {
         if (!root.cfg.persistPositions) return;
-        const list = Persistent.states.desktop?.iconPositions ?? [];
+        const list = DesktopPositions.iconPositions;
         const map = {};
         for (const entry of list) {
             const parts = String(entry).split("\t");
@@ -359,11 +359,11 @@ Item {
 
     function savePositions() {
         if (!root.cfg.persistPositions) return;
-        const existing = Persistent.states.desktop?.iconPositions ?? [];
+        const existing = DesktopPositions.iconPositions;
         const others = existing.filter(entry => String(entry).split("\t")[0] !== root.screenName);
         const mine = Object.keys(root.positions).map(name =>
             `${root.screenName}\t${name}\t${Math.round(root.positions[name].x)}\t${Math.round(root.positions[name].y)}`);
-        Persistent.states.desktop.iconPositions = others.concat(mine);
+        DesktopPositions.iconPositions = others.concat(mine);
     }
 
     function removePosition(name) {

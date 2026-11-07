@@ -102,9 +102,10 @@ cd illogical-desktop
 pkill -x qs; setsid -f qs -c ii
 ```
 
-`install.sh` copies the new files and applies three small patches to
-`Background.qml`, `Config.qml` and `Persistent.qml`. Pass a path as the first
-argument for a non-default config location.
+`install.sh` copies the module and scripts, writes the add-on's own settings/state
+files (migrating values from older installs), and injects a single `Loader` into
+`Background.qml` using structural anchors. It is idempotent: running it again does
+nothing. Pass a path as the first argument for a non-default config location.
 
 Manual install:
 
@@ -112,15 +113,16 @@ Manual install:
    `~/.config/quickshell/ii/modules/ii/background/desktop/`.
 2. Copy `files/scripts/desktop-*.sh` into `~/.config/quickshell/ii/scripts/` and
    `chmod +x` them.
-3. Apply `patches/*.patch` with `patch -p1` from the ii config directory.
+3. Add `import qs.modules.ii.background.desktop` to `Background.qml` and insert the
+   `Loader` block from `install.sh` before `WidgetCanvas`.
 
 ## Configuration
 
-Settings live in `~/.config/illogical-impulse/config.json`:
+The add-on keeps its settings in its own file,
+`~/.config/illogical-impulse/desktop-icons.json` (not in the shell's `config.json`):
 
 ```json
-"background": {
-  "desktopIcons": {
+{
     "enable": true,
     "showOnAllScreens": false,
     "showLabels": true,
@@ -136,7 +138,6 @@ Settings live in `~/.config/illogical-impulse/config.json`:
     "textColor": "#FFFFFF",
     "bandColor": "#4A90D9",
     "bandOpacity": 0.18
-  }
 }
 ```
 
@@ -150,8 +151,8 @@ Settings live in `~/.config/illogical-impulse/config.json`:
 - `selectionColor` / `selectionOpacity`: icon selection highlight.
 - `textColor`: icon labels.
 - `bandColor` / `bandOpacity`: rubber-band selection rectangle.
-- Icon positions are stored in `~/.local/state/quickshell/states.json` under
-  `desktop.iconPositions`.
+- Icon positions are stored in `~/.local/state/quickshell/user/desktop-positions.json`.
+- Older installs migrated automatically from `config.json` / `states.json` on first run.
 
 ## Repository layout
 
@@ -164,14 +165,29 @@ files/modules/ii/background/desktop/
   DesktopSettings.qml     settings modal
   DesktopProperties.qml   properties modal
   DesktopIconCache.qml    metadata cache for smooth refreshes
+  DesktopConfig.qml       own settings file
+  DesktopPositions.qml    own icon-position state file
 files/scripts/
   desktop-open.sh         open with the default application
   desktop-open-with.sh    list applications for a file type
   desktop-file-icon.sh    icon from the default application
   desktop-file-props.sh   properties for the Properties dialog
-patches/                  changes to existing ii files
-install.sh                installer
+install.sh                installer (idempotent injection)
+uninstall.sh              removes the module and the injected loader
 ```
+
+## Compatibility with shell updates
+
+The add-on does not modify `Config.qml` or `Persistent.qml`; settings and positions
+live in its own files. The only hook is one `Loader` inserted into `Background.qml`
+before `WidgetCanvas` (plus a keyboard-focus line and an import), so a shell update
+usually cannot break the install: re-running `install.sh` re-copies the module and,
+if upstream changed the file, injects the loader again.
+
+It is not an absolute guarantee: if upstream renames/restructures `Background.qml` so
+that the `WidgetCanvas` anchor no longer exists, the installer stops with a clear
+error instead of corrupting the file. In that case the `Loader` block needs a new
+anchor.
 
 ## Limitations
 
@@ -186,12 +202,14 @@ install.sh                installer
 
 ## Uninstall
 
-Remove `modules/ii/background/desktop/` and `scripts/desktop-*.sh`, then revert the
-patches:
-
 ```bash
-for p in patches/*.patch; do patch -R -p1 -d ~/.config/quickshell/ii < "$p"; done
+./uninstall.sh
+pkill -x qs; setsid -f qs -c ii
 ```
+
+This removes the module, scripts and the injected loader; settings and positions are
+kept (delete `~/.config/illogical-impulse/desktop-icons.json` and
+`~/.local/state/quickshell/user/desktop-positions.json` to reset them).
 
 ## License
 
