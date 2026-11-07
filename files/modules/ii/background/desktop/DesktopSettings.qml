@@ -152,7 +152,8 @@ PanelWindow {
                     { displayName: DesktopTranslation.tr("Grid"), icon: "grid_view", value: 1 },
                     { displayName: DesktopTranslation.tr("Colors"), icon: "palette", value: 2 },
                     { displayName: DesktopTranslation.tr("Arrange"), icon: "sort", value: 3 },
-                    { displayName: DesktopTranslation.tr("Language"), icon: "translate", value: 4 }
+                    { displayName: DesktopTranslation.tr("Language"), icon: "translate", value: 4 },
+                    { displayName: DesktopTranslation.tr("Style"), icon: "auto_awesome", value: 5 }
                 ]
                 onSelected: newValue => root.settingsTab = newValue
             }
@@ -484,6 +485,52 @@ PanelWindow {
                                 value: option.code
                             }))
                             onSelected: newValue => DesktopConfig.language = newValue
+                        }
+                    }
+
+                    // --------------------------------------------------------- Style
+                    ColumnLayout {
+                        visible: root.settingsTab === 5
+                        Layout.fillWidth: true
+                        spacing: 8
+
+                        ConfigSelectionArray {
+                            Layout.fillWidth: true
+                            currentValue: DesktopConfig.styleMode
+                            options: [
+                                { displayName: DesktopTranslation.tr("Grid"), icon: "grid_view", value: "grid" },
+                                { displayName: DesktopTranslation.tr("Globe"), icon: "public", value: "globe" },
+                                { displayName: DesktopTranslation.tr("Cube"), icon: "view_in_ar", value: "cube" },
+                                { displayName: DesktopTranslation.tr("Octahedron"), icon: "deployed_code", value: "octahedron" },
+                                { displayName: DesktopTranslation.tr("Helix"), icon: "cyclone", value: "helix" },
+                                { displayName: DesktopTranslation.tr("Orbit"), icon: "orbit", value: "orbit" },
+                                { displayName: DesktopTranslation.tr("Tunnel"), icon: "filter_center_focus", value: "tunnel" }
+                            ]
+                            onSelected: newValue => DesktopConfig.styleMode = newValue
+                        }
+
+                        ConfigSwitch {
+                            buttonIcon: "autorenew"
+                            text: DesktopTranslation.tr("Auto rotate")
+                            checked: DesktopConfig.styleAutoRotate
+                            onCheckedChanged: DesktopConfig.styleAutoRotate = checked
+                        }
+
+                        ConfigSlider {
+                            Layout.fillWidth: true
+                            text: DesktopTranslation.tr("Rotation speed")
+                            buttonIcon: "speed"
+                            usePercentTooltip: false
+                            from: 0.2
+                            to: 2.0
+                            value: DesktopConfig.styleSpeed
+                            onValueChanged: DesktopConfig.styleSpeed = value
+                        }
+
+                        ActionButton {
+                            label: DesktopTranslation.tr("Reset view")
+                            icon: "restart_alt"
+                            onActivated: root.desktop.resetView()
                         }
                     }
                 }

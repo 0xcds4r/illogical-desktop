@@ -20,7 +20,7 @@ Item {
     readonly property int minWidth: 170
     readonly property int maxWidth: 480
 
-    TextMetrics {
+    FontMetrics {
         id: labelMetrics
         font.pixelSize: Appearance.font.pixelSize.small
     }
@@ -31,8 +31,7 @@ Item {
         for (const item of root.items) {
             if (!item || item.separator)
                 continue;
-            labelMetrics.text = item.label ?? "";
-            longest = Math.max(longest, labelMetrics.width);
+            longest = Math.max(longest, labelMetrics.advanceWidth(item.label ?? ""));
         }
         return longest;
     }

@@ -31,6 +31,10 @@ desktop-entry aware icons/launching.
 - Menus size themselves to the longest label, so longer translations are never cut off.
 - Arrange: by name, by type, by size, by date modified; auto arrange; grid direction;
   snap to grid; reset positions.
+- 3D desktop styles: **Globe, Cube, Octahedron, Helix, Orbit, Tunnel** (plus the normal
+  Grid). Icons sit on translucent tiles, scale and fade with depth, and the shape can be
+  rotated by dragging the desktop. Optional auto-rotation with adjustable speed and a
+  "Reset view" action.
 - Clipboard: `Ctrl+C` / `Ctrl+X` / `Ctrl+V` (copies get `name (copy).ext`).
 - **Create link** makes a symlink (`name (link).ext`); **Compress** offers ZIP
   (fast/normal/max) and tar.gz; **Properties** shows type, MIME, size, dates,
@@ -82,6 +86,8 @@ Right-click the desktop → **Desktop settings**. Everything applies live, split
   of 32 presets. The rectangle color follows the icon selection color until it is
   customized separately.
 - **Arrange**: by name/type/size/date, reset positions.
+- **Style**: Grid / Globe / Cube / Octahedron / Helix / Orbit / Tunnel, auto-rotate,
+  rotation speed and reset view.
 - **Language**: switches the add-on's language only (English, Russian, Ukrainian,
   Belarusian, Polish, German, French, Spanish, Japanese, Chinese, Korean). The rest of
   the shell keeps its own language.
@@ -97,6 +103,18 @@ Colors tab with the HSV picker:
 Language tab:
 
 <p align="center"><img src="assets/language.jpg" width="100%" alt="Desktop settings — Language"></p>
+
+## Desktop styles
+
+Settings → **Style** switches the icon layout between the normal grid and 3D shapes.
+Drag the desktop to rotate/tilt the shape; enable **Auto rotate** to spin it, adjust the
+speed, or use **Reset view**.
+
+<p align="center"><img src="assets/style-globe.jpg" width="100%" alt="Globe style"></p>
+
+<p align="center"><img src="assets/style-tunnel.jpg" width="100%" alt="Tunnel style"></p>
+
+<p align="center"><img src="assets/style.jpg" width="100%" alt="Style settings"></p>
 
 ## Context menus
 
@@ -173,7 +191,10 @@ The add-on keeps its settings in its own file,
     "language": "en",
     "folder": "",
     "confirmDelete": false,
-    "showTrash": true
+    "showTrash": true,
+    "styleMode": "grid",
+    "styleAutoRotate": false,
+    "styleSpeed": 1.0
 }
 ```
 
@@ -192,6 +213,8 @@ The add-on keeps its settings in its own file,
 - `folder`: custom folder to show instead of `~/Desktop` (empty means `~/Desktop`).
 - `confirmDelete`: ask before moving the selection to trash.
 - `showTrash`: show the trash shortcut in the bottom-right corner.
+- `styleMode`: `grid`, `globe`, `cube`, `octahedron`, `helix`, `orbit` or `tunnel`.
+- `styleAutoRotate` / `styleSpeed`: automatic rotation for the 3D styles.
 - Icon positions are stored in `~/.local/state/quickshell/user/desktop-positions.json`.
 - Older installs migrated automatically from `config.json` / `states.json` on first run.
 
