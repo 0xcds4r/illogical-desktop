@@ -16,6 +16,7 @@ Item {
     property bool fileIsDir: false
     property int iconIndex: 0
     property var container: null
+    property int appearDelay: 0
 
     property bool isSelected: false
     property bool isDropTarget: false
@@ -111,15 +112,37 @@ Item {
     }
 
     opacity: 0
+    scale: appearDelay > 0 ? 0.9 : 1
+
     Behavior on opacity {
         NumberAnimation {
-            duration: 120
+            duration: 130
             easing.type: Easing.OutCubic
+        }
+    }
+    Behavior on scale {
+        NumberAnimation {
+            duration: 200
+            easing.type: Easing.OutBack
+        }
+    }
+
+    Timer {
+        id: appearTimer
+        repeat: false
+        onTriggered: {
+            root.opacity = 1;
+            root.scale = 1;
         }
     }
 
     Component.onCompleted: {
-        root.opacity = 1;
+        if (root.appearDelay > 0) {
+            appearTimer.interval = root.appearDelay;
+            appearTimer.start();
+        } else {
+            root.opacity = 1;
+        }
         if (!fileIsDir && !isDesktopEntry && filePath !== "")
             iconProcess.running = true;
     }
