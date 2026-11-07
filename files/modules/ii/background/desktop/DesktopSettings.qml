@@ -133,7 +133,7 @@ PanelWindow {
         id: card
         anchors.centerIn: parent
         width: root.cardWidth
-        height: Math.min(root.cardMaxHeight, 560)
+        height: Math.min(root.cardMaxHeight, 620)
         radius: Appearance.rounding.large
         color: Appearance.m3colors.m3surfaceContainer
         border.width: 1
@@ -252,6 +252,13 @@ PanelWindow {
                         }
 
                         ConfigSwitch {
+                            buttonIcon: "delete"
+                            text: DesktopTranslation.tr("Confirm before deleting")
+                            checked: root.cfg.confirmDelete
+                            onCheckedChanged: root.cfg.confirmDelete = checked
+                        }
+
+                        ConfigSwitch {
                             buttonIcon: "grid_on"
                             text: DesktopTranslation.tr("Auto arrange")
                             checked: root.cfg.autoArrange
@@ -267,6 +274,55 @@ PanelWindow {
                             text: DesktopTranslation.tr("Snap to grid")
                             checked: root.cfg.snapToGrid
                             onCheckedChanged: root.cfg.snapToGrid = checked
+                        }
+
+                        RowLayout {
+                            Layout.fillWidth: true
+                            Layout.topMargin: 6
+                            spacing: 10
+
+                            StyledText {
+                                Layout.preferredWidth: 200
+                                text: DesktopTranslation.tr("Desktop folder")
+                                color: Appearance.colors.colOnSecondaryContainer
+                            }
+
+                            Rectangle {
+                                Layout.fillWidth: true
+                                implicitHeight: 34
+                                radius: Appearance.rounding.verysmall
+                                color: Appearance.colors.colLayer1
+                                border.width: 1
+                                border.color: Appearance.colors.colLayer0Border
+
+                                Text {
+                                    anchors {
+                                        left: parent.left
+                                        verticalCenter: parent.verticalCenter
+                                        leftMargin: 8
+                                    }
+                                    visible: folderInput.text === ""
+                                    text: "~/Desktop"
+                                    color: Appearance.colors.colOnLayer2
+                                    font.pixelSize: Appearance.font.pixelSize.small
+                                }
+
+                                TextInput {
+                                    id: folderInput
+                                    anchors {
+                                        fill: parent
+                                        leftMargin: 8
+                                        rightMargin: 8
+                                    }
+                                    verticalAlignment: TextInput.AlignVCenter
+                                    text: DesktopConfig.folder
+                                    color: Appearance.colors.colOnLayer1
+                                    font.pixelSize: Appearance.font.pixelSize.small
+                                    selectByMouse: true
+                                    clip: true
+                                    onEditingFinished: DesktopConfig.folder = text.trim()
+                                }
+                            }
                         }
                     }
 

@@ -24,10 +24,10 @@ Item {
 
     signal openRequested()
     signal contextRequested(real x, real y)
-    signal picked(bool ctrl)
+    signal picked(bool ctrl, bool shift)
     signal dragStarted()
     signal dragMoved(real targetX, real targetY, real pointerX, real pointerY)
-    signal dragFinished(real pointerX, real pointerY)
+    signal dragFinished(real pointerX, real pointerY, bool ctrl)
 
     readonly property bool dragging: _dragging
     property bool _dragging: false
@@ -38,6 +38,17 @@ Item {
     property string entryIcon: DesktopIconCache.iconFor(root.filePath)
     property string resolvedIconKind: DesktopIconCache.kindFor(root.filePath)
     property string resolvedIconValue: DesktopIconCache.valueFor(root.filePath)
+    readonly property string fileFlags: DesktopIconCache.flagsFor(root.filePath)
+    readonly property var badges: {
+        const result = [];
+        if (fileFlags.includes("link"))
+            result.push("link");
+        if (fileFlags.includes("exec"))
+            result.push("terminal");
+        if (fileFlags.includes("readonly"))
+            result.push("lock");
+        return result;
+    }
     readonly property string displayName: {
         if (!isDesktopEntry)
             return fileName;
@@ -50,7 +61,7 @@ Item {
     readonly property bool showLabel: container ? container.cfg.showLabels : true
 
     readonly property string fileIconSource: {
-        if (resolvedIconKind === "path")
+        if (resolvedIconKind === "path" || resolvedIconKind === "filethumb")
             return resolvedIconValue === "" ? "" : "file://" + resolvedIconValue;
         if (resolvedIconKind === "name")
             return resolvedIconValue === "" ? "" : Quickshell.iconPath(resolvedIconValue, "text-x-generic");
@@ -104,12 +115,16 @@ Item {
 
     function applyFileIcon(output) {
         const line = String(output).split("\n")[0];
-        if (line.trim() === "")
-            return;
         const parts = line.split("\t");
-        if (parts.length < 2)
-            return;
-        DesktopIconCache.store(root.filePath, { kind: parts[0], value: parts[1] ?? "" });
+        const kind = line.trim() === "" ? "" : (parts[0] ?? "");
+        const value = parts.length > 1 ? (parts[1] ?? "") : "";
+        const flags = parts.length > 2 ? (parts[2] ?? "") : "";
+        DesktopIconCache.store(root.filePath, {
+            kind: kind,
+            value: value,
+            flags: flags,
+            done: true
+        });
     }
 
     opacity: 0
@@ -137,6 +152,14 @@ Item {
         }
     }
 
+    function ensureIconMetadata() {
+        if (fileIsDir || isDesktopEntry || filePath === "")
+            return;
+        if (DesktopIconCache.doneFor(filePath))
+            return;
+        iconProcess.running = true;
+    }
+
     Component.onCompleted: {
         if (root.appearDelay > 0) {
             appearTimer.interval = root.appearDelay;
@@ -144,14 +167,10 @@ Item {
         } else {
             root.opacity = 1;
         }
-        if (!fileIsDir && !isDesktopEntry && filePath !== "")
-            iconProcess.running = true;
+        root.ensureIconMetadata();
     }
 
-    onFilePathChanged: {
-        if (!fileIsDir && !isDesktopEntry && filePath !== "")
-            iconProcess.running = true;
-    }
+    onFilePathChanged: root.ensureIconMetadata()
 
     FileView {
         id: entryView
@@ -206,6 +225,33 @@ Item {
             asynchronous: true
             smooth: true
         }
+
+        Row {
+            anchors {
+                right: parent.right
+                bottom: parent.bottom
+                margins: 2
+            }
+            spacing: 2
+
+            Repeater {
+                model: root.badges
+
+                delegate: Rectangle {
+                    width: 16
+                    height: 16
+                    radius: 8
+                    color: Qt.rgba(0, 0, 0, 0.65)
+
+                    MaterialSymbol {
+                        anchors.centerIn: parent
+                        text: modelData
+                        iconSize: 11
+                        color: "white"
+                    }
+                }
+            }
+        }
     }
 
     Text {
@@ -245,16 +291,17 @@ Item {
 
         onPressed: event => {
             const ctrl = (event.modifiers & Qt.ControlModifier) !== 0;
+            const shift = (event.modifiers & Qt.ShiftModifier) !== 0;
             if (event.button === Qt.RightButton) {
                 if (ctrl) {
-                    root.picked(true);
+                    root.picked(true, shift);
                     return;
                 }
                 const point = root.mapToItem(root.container, event.x, event.y);
                 root.contextRequested(point.x, point.y);
                 return;
             }
-            root.picked(ctrl);
+            root.picked(ctrl, shift);
             pressStarted = true;
             downX = event.x;
             downY = event.y;
@@ -282,15 +329,16 @@ Item {
             if (!root._dragging)
                 return;
             const point = root.mapToItem(root.container, event.x, event.y);
+            const ctrl = (event.modifiers & Qt.ControlModifier) !== 0;
             root._dragging = false;
-            root.dragFinished(point.x, point.y);
+            root.dragFinished(point.x, point.y, ctrl);
         }
 
         onCanceled: {
             pressStarted = false;
             if (root._dragging) {
                 root._dragging = false;
-                root.dragFinished(-1, -1);
+                root.dragFinished(-1, -1, false);
             }
         }
 

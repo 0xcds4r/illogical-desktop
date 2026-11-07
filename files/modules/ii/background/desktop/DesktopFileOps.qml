@@ -24,8 +24,22 @@ Singleton {
         Quickshell.execDetached(["mv", "--", from, to]);
     }
 
-    function trash(path) {
-        Quickshell.execDetached(["gio", "trash", "--", path]);
+    function trash(paths) {
+        const args = ["python3", Directories.scriptPath + "/desktop-trash.py", "move"];
+        for (const path of paths)
+            args.push(path);
+        Quickshell.execDetached(args);
+    }
+
+    function restoreTrash(paths) {
+        const args = ["python3", Directories.scriptPath + "/desktop-trash.py", "restore"];
+        for (const path of paths)
+            args.push(path);
+        Quickshell.execDetached(args);
+    }
+
+    function emptyTrash() {
+        Quickshell.execDetached(["python3", Directories.scriptPath + "/desktop-trash.py", "empty"]);
     }
 
     function copy(paths) {
@@ -78,9 +92,16 @@ Singleton {
         Quickshell.execDetached(["ln", "-s", "--", source, destination]);
     }
 
-    function compress(destination, parentDir, names) {
-        const script = 'cd "$1" || exit 1; dest="$2"; shift 2; zip -r "$dest" -- "$@"';
-        const args = ["bash", "-c", script, "compress", parentDir, destination];
+    function compress(destination, parentDir, names, format, level) {
+        if (format === "targz") {
+            const args = ["tar", "-I", `gzip -${level}`, "-cf", destination, "-C", parentDir];
+            for (const name of names)
+                args.push(name);
+            Quickshell.execDetached(args);
+            return;
+        }
+        const script = 'cd "$1" || exit 1; dest="$2"; level="$3"; shift 3; zip -r -"$level" "$dest" -- "$@"';
+        const args = ["bash", "-c", script, "compress", parentDir, destination, String(level)];
         for (const name of names)
             args.push(name);
         Quickshell.execDetached(args);

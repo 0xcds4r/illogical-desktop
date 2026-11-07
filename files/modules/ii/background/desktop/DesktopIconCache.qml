@@ -45,6 +45,16 @@ Singleton {
         return entry && entry.value !== undefined ? entry.value : "";
     }
 
+    function flagsFor(path) {
+        const entry = root.entries[path];
+        return entry && entry.flags !== undefined ? entry.flags : "";
+    }
+
+    function doneFor(path) {
+        const entry = root.entries[path];
+        return !!entry && entry.done === true;
+    }
+
     function forget(path) {
         if (!root.entries[path])
             return;

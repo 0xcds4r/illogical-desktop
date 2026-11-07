@@ -23,6 +23,8 @@ Singleton {
     property alias cellWidth: adapter.cellWidth
     property alias cellHeight: adapter.cellHeight
     property alias margin: adapter.margin
+    property alias folder: adapter.folder
+    property alias confirmDelete: adapter.confirmDelete
     property alias selectionColor: adapter.selectionColor
     property alias selectionOpacity: adapter.selectionOpacity
     property alias textColor: adapter.textColor
@@ -68,6 +70,8 @@ Singleton {
             property int cellWidth: 96
             property int cellHeight: 104
             property int margin: 24
+            property string folder: ""
+            property bool confirmDelete: false
             property string selectionColor: "#4A90D9"
             property real selectionOpacity: 0.35
             property string textColor: "#FFFFFF"
