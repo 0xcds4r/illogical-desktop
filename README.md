@@ -70,6 +70,22 @@ Right-click the desktop → **Desktop settings**. Everything applies live:
 
 ![settings](assets/settings.png)
 
+## Context menus
+
+Icon actions:
+
+![icon context menu](assets/context-icon.png)
+
+Desktop actions:
+
+![desktop context menu](assets/context-desktop.png)
+
+## File actions
+
+Properties dialog for any icon:
+
+![properties](assets/properties.png)
+
 ## Requirements
 
 - illogical-impulse (quickshell `ii`) on Hyprland, tested with Quickshell 0.3.2.
