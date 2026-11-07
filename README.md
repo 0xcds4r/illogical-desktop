@@ -77,8 +77,9 @@ Right-click the desktop → **Desktop settings**. Everything applies live, split
   remember positions, auto arrange, snap to grid.
 - **Grid**: direction (columns/rows), cell width, cell height, margin.
 - **Colors**: icon selection color and opacity, text color, selection rectangle
-  (rubber band) color and opacity. Each color has presets and a HEX field. The
-  rectangle color follows the icon selection color until it is customized separately.
+  (rubber band) color and opacity. Each colour has a live swatch, a HEX field and an
+  expandable palette of 32 presets. The rectangle color follows the icon selection
+  color until it is customized separately.
 - **Arrange**: by name/type/size/date, reset positions.
 - **Language**: switches the add-on's language only (English, Russian, Ukrainian,
   Belarusian, Polish, German, French, Spanish, Japanese, Chinese, Korean). The rest of
