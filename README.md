@@ -40,8 +40,8 @@ desktop-entry aware icons/launching.
 
 Right-click the desktop → **Desktop settings**. Everything applies live:
 
-- **General**: show icons, show on all screens, remember positions, auto arrange,
-  snap to grid.
+- **General**: show icons, show on all screens, show icon labels, remember positions,
+  auto arrange, snap to grid.
 - **Grid**: direction (columns/rows), cell width, cell height, margin.
 - **Colors**: icon selection color and opacity, text color, selection rectangle
   (rubber band) color and opacity. Each color has presets and a HEX field. The
@@ -88,6 +88,7 @@ Settings live in `~/.config/illogical-impulse/config.json`:
   "desktopIcons": {
     "enable": true,
     "showOnAllScreens": false,
+    "showLabels": true,
     "persistPositions": true,
     "autoArrange": false,
     "snapToGrid": false,
@@ -107,6 +108,7 @@ Settings live in `~/.config/illogical-impulse/config.json`:
 - `gridMode`: `"columns"` (top to bottom, then next column) or `"rows"`.
 - `snapToGrid`: align positions to cells; dropping onto an occupied cell swaps icons.
 - `autoArrange`: always use the automatic grid (drops do not persist).
+- `showLabels`: show the filename under each icon; when off, icons are centered in the cell.
 - `selectionColor` / `selectionOpacity`: icon selection highlight.
 - `textColor`: icon labels.
 - `bandColor` / `bandOpacity`: rubber-band selection rectangle.
