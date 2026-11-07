@@ -58,13 +58,21 @@ Item {
     property real switchOffset: 0
     property real switchOpacity: 1
 
+    function windowCountForWorkspace(workspaceId) {
+        const workspace = Hyprland.workspaces.values.find(candidate => candidate.id === workspaceId);
+        return workspace ? workspace.toplevels.values.length : 0;
+    }
+
     onActiveWorkspaceIdChanged: {
-        if (root.previousWorkspaceId === 0 || root.activeWorkspaceId === root.previousWorkspaceId) {
-            root.previousWorkspaceId = root.activeWorkspaceId;
-            return;
-        }
-        const direction = root.activeWorkspaceId > root.previousWorkspaceId ? 1 : -1;
+        const previousWorkspace = root.previousWorkspaceId;
         root.previousWorkspaceId = root.activeWorkspaceId;
+        if (previousWorkspace === 0 || previousWorkspace === root.activeWorkspaceId)
+            return;
+        // Both workspaces are just the desktop: nothing to transition.
+        if (root.windowCountForWorkspace(previousWorkspace) === 0 &&
+            root.windowCountForWorkspace(root.activeWorkspaceId) === 0)
+            return;
+        const direction = root.activeWorkspaceId > previousWorkspace ? 1 : -1;
         root.switchOffset = direction * 48;
         root.switchOpacity = 0;
         workspaceSwitchAnim.restart();
