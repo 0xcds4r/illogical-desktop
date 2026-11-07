@@ -106,6 +106,7 @@ Item {
     property var dragGroupNames: []
     property var dragGroupBase: ({})
 
+    property bool refreshAnimating: false
     property bool settingsOpen: false
     property string openWithPath: ""
     property real lastMenuX: 0
@@ -427,6 +428,19 @@ Item {
 
     function scheduleRefresh() {
         autoRefresh.restart();
+    }
+
+    Timer {
+        id: refreshAnimTimer
+        interval: 1000
+        repeat: false
+        onTriggered: root.refreshAnimating = false
+    }
+
+    function refreshWithAnimation() {
+        root.refreshAnimating = true;
+        refreshAnimTimer.restart();
+        root.refresh();
     }
 
     function openPath(path) {
@@ -891,7 +905,7 @@ Item {
             { separator: true },
             { label: Translation.tr("Select all"), icon: "select_all", action: () => root.selectAll() },
             { label: Translation.tr("Arrange icons"), icon: "grid_view", action: () => root.openArrangeMenu() },
-            { label: Translation.tr("Refresh"), icon: "refresh", action: () => root.refresh() },
+            { label: Translation.tr("Refresh"), icon: "refresh", action: () => root.refreshWithAnimation() },
             { separator: true },
             { label: Translation.tr("Desktop settings"), icon: "settings", action: () => root.settingsOpen = true },
             { label: Translation.tr("Open terminal"), icon: "terminal", action: () => root.openTerminal() }
@@ -981,6 +995,7 @@ Item {
         delegate: DesktopIcon {
             container: root
             iconIndex: index
+            appearDelay: root.refreshAnimating ? Math.min(index * 22, 400) : 0
             fileName: model.fileName
             filePath: model.filePath
             fileURL: model.fileUrl
