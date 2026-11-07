@@ -55,6 +55,9 @@ defaults = {
     "folder": "",
     "confirmDelete": False,
     "showTrash": True,
+    "styleMode": "grid",
+    "styleAutoRotate": False,
+    "styleSpeed": 1.0,
 }
 
 if not os.path.exists(config_path):
