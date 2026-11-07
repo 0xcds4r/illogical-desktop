@@ -4,7 +4,7 @@ A Windows-like active desktop for **illogical-impulse** (quickshell `ii`) on Hyp
 icons for `~/Desktop`, selection, drag & drop, context menus, file operations and
 desktop-entry aware icons/launching.
 
-![screenshot](assets/screenshot.jpg)
+<p align="center"><img src="assets/screenshot.jpg" width="100%" alt="Desktop with icons"></p>
 
 ## Features
 
@@ -88,27 +88,33 @@ Right-click the desktop → **Desktop settings**. Everything applies live, split
 - **Done** closes the modal (it also closes from the `×` button or `Esc`; clicking the
   desktop does not dismiss it).
 
-![settings](assets/settings.jpg)
+<p align="center"><img src="assets/settings.jpg" width="100%" alt="Desktop settings — General"></p>
+
+Colors tab with the HSV picker:
+
+<p align="center"><img src="assets/colors.jpg" width="100%" alt="Desktop settings — Colors"></p>
 
 Language tab:
 
-![language](assets/language.jpg)
+<p align="center"><img src="assets/language.jpg" width="100%" alt="Desktop settings — Language"></p>
 
 ## Context menus
 
-Icon actions:
-
-![icon context menu](assets/context-icon.png)
-
-Desktop actions:
-
-![desktop context menu](assets/context-desktop.png)
+| Icon actions | Desktop actions |
+|---|---|
+| ![icon context menu](assets/context-icon.png) | ![desktop context menu](assets/context-desktop.png) |
 
 ## File actions
 
 Properties dialog for any icon:
 
-![properties](assets/properties.jpg)
+<p align="center"><img src="assets/properties.jpg" width="100%" alt="Properties dialog"></p>
+
+## Quick look
+
+Press `Space` on a file to preview it (images, text, video/PDF thumbnails):
+
+<p align="center"><img src="assets/preview.jpg" width="100%" alt="Quick look preview"></p>
 
 ## Requirements
 
