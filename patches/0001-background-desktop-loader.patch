@@ -1,5 +1,5 @@
 --- a/modules/ii/background/Background.qml	2026-11-06 01:29:16.394535417 +1000
-+++ b/modules/ii/background/Background.qml	2026-11-06 01:49:19.926516890 +1000
++++ b/modules/ii/background/Background.qml	2026-11-07 23:44:57.060703900 +1000
 @@ -17,6 +17,7 @@
  import qs.modules.ii.background.widgets
  import qs.modules.ii.background.widgets.clock

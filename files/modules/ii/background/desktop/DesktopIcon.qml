@@ -47,6 +47,7 @@ Item {
         return fileName.replace(/\.desktop$/i, "");
     }
     readonly property real scaleFactor: container ? container.zoomScale : 1
+    readonly property bool showLabel: container ? container.cfg.showLabels : true
 
     readonly property string fileIconSource: {
         if (resolvedIconKind === "path")
@@ -184,8 +185,7 @@ Item {
         width: Math.min(root.width - 14, 54 * root.scaleFactor)
         height: width
         anchors.horizontalCenter: parent.horizontalCenter
-        anchors.top: parent.top
-        anchors.topMargin: 8 * root.scaleFactor
+        y: root.showLabel ? 8 * root.scaleFactor : (root.height - height) / 2
 
         DirectoryIcon {
             anchors.fill: parent
@@ -218,6 +218,7 @@ Item {
             leftMargin: 6
             rightMargin: 6
         }
+        visible: root.showLabel
         text: root.displayName
         color: root.textColor
         horizontalAlignment: Text.AlignHCenter

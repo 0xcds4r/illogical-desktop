@@ -230,6 +230,13 @@ PanelWindow {
                     }
 
                     ConfigSwitch {
+                        buttonIcon: "label"
+                        text: Translation.tr("Show icon labels")
+                        checked: root.cfg.showLabels
+                        onCheckedChanged: root.cfg.showLabels = checked
+                    }
+
+                    ConfigSwitch {
                         buttonIcon: "save"
                         text: Translation.tr("Remember positions")
                         checked: root.cfg.persistPositions
