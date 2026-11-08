@@ -23,7 +23,11 @@ PanelWindow {
     exclusionMode: ExclusionMode.Ignore
     WlrLayershell.namespace: "quickshell:desktop-preview"
     WlrLayershell.layer: WlrLayer.Overlay
-    WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
+    WlrLayershell.keyboardFocus: WlrKeyboardFocus.OnDemand
+
+    mask: Region {
+        item: card
+    }
 
     anchors {
         top: true
@@ -73,11 +77,6 @@ PanelWindow {
             thumbProcess.running = true;
         else if (root.isText)
             textProcess.running = true;
-    }
-
-    MouseArea {
-        anchors.fill: parent
-        onClicked: root.dismissed()
     }
 
     Rectangle {

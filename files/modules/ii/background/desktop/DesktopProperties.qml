@@ -23,7 +23,11 @@ PanelWindow {
     exclusionMode: ExclusionMode.Ignore
     WlrLayershell.namespace: "quickshell:desktop-properties"
     WlrLayershell.layer: WlrLayer.Overlay
-    WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
+    WlrLayershell.keyboardFocus: WlrKeyboardFocus.OnDemand
+
+    mask: Region {
+        item: card
+    }
 
     anchors {
         top: true
@@ -65,10 +69,6 @@ PanelWindow {
     }
 
     Component.onCompleted: propsProcess.running = true
-
-    MouseArea {
-        anchors.fill: parent
-    }
 
     Rectangle {
         id: card
