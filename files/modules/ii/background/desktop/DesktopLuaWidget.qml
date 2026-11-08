@@ -19,17 +19,42 @@ Item {
 
     property var ops: []
     property var imageCache: ({})
+    property var inputs: ({})
+    property var lastSent: ({})
     property int tickInterval: 0
+    property real luaRotation: 0
     property string errorText: ""
     property bool started: false
+
+    rotation: root.luaRotation
 
     function send(line) {
         if (proc.running)
             proc.write(line + "\n");
     }
 
-    function repaint() {
-        canvas.requestPaint();
+    function actionText(action) {
+        return String(action.title ?? "") + "\n" + String(action.body ?? "");
+    }
+
+    function runAction(action) {
+        switch (String(action.type ?? "")) {
+        case "notify": {
+            const parts = actionText(action).split("\n");
+            Quickshell.execDetached(["notify-send", parts[0] || "Desktop", parts.slice(1).join("\n")]);
+            break;
+        }
+        case "spawn": {
+            const command = action.command ?? [];
+            if (command.length > 0)
+                Quickshell.execDetached(command);
+            break;
+        }
+        case "open":
+            if (action.path)
+                Quickshell.execDetached(["xdg-open", String(action.path)]);
+            break;
+        }
     }
 
     function handleLine(line) {
@@ -47,15 +72,20 @@ Item {
             const width = Math.round(meta.width ?? 0);
             const height = Math.round(meta.height ?? 0);
             root.tickInterval = Math.max(0, Math.round(meta.tick ?? 0));
+            root.luaRotation = Number(meta.rotation ?? 0);
+            root.cursorShape = String(meta.cursor ?? "pointing");
             if (width > 0 && height > 0
                     && (Math.abs(width - (root.widgetData.width ?? 0)) > 1
-                        || Math.abs(height - (root.widgetData.height ?? 0)) > 1)) {
+                        || Math.abs(height - (root.widgetData.height ?? 0)) > 1))
                 DesktopWidgets.update(root.widgetData.id, { width: width, height: height });
-            }
+        }
+        if (message.actions) {
+            for (const action of message.actions)
+                root.runAction(action);
         }
         root.errorText = message.error ? String(message.error) : "";
         root.ops = message.ops ?? [];
-        root.repaint();
+        canvas.requestPaint();
     }
 
     function buttonName(button) {
@@ -64,6 +94,16 @@ Item {
         if (button === Qt.MiddleButton)
             return "middle";
         return "left";
+    }
+
+    function cursorFor(name) {
+        switch (name) {
+        case "arrow": return Qt.ArrowCursor;
+        case "cross": return Qt.CrossCursor;
+        case "text": return Qt.IBeamCursor;
+        case "hand": return Qt.OpenHandCursor;
+        default: return Qt.PointingHandCursor;
+        }
     }
 
     function startHost() {
@@ -80,6 +120,56 @@ Item {
         root.started = false;
         proc.running = false;
         restartTimer.restart();
+    }
+
+    function sendStrings() {
+        const dictionary = DesktopTranslation.dictionary();
+        for (const key in dictionary)
+            root.send("s\t" + encodeURIComponent(key) + "\t" + encodeURIComponent(String(dictionary[key])));
+        // Repaint once so labels picked up via desktop.tr() show translated.
+        root.send("t\t" + Date.now());
+    }
+
+    function sendInput(key, text) {
+        root.lastSent[key] = text;
+        root.send("e\t" + key + "\t" + encodeURIComponent(text));
+    }
+
+    function ensureInput(op) {
+        const key = String(op.key ?? "default");
+        let editor = root.inputs[key];
+        if (!editor) {
+            const multiline = op.multiline !== false;
+            editor = Qt.createQmlObject(multiline
+                ? "import QtQuick; TextEdit { selectByMouse: true; persistentSelection: true; wrapMode: TextEdit.Wrap }"
+                : "import QtQuick; TextInput { selectByMouse: true }", root, "luaInput");
+            editor.textChanged.connect(() => root.sendInput(key, editor.text));
+            editor.activeFocusChanged.connect(() => {
+                if (!editor.activeFocus)
+                    root.sendInput(key, editor.text);
+            });
+            const map = Object.assign({}, root.inputs);
+            map[key] = editor;
+            root.inputs = map;
+            root.lastSent[key] = "";
+        }
+
+        editor.x = root.number(op.x, 0);
+        editor.y = root.number(op.y, 0);
+        editor.width = Math.max(0, root.number(op.w, 0));
+        editor.height = Math.max(0, root.number(op.h, 0));
+        editor.visible = op.hidden !== true;
+        editor.color = String(op.color ?? "#ffffff");
+        editor.font.pixelSize = root.number(op.size, 14);
+        editor.font.family = String(op.family ?? "sans-serif");
+        editor.horizontalAlignment = op.align === "center" ? TextInput.AlignHCenter : TextInput.AlignLeft;
+        editor.selectionColor = String(op.selectionColor ?? "#4A90D9");
+        editor.selectedTextColor = String(op.selectedTextColor ?? "#ffffff");
+
+        const next = String(op.text ?? "");
+        // Never overwrite the editor while the user is typing in it.
+        if (!editor.activeFocus && next !== editor.text)
+            editor.text = next;
     }
 
     onScriptPathChanged: root.startHost()
@@ -111,8 +201,7 @@ Item {
 
         stderr: SplitParser {
             onRead: data => {
-                root.errorText = data;
-                root.repaint();
+                console.log("lua widget " + (root.widgetData.id ?? "") + ":", data);
             }
         }
 
@@ -120,13 +209,15 @@ Item {
             if (!proc.running)
                 return;
             root.started = true;
-            root.send("i\t" + root.width + "\t" + root.height + "\t" + (root.widgetData.style ?? ""));
+            root.send("i\t" + root.width + "\t" + root.height + "\t"
+                + (root.widgetData.style ?? "") + "\t" + (root.widgetData.id ?? ""));
+            root.sendStrings();
         }
 
         onExited: (exitCode, exitStatus) => {
-            if (exitCode !== 0 && root.errorText === "")
-                root.errorText = DesktopTranslation.tr("Lua exited with code") + " " + exitCode;
-            root.repaint();
+            if (exitCode !== 0)
+                console.log("lua widget exited:", exitCode);
+            canvas.requestPaint();
         }
     }
 
@@ -155,7 +246,7 @@ Item {
         anchors.fill: parent
         acceptedButtons: Qt.LeftButton | Qt.MiddleButton
         hoverEnabled: true
-        cursorShape: Qt.PointingHandCursor
+        cursorShape: root.cursorFor(root.cursorShape ?? "pointing")
 
         onPressed: mouse => root.send("p\t" + Math.round(mouse.x) + "\t" + Math.round(mouse.y)
             + "\t" + root.buttonName(mouse.button))
@@ -169,6 +260,8 @@ Item {
         onDoubleClicked: mouse => root.send("d\t" + Math.round(mouse.x) + "\t" + Math.round(mouse.y))
         onWheel: wheel => root.send("w\t" + Math.round(wheel.angleDelta.y))
     }
+
+    property string cursorShape: "pointing"
 
     function number(value, fallback) {
         return (typeof value === "number" && isFinite(value)) ? value : fallback;
@@ -195,7 +288,8 @@ Item {
 
     function paintText(ctx, op) {
         ctx.fillStyle = String(op.color ?? "#ffffff");
-        ctx.font = number(op.size, 14) + "px " + String(op.font ?? "sans-serif");
+        const weight = op.weight !== undefined ? String(op.weight) + " " : "";
+        ctx.font = weight + number(op.size, 14) + "px " + String(op.font ?? "sans-serif");
         ctx.textAlign = String(op.align ?? "left");
         ctx.textBaseline = op.valign === "middle" ? "middle" : "alphabetic";
         const x = number(op.x, 0);
@@ -262,7 +356,7 @@ Item {
             ctx.lineTo(number(op.x2, 0), number(op.y2, 0));
             ctx.lineWidth = number(op.width, 1);
             ctx.strokeStyle = String(op.color ?? "#ffffff");
-            ctx.lineCap = "round";
+            ctx.lineCap = String(op.lineCap ?? "round");
             ctx.stroke();
         } else if (type === "arc") {
             ctx.beginPath();
@@ -276,6 +370,8 @@ Item {
             root.paintText(ctx, op);
         } else if (type === "image") {
             root.paintImage(ctx, op);
+        } else if (type === "input") {
+            root.ensureInput(op);
         }
     }
 }

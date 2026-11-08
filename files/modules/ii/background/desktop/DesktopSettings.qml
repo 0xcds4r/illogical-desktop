@@ -827,9 +827,9 @@ PanelWindow {
                         RowLayout {
                             Layout.fillWidth: true
                             spacing: 8
-                            ActionButton { label: "Digital"; icon: "schedule"; onActivated: DesktopWidgets.add("clock", "digital") }
-                            ActionButton { label: "Analog"; icon: "watch"; onActivated: DesktopWidgets.add("clock", "analog") }
-                            ActionButton { label: "Minimal"; icon: "more_horiz"; onActivated: DesktopWidgets.add("clock", "minimal") }
+                            ActionButton { label: "Digital"; icon: "schedule"; onActivated: DesktopWidgets.addBuiltin("clock", "digital") }
+                            ActionButton { label: "Analog"; icon: "watch"; onActivated: DesktopWidgets.addBuiltin("clock", "analog") }
+                            ActionButton { label: "Minimal"; icon: "more_horiz"; onActivated: DesktopWidgets.addBuiltin("clock", "minimal") }
                         }
 
                         StyledText {
@@ -843,8 +843,8 @@ PanelWindow {
                         RowLayout {
                             Layout.fillWidth: true
                             spacing: 8
-                            ActionButton { label: "Month"; icon: "calendar_month"; onActivated: DesktopWidgets.add("calendar", "month") }
-                            ActionButton { label: "Compact"; icon: "today"; onActivated: DesktopWidgets.add("calendar", "compact") }
+                            ActionButton { label: "Month"; icon: "calendar_month"; onActivated: DesktopWidgets.addBuiltin("calendar", "month") }
+                            ActionButton { label: "Compact"; icon: "today"; onActivated: DesktopWidgets.addBuiltin("calendar", "compact") }
                         }
 
                         StyledText {
@@ -858,8 +858,8 @@ PanelWindow {
                         RowLayout {
                             Layout.fillWidth: true
                             spacing: 8
-                            ActionButton { label: "Stacked"; icon: "view_agenda"; onActivated: DesktopWidgets.add("datetime", "stacked") }
-                            ActionButton { label: "Inline"; icon: "view_stream"; onActivated: DesktopWidgets.add("datetime", "inline") }
+                            ActionButton { label: "Stacked"; icon: "view_agenda"; onActivated: DesktopWidgets.addBuiltin("datetime", "stacked") }
+                            ActionButton { label: "Inline"; icon: "view_stream"; onActivated: DesktopWidgets.addBuiltin("datetime", "inline") }
                         }
 
                         StyledText {
@@ -873,10 +873,10 @@ PanelWindow {
                         RowLayout {
                             Layout.fillWidth: true
                             spacing: 8
-                            ActionButton { label: "Yellow"; icon: "sticky_note_2"; onActivated: DesktopWidgets.add("notes", "yellow") }
-                            ActionButton { label: "Pink"; icon: "sticky_note_2"; onActivated: DesktopWidgets.add("notes", "pink") }
-                            ActionButton { label: "Blue"; icon: "sticky_note_2"; onActivated: DesktopWidgets.add("notes", "blue") }
-                            ActionButton { label: "Green"; icon: "sticky_note_2"; onActivated: DesktopWidgets.add("notes", "green") }
+                            ActionButton { label: "Yellow"; icon: "sticky_note_2"; onActivated: DesktopWidgets.addBuiltin("notes", "yellow") }
+                            ActionButton { label: "Pink"; icon: "sticky_note_2"; onActivated: DesktopWidgets.addBuiltin("notes", "pink") }
+                            ActionButton { label: "Blue"; icon: "sticky_note_2"; onActivated: DesktopWidgets.addBuiltin("notes", "blue") }
+                            ActionButton { label: "Green"; icon: "sticky_note_2"; onActivated: DesktopWidgets.addBuiltin("notes", "green") }
                         }
 
                         StyledText {
@@ -890,8 +890,8 @@ PanelWindow {
                         RowLayout {
                             Layout.fillWidth: true
                             spacing: 8
-                            ActionButton { label: "Ring"; icon: "timer"; onActivated: DesktopWidgets.add("timer", "ring") }
-                            ActionButton { label: "Pill"; icon: "hourglass_empty"; onActivated: DesktopWidgets.add("timer", "pill") }
+                            ActionButton { label: "Ring"; icon: "timer"; onActivated: DesktopWidgets.addBuiltin("timer", "ring") }
+                            ActionButton { label: "Pill"; icon: "hourglass_empty"; onActivated: DesktopWidgets.addBuiltin("timer", "pill") }
                         }
 
                         StyledText {
@@ -905,8 +905,8 @@ PanelWindow {
                         RowLayout {
                             Layout.fillWidth: true
                             spacing: 8
-                            ActionButton { label: "Paper"; icon: "palette"; onActivated: DesktopWidgets.add("paint", "paper") }
-                            ActionButton { label: "Board"; icon: "draw"; onActivated: DesktopWidgets.add("paint", "board") }
+                            ActionButton { label: "Paper"; icon: "palette"; onActivated: DesktopWidgets.addBuiltin("paint", "paper") }
+                            ActionButton { label: "Board"; icon: "draw"; onActivated: DesktopWidgets.addBuiltin("paint", "board") }
                         }
 
                         ActionButton {

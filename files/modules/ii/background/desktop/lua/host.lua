@@ -5,30 +5,43 @@
 -- The QML side sends one command per line over stdin and receives one JSON
 -- line per command over stdout:
 --
---   i <w> <h> <style>   init / resize
---   t <ms>              animation tick
---   p <x> <y> <button>  press
---   m <x> <y> <buttons> pointer move
---   r <x> <y> <button>  release (calls on_release, then on_click)
---   d <x> <y>           double click
---   w <dy>              wheel
+--   i <w> <h> <style> <id>     init
+--   s <key> <value>            translation entry (percent-encoded)
+--   t <ms>                     animation tick
+--   p <x> <y> <button>         press
+--   m <x> <y> <buttons>        pointer move
+--   r <x> <y> <button>         release (calls on_release, then on_click)
+--   d <x> <y>                  double click
+--   w <dy>                     wheel
+--   e <key> <text>             text input changed (percent-encoded)
+--   x                          close
 --
 -- A widget is a Lua table (returned by the script, or the global `widget`):
---   width, height, tick  - desired size and animation interval in ms (0 = off)
---   render(w, h)         - returns a list of drawing operations
---   init(w, h, style)    - optional, called once
---   on_tick(ms), on_press(x, y, button), on_move(x, y, buttons),
---   on_release(x, y, button), on_click(x, y, button), on_double_click(x, y),
---   on_wheel(dy)         - optional
---   state                - persistent table (saved between restarts)
+--   width, height, tick, rotation, cursor
+--   render(w, h)               returns a list of drawing operations
+--   init(w, h, style, id)
+--   on_tick, on_press, on_move, on_release, on_click, on_double_click,
+--   on_wheel, on_text(key, text)
+--   state                      persistent table (saved between restarts)
 --
--- Drawing operations (all coordinates in widget-local pixels):
+-- Drawing operations (widget-local pixels):
 --   { type = "rect",   x, y, w, h, radius, color, border, borderColor }
 --   { type = "circle", x, y, r, color, border, borderColor }
---   { type = "line",   x1, y1, x2, y2, width, color }
+--   { type = "line",   x1, y1, x2, y2, width, color, lineCap }
 --   { type = "text",   x, y, text, size, color, align, valign, font }
 --   { type = "image",  src, x, y, w, h }
---   { type = "arc",    x, y, r, from, to, width, color }  (radians)
+--   { type = "arc",    x, y, r, from, to, width, color }
+--   { type = "input",  key, x, y, w, h, text, size, color, family,
+--                      align, multiline, selectionColor, selectedTextColor }
+--
+-- Helpers:
+--   desktop.notify(title, body)
+--   desktop.spawn(command, arg1, ...)   -- command may also be a table
+--   desktop.open(path)
+--   desktop.tr(key)
+--   desktop.log(...)
+--   desktop.strings                     -- translations table
+--   desktop.home                        -- $HOME
 
 local script_path = arg[1]
 local state_path = arg[2] or ""
@@ -36,6 +49,12 @@ local state_path = arg[2] or ""
 if not script_path or script_path == "" then
     io.stderr:write("no script path\n")
     os.exit(2)
+end
+
+local function url_decode(text)
+    return (tostring(text):gsub("%%(%x%x)", function(code)
+        return string.char(tonumber(code, 16))
+    end))
 end
 
 local function json_escape(text)
@@ -98,8 +117,6 @@ local function json_encode(value)
     return "null"
 end
 
--- State is stored as a Lua literal, so it can hold arbitrary nested tables
--- without pulling a JSON parser into the host.
 local function serialize(value, indent)
     indent = indent or ""
     local kind = type(value)
@@ -119,16 +136,16 @@ local function serialize(value, indent)
             for index = 1, count do
                 parts[#parts + 1] = serialize(value[index], indent .. "  ")
             end
-            return "{\n" .. indent .. "  " .. table.concat(parts, ",\n" .. indent .. "  ") .. ",\n" .. indent .. "}"
-        end
-        for key, item in pairs(value) do
-            local key_literal
-            if type(key) == "string" then
-                key_literal = string.format("[%q]", key)
-            else
-                key_literal = "[" .. tostring(key) .. "]"
+        else
+            for key, item in pairs(value) do
+                local key_literal
+                if type(key) == "string" then
+                    key_literal = string.format("[%q]", key)
+                else
+                    key_literal = "[" .. tostring(key) .. "]"
+                end
+                parts[#parts + 1] = key_literal .. " = " .. serialize(item, indent .. "  ")
             end
-            parts[#parts + 1] = key_literal .. " = " .. serialize(item, indent .. "  ")
         end
         return "{\n" .. indent .. "  " .. table.concat(parts, ",\n" .. indent .. "  ") .. ",\n" .. indent .. "}"
     end
@@ -151,7 +168,50 @@ if state_path ~= "" then
     end
 end
 
-widget = { width = 320, height = 220, tick = 0, state = state }
+local actions = {}
+
+desktop = {
+    home = os.getenv("HOME") or "",
+    strings = {},
+}
+
+function desktop.notify(title, body)
+    actions[#actions + 1] = { type = "notify", title = tostring(title or ""), body = tostring(body or "") }
+end
+
+function desktop.spawn(command, ...)
+    local args
+    if type(command) == "table" then
+        args = command
+    else
+        args = { command, ... }
+    end
+    actions[#actions + 1] = { type = "spawn", command = args }
+end
+
+function desktop.open(path)
+    actions[#actions + 1] = { type = "open", path = tostring(path or "") }
+end
+
+function desktop.tr(key)
+    return desktop.strings[tostring(key)] or tostring(key)
+end
+
+function desktop.log(...)
+    local parts = {}
+    for index = 1, select("#", ...) do
+        parts[index] = tostring(select(index, ...))
+    end
+    io.stderr:write(table.concat(parts, "\t"), "\n")
+end
+
+-- User scripts must not write to stdout: it carries the protocol. Keep print
+-- working by routing it to stderr.
+print = function(...)
+    desktop.log(...)
+end
+
+widget = { width = 320, height = 220, tick = 0, rotation = 0, cursor = "pointing", state = state }
 
 local returned = dofile(script_path)
 if type(returned) == "table" then
@@ -167,7 +227,10 @@ end
 local widget_width = tonumber(widget.width) or 320
 local widget_height = tonumber(widget.height) or 220
 local tick_interval = tonumber(widget.tick) or 0
+local widget_rotation = tonumber(widget.rotation) or 0
+local widget_cursor = tostring(widget.cursor or "pointing")
 local current_style = ""
+local current_id = ""
 
 local function save_state()
     if state_path == "" then
@@ -222,14 +285,25 @@ local function render_now()
 end
 
 local function respond()
+    -- The script may have changed its declared size/tick in init() or render().
+    widget_width = tonumber(widget.width) or widget_width
+    widget_height = tonumber(widget.height) or widget_height
+    local ops = render_now()
+    tick_interval = tonumber(widget.tick) or 0
+    widget_rotation = tonumber(widget.rotation) or 0
+    widget_cursor = tostring(widget.cursor or "pointing")
     local payload = {
-        ops = render_now(),
+        ops = ops,
         meta = {
-            width = widget_width,
-            height = widget_height,
-            tick = tick_interval
-        }
+            width = tonumber(widget.width) or widget_width,
+            height = tonumber(widget.height) or widget_height,
+            tick = tick_interval,
+            rotation = widget_rotation,
+            cursor = widget_cursor
+        },
+        actions = actions
     }
+    actions = {}
     io.stdout:write(json_encode(payload), "\n")
     io.stdout:flush()
     save_state()
@@ -246,15 +320,11 @@ local function call(name, ...)
     return true
 end
 
-if type(widget.init) == "function" then
-    pcall(widget.init, widget_width, widget_height, current_style)
-end
-
 for line in io.lines() do
     local command, rest = line:match("^(%a)%s*(.*)$")
+    local skip_respond = false
     if command == "i" then
-        local w, h, style = rest:match("([^\t]*)\t([^\t]*)\t?(.*)")
-        -- The script's declared size wins; the host size is only a fallback.
+        local w, h, style, id = rest:match("([^\t]*)\t([^\t]*)\t?([^\t]*)\t?(.*)")
         if tonumber(widget.width) == nil then
             widget_width = tonumber(w) or widget_width
         end
@@ -262,8 +332,15 @@ for line in io.lines() do
             widget_height = tonumber(h) or widget_height
         end
         current_style = style or ""
-        tick_interval = tonumber(widget.tick) or tick_interval
-        call("init", widget_width, widget_height, current_style)
+        current_id = id or ""
+        call("init", widget_width, widget_height, current_style, current_id)
+    elseif command == "s" then
+        local key, value = rest:match("([^\t]*)\t?(.*)")
+        if key and key ~= "" then
+            desktop.strings[url_decode(key)] = url_decode(value or "")
+        end
+        -- Translation entries do not trigger a repaint.
+        skip_respond = true
     elseif command == "t" then
         call("on_tick", tonumber(rest) or 0)
     elseif command == "p" or command == "r" then
@@ -283,11 +360,18 @@ for line in io.lines() do
         call("on_double_click", tonumber(x) or 0, tonumber(y) or 0)
     elseif command == "w" then
         call("on_wheel", tonumber(rest) or 0)
+    elseif command == "e" then
+        local key, text = rest:match("([^\t]*)\t?(.*)")
+        if key and key ~= "" then
+            call("on_text", key, url_decode(text or ""))
+        end
     elseif command == "x" then
         save_state()
         os.exit(0)
     end
-    respond()
+    if not skip_respond then
+        respond()
+    end
 end
 
 save_state()

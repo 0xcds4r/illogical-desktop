@@ -26,6 +26,7 @@ Singleton {
     readonly property string luaRuntime: Quickshell.env("LUA") || "lua"
     readonly property string luaHostPath: String(Qt.resolvedUrl("lua/host.lua")).replace("file://", "")
     readonly property string examplePath: root.customDir + "/example.lua"
+    readonly property string builtinDir: String(Qt.resolvedUrl("lua/widgets")).replace("file://", "")
     property string reloadId: ""
     property int reloadCounter: 0
     property bool ready: false
@@ -75,7 +76,7 @@ Singleton {
         if (type === "datetime")
             return style === "inline" ? { width: 420, height: 90 } : { width: 320, height: 130 };
         if (type === "notes")
-            return { width: 260, height: 220 };
+            return { width: 280, height: 240 };
         if (type === "timer")
             return style === "pill" ? { width: 380, height: 120 } : { width: 300, height: 330 };
         if (type === "paint")
@@ -83,6 +84,28 @@ Singleton {
         if (type === "custom")
             return { width: 320, height: 220 };
         return { width: 300, height: 150 };
+    }
+
+    function addBuiltin(name, style) {
+        const id = "w" + Date.now().toString(36) + Math.floor(Math.random() * 10000).toString(36);
+        const size = root.defaultSize(name, style);
+        const count = (root.widgets || []).length;
+        const widget = {
+            id: id,
+            type: "custom",
+            style: style,
+            script: root.builtinDir + "/" + name + ".lua",
+            x: 80 + (count % 4) * 430,
+            y: 80 + Math.floor(count / 4) % 3 * 300,
+            width: size.width,
+            height: size.height,
+            text: "",
+            timerEnd: 0,
+            timerRunning: false,
+            timerDuration: 300000,
+            paintPath: root.paintDir + "/" + id + ".png"
+        };
+        root.widgets = (root.widgets || []).concat([widget]);
     }
 
     function addCustom(script) {

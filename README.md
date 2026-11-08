@@ -54,7 +54,8 @@ desktop-entry aware icons/launching.
     their text;
   - timer — ring or pill, with a shortcut to GNOME Clocks for alarms;
   - mini paint — paper or board canvas, saved as PNG and copied on duplicate.
-  - custom widgets written in Lua (drawing, input, animation and persistent state).
+  - all of the above are implemented as Lua scripts (`lua/widgets/`), and you can add
+    your own Lua widgets with drawing, input, animation and persistent state.
   Widget state lives in `~/.local/state/quickshell/user/desktop-widgets.json`,
   drawings in `~/.local/state/quickshell/user/desktop-widgets/`.
 - `.desktop` entries show their real `Name=` and `Icon=` and are launched with
@@ -115,6 +116,10 @@ from **Settings → Widgets → Custom widgets** (there is a **Create example** 
 Each instance runs in its own `lua` process; a script error is shown on the widget and
 its full message goes to stderr.
 
+The bundled widgets in the module's `lua/widgets/` (`clock`, `calendar`, `datetime`,
+`notes`, `timer`, `paint`) are plain scripts and double as examples — copy one into
+`<desktop folder>/.widgets/` and edit it.
+
 A widget is a table returned by the script (or assigned to the global `widget`):
 
 ```lua
@@ -122,6 +127,8 @@ local W = {
     width = 300,      -- preferred size (the host resizes the card to match)
     height = 180,
     tick = 50,        -- animation interval in ms, 0 = no timer
+    rotation = 0,     -- whole-widget rotation in degrees
+    cursor = "pointing", -- "pointing" | "arrow" | "cross" | "text" | "hand"
 }
 
 function W.render(w, h)
@@ -150,11 +157,30 @@ Drawing operations (widget-local pixels):
 | `text` | `x, y, text, size, color, align, valign, font` |
 | `image` | `src, x, y, w, h` |
 | `arc` | `x, y, r, from, to, width, color` (radians) |
+| `input` | `key, x, y, w, h, text, size, color, family, align, multiline, selectionColor, selectedTextColor` |
 
-Callbacks: `init(w, h, style)`, `render(w, h)`, `on_tick(ms)`, `on_press(x, y, button)`,
-`on_move(x, y, buttons)`, `on_release(x, y, button)`, `on_click(x, y, button)`,
-`on_double_click(x, y)`, `on_wheel(dy)`. `button` is `"left"`, `"right"` or `"middle"`.
+`input` places a native text editor inside the widget (used by the notes widget). The
+text is sent back through `on_text(key, text)`; `multiline = true` gives a `TextEdit`,
+anything else a single-line `TextInput`.
+
+Callbacks: `init(w, h, style, id)`, `render(w, h)`, `on_tick(ms)`,
+`on_press(x, y, button)`, `on_move(x, y, buttons)`, `on_release(x, y, button)`,
+`on_click(x, y, button)`, `on_double_click(x, y)`, `on_wheel(dy)`,
+`on_text(key, text)`. `button` is `"left"`, `"right"` or `"middle"`. `style`/`id` are
+the instance values from the widget record.
+
 `W.state` is a persistent table, saved next to the widget state and restored on restart.
+
+Helpers available to scripts:
+
+| helper | meaning |
+|---|---|
+| `desktop.notify(title, body)` | desktop notification |
+| `desktop.spawn(command, ...)` | run a program (a table of arguments also works) |
+| `desktop.open(path)` | open a file or folder with the default app |
+| `desktop.tr(key)` | translate a string with the add-on's language |
+| `desktop.log(...)` | write a line to stderr (`print` does the same) |
+| `desktop.home`, `desktop.strings` | `$HOME` and the translation table |
 
 The top 34 px of a custom widget are reserved for dragging the card; draw your content
 below that (or leave the area empty).

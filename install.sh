@@ -20,9 +20,10 @@ fi
 echo "Installing into $TARGET"
 
 # 1. Module files.
-mkdir -p "$TARGET/modules/ii/background/desktop/lua"
+mkdir -p "$TARGET/modules/ii/background/desktop/lua/widgets"
 cp "$HERE/files/modules/ii/background/desktop/"*.qml "$TARGET/modules/ii/background/desktop/"
 cp "$HERE/files/modules/ii/background/desktop/lua/"*.lua "$TARGET/modules/ii/background/desktop/lua/"
+cp "$HERE/files/modules/ii/background/desktop/lua/widgets/"*.lua "$TARGET/modules/ii/background/desktop/lua/widgets/"
 
 # 2. Build and install the Rust helper.
 if ! command -v cargo >/dev/null 2>&1; then
