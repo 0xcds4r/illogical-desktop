@@ -50,7 +50,7 @@ Item {
         anchors {
             fill: parent
             margins: 16
-            topMargin: 34
+            topMargin: 40
         }
         text: root.widgetData.text ?? ""
         color: "#2b2b2b"

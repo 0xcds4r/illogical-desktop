@@ -46,7 +46,7 @@ Item {
             id: canvas
             anchors {
                 fill: parent
-                topMargin: 30
+                topMargin: 40
                 bottomMargin: 44
                 leftMargin: 8
                 rightMargin: 8

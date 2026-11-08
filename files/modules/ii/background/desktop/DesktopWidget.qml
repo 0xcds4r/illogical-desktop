@@ -21,6 +21,50 @@ Item {
     z: 10
 
     readonly property bool topStrip: info.type === "notes" || info.type === "paint" || info.type === "timer"
+    readonly property int grabHeight: root.topStrip ? 34 : root.height
+
+    // Drag in scene coordinates: the item moves under the cursor, so local
+    // deltas would feed back into each other and make the widget jitter.
+    property real pressSceneX: 0
+    property real pressSceneY: 0
+    property real startX: 0
+    property real startY: 0
+    property bool dragging: false
+
+    function beginDrag(area, event) {
+        const point = area.mapToItem(null, event.x, event.y);
+        root.pressSceneX = point.x;
+        root.pressSceneY = point.y;
+        root.startX = root.x;
+        root.startY = root.y;
+        root.dragging = false;
+    }
+
+    function moveDrag(area, event) {
+        const point = area.mapToItem(null, event.x, event.y);
+        const dx = point.x - root.pressSceneX;
+        const dy = point.y - root.pressSceneY;
+        if (!root.dragging && Math.abs(dx) + Math.abs(dy) < 4)
+            return;
+        root.dragging = true;
+        const maxX = root.parent ? Math.max(0, root.parent.width - root.width) : 1e9;
+        const maxY = root.parent ? Math.max(0, root.parent.height - root.height) : 1e9;
+        root.x = Math.max(0, Math.min(maxX, root.startX + dx));
+        root.y = Math.max(0, Math.min(maxY, root.startY + dy));
+        root.z = 1000;
+    }
+
+    function endDrag(area, event, button) {
+        if (root.dragging) {
+            root.dragging = false;
+            DesktopWidgets.update(root.info.id, { x: Math.round(root.x), y: Math.round(root.y) });
+            return;
+        }
+        if (button === Qt.RightButton && root.host) {
+            const point = area.mapToItem(root.host, event.x, event.y);
+            root.host.showWidgetMenu(root.info, point.x, point.y);
+        }
+    }
 
     Rectangle {
         visible: info.type !== "notes" && info.type !== "paint"
@@ -53,16 +97,18 @@ Item {
         }
     }
 
+    // Right button works anywhere on the widget: drag to move, release without
+    // moving opens the menu.
     MouseArea {
         id: contextArea
         anchors.fill: parent
         acceptedButtons: Qt.RightButton
-        onClicked: event => {
-            if (!root.host)
-                return;
-            const point = contextArea.mapToItem(root.host, event.x, event.y);
-            root.host.showWidgetMenu(root.info, point.x, point.y);
+        onPressed: event => root.beginDrag(contextArea, event)
+        onPositionChanged: event => {
+            if (event.buttons & Qt.RightButton)
+                root.moveDrag(contextArea, event);
         }
+        onReleased: event => root.endDrag(contextArea, event, event.button)
     }
 
     MouseArea {
@@ -72,46 +118,14 @@ Item {
             right: parent.right
             top: parent.top
         }
-        height: root.topStrip ? 28 : parent.height
+        height: root.grabHeight
         acceptedButtons: Qt.LeftButton | Qt.RightButton
         cursorShape: Qt.SizeAllCursor
-
-        property real pressX: 0
-        property real pressY: 0
-        property real startX: 0
-        property real startY: 0
-        property bool moved: false
-
-        onPressed: event => {
-            if (event.button === Qt.RightButton) {
-                if (root.host) {
-                    const point = dragArea.mapToItem(root.host, event.x, event.y);
-                    root.host.showWidgetMenu(root.info, point.x, point.y);
-                }
-                return;
-            }
-            pressX = event.x;
-            pressY = event.y;
-            startX = root.x;
-            startY = root.y;
-            moved = false;
-        }
-
+        onPressed: event => root.beginDrag(dragArea, event)
         onPositionChanged: event => {
-            if (!(event.buttons & Qt.LeftButton))
-                return;
-            const dx = event.x - pressX;
-            const dy = event.y - pressY;
-            if (!moved && Math.abs(dx) + Math.abs(dy) < 4)
-                return;
-            moved = true;
-            root.x = Math.max(0, startX + dx);
-            root.y = Math.max(0, startY + dy);
+            if (event.buttons & (Qt.LeftButton | Qt.RightButton))
+                root.moveDrag(dragArea, event);
         }
-
-        onReleased: {
-            if (moved)
-                DesktopWidgets.update(root.info.id, { x: Math.round(root.x), y: Math.round(root.y) });
-        }
+        onReleased: event => root.endDrag(dragArea, event, event.button)
     }
 }
