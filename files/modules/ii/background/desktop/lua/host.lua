@@ -23,7 +23,7 @@
 --   x                          close
 --
 -- A widget is a Lua table (returned by the script, or the global `widget`):
---   width, height, tick, rotation, cursor
+--   width, height, tick, rotation, cursor, context_button
 --   render(w, h)               returns a list of drawing operations
 --   init(w, h, style, id)
 --   on_tick, on_press(x, y, button, mods), on_move(x, y, buttons, mods),
@@ -318,7 +318,8 @@ local function respond()
             height = tonumber(widget.height) or widget_height,
             tick = tick_interval,
             rotation = widget_rotation,
-            cursor = widget_cursor
+            cursor = widget_cursor,
+            context = tostring(widget.context_button or "right")
         },
         actions = actions
     }

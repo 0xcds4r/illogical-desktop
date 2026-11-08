@@ -25,6 +25,15 @@ Item {
     property real luaRotation: 0
     property string errorText: ""
     property bool started: false
+    property string menuButton: "right"
+
+    readonly property bool menuOnRight: root.menuButton === "right"
+    readonly property bool menuOnMiddle: root.menuButton === "middle"
+    readonly property string keyboardMenu: (!root.menuOnRight && !root.menuOnMiddle
+        && root.menuButton !== "none") ? root.menuButton : ""
+
+    signal menuButtonRequested(string button)
+    signal contextMenuRequested()
 
     rotation: root.luaRotation
 
@@ -74,6 +83,12 @@ Item {
             root.tickInterval = Math.max(0, Math.round(meta.tick ?? 0));
             root.luaRotation = Number(meta.rotation ?? 0);
             root.cursorShape = String(meta.cursor ?? "pointing");
+            const context = String(meta.context ?? "right");
+            if (context !== root.menuButton && (context === "right" || context === "middle"
+                    || context === "none" || /^[a-z0-9+_-]+$/.test(context))) {
+                root.menuButton = context;
+                root.menuButtonRequested(context);
+            }
             if (width > 0 && height > 0
                     && (Math.abs(width - (root.widgetData.width ?? 0)) > 1
                         || Math.abs(height - (root.widgetData.height ?? 0)) > 1))
@@ -257,6 +272,11 @@ Item {
             event.accepted = true;
             return;
         }
+        if (root.keyboardMenu !== "" && root.keySpecMatches(root.keyboardMenu, event)) {
+            root.contextMenuRequested();
+            event.accepted = true;
+            return;
+        }
         root.send("k\t" + root.keyName(event) + "\t" + root.modifiers(event.modifiers));
         event.accepted = true;
     }
@@ -289,11 +309,33 @@ Item {
         case Qt.Key_End: return "end";
         case Qt.Key_PageUp: return "pageup";
         case Qt.Key_PageDown: return "pagedown";
+        case Qt.Key_F1: return "f1";
+        case Qt.Key_F2: return "f2";
+        case Qt.Key_F3: return "f3";
+        case Qt.Key_F4: return "f4";
+        case Qt.Key_F5: return "f5";
+        case Qt.Key_F6: return "f6";
+        case Qt.Key_F7: return "f7";
+        case Qt.Key_F8: return "f8";
+        case Qt.Key_F9: return "f9";
+        case Qt.Key_F10: return "f10";
+        case Qt.Key_F11: return "f11";
+        case Qt.Key_F12: return "f12";
+        case Qt.Key_Insert: return "insert";
         }
         const text = event.text;
         if (text && text.length === 1)
             return text.toLowerCase();
         return "key_" + event.key;
+    }
+
+    function keySpecMatches(spec, event) {
+        const parts = String(spec).toLowerCase().split("+");
+        const key = parts.pop();
+        if (root.keyName(event) !== key)
+            return false;
+        const pressed = root.modifiers(event.modifiers).split("+").filter(part => part !== "");
+        return parts.length === pressed.length && parts.every(part => pressed.includes(part));
     }
 
     function modifiers(mask) {
@@ -312,7 +354,14 @@ Item {
     MouseArea {
         id: input
         anchors.fill: parent
-        acceptedButtons: Qt.LeftButton | Qt.MiddleButton
+        acceptedButtons: {
+            let buttons = Qt.LeftButton;
+            if (!root.menuOnMiddle)
+                buttons |= Qt.MiddleButton;
+            if (!root.menuOnRight)
+                buttons |= Qt.RightButton;
+            return buttons;
+        }
         hoverEnabled: true
         cursorShape: root.cursorFor(root.cursorShape ?? "pointing")
 

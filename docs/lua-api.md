@@ -235,8 +235,27 @@ modifier string. Clicks are still needed to give the widget keyboard focus; hove
 without focus.
 
 The **right button is reserved** for the widget context menu (Duplicate / Reload /
-Remove), so scripts receive only left and middle button events. Use the middle button or
-a mode toggle for secondary actions.
+Remove) by default, so scripts receive only left and middle button events. A widget can
+move the menu to another button:
+
+```lua
+local W = {
+    width = 320, height = 240,
+    context_button = "middle",   -- a mouse button: "right" (default) | "middle" | "none"
+    -- context_button = "f1",    -- or any key ...
+    -- context_button = "ctrl+m" -- ... with modifiers
+}
+```
+
+- `"right"` (default) — menu on the right mouse button, the script gets left + middle.
+- `"middle"` — menu on the middle button, the script gets **right** instead.
+- `"none"` — no context menu; the script gets middle and right.
+- A key name (`"f1"`, `"m"`, `"space"`, ...) or a combination (`"ctrl+m"`,
+  `"shift+f2"`): the menu opens when that key is pressed **while the widget has keyboard
+  focus** (click it once). All mouse buttons then go to the script.
+
+The top 34 px drag strip still belongs to the window manager, and a middle/right press
+there drags the card (a plain click opens the menu when it is mapped to that button).
 
 ## Keyboard
 
