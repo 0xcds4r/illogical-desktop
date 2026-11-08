@@ -4,6 +4,8 @@ A Windows-like active desktop for **illogical-impulse** (quickshell `ii`) on Hyp
 icons for `~/Desktop`, selection, drag & drop, context menus, file operations and
 desktop-entry aware icons/launching.
 
+<p align="center"><img src="assets/screenshot.jpg" width="100%" alt="Desktop with icons"></p>
+
 ## Features
 
 - Icons for everything in `~/Desktop`, laid out on a grid (columns or rows).
@@ -92,6 +94,28 @@ Right-click the desktop → **Desktop settings**. Everything applies live, split
 ## Quick look
 
 Press `Space` on a file to preview it (images, text, video/PDF thumbnails).
+
+## Screenshots
+
+| Desktop | Rubber-band selection |
+|---|---|
+| ![Desktop](assets/screenshot.jpg) | ![Selection](assets/selection.jpg) |
+
+| Icon context menu | Desktop context menu |
+|---|---|
+| ![Icon menu](assets/context-icon.png) | ![Desktop menu](assets/context-desktop.png) |
+
+| General | Grid |
+|---|---|
+| ![General](assets/settings.jpg) | ![Grid](assets/grid.jpg) |
+
+| Colors | Arrange |
+|---|---|
+| ![Colors](assets/colors.jpg) | ![Arrange](assets/arrange.jpg) |
+
+| Language | Applications |
+|---|---|
+| ![Language](assets/language.jpg) | ![Applications](assets/apps.jpg) |
 
 ## Requirements
 
