@@ -175,6 +175,16 @@ PNGs work. Use an absolute `file://` URL.
 Closed path, filled when `color` is set, stroked when `border > 0`. Handy for cars,
 arrows, flags and other rotated shapes.
 
+### `quad`
+
+```lua
+{ type = "quad", x1 = 10, y1 = 10, x2 = 80, y2 = 14,
+  x3 = 76, y3 = 60, x4 = 6, y4 = 56, color = "#8a8a92" }
+```
+
+A filled four-point polygon. Use it for software-rendered 3D: it has the smallest JSON
+footprint and skips path/stroke handling.
+
 ### `input`
 
 Places a native text editor inside the widget. This is how the notes widget edits text.
@@ -362,7 +372,10 @@ Ready-made scripts, all using the API above:
 - `docs/examples/snake.lua` — animated game loop driven by `on_tick`: dynamic speed,
   arrows/WASD steering, click/d-pad fallback, pause on blur, score and best score;
 - `docs/examples/carmageddon.lua` — top-down car game: vector car and pedestrians,
-  optional local art pack, physics in Lua, splats/particles, timer and best score.
+  optional local art pack, physics in Lua, splats/particles, timer and best score;
+- `docs/examples/desktocraft.lua` — DesktoCraft, a first-person voxel sandbox:
+  software 3D renderer with `quad` faces, procedural world, collision,
+  mining/building and persistence.
 
 A minimal widget:
 

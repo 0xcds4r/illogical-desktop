@@ -437,6 +437,15 @@ Item {
             ctx.strokeStyle = String(op.color ?? "#ffffff");
             ctx.lineCap = "round";
             ctx.stroke();
+        } else if (type === "quad") {
+            ctx.beginPath();
+            ctx.moveTo(number(op.x1, 0), number(op.y1, 0));
+            ctx.lineTo(number(op.x2, 0), number(op.y2, 0));
+            ctx.lineTo(number(op.x3, 0), number(op.y3, 0));
+            ctx.lineTo(number(op.x4, 0), number(op.y4, 0));
+            ctx.closePath();
+            ctx.fillStyle = String(op.color ?? "#000000");
+            ctx.fill();
         } else if (type === "polygon") {
             const points = op.points ?? [];
             if (points.length > 1) {
