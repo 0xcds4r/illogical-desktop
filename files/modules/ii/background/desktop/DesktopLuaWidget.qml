@@ -374,8 +374,19 @@ Item {
         }
         if (image.status !== Image.Ready)
             return;
-        ctx.drawImage(image, number(op.x, 0), number(op.y, 0),
-            number(op.w, image.width), number(op.h, image.height));
+        const x = number(op.x, 0);
+        const y = number(op.y, 0);
+        const w = number(op.w, image.width);
+        const h = number(op.h, image.height);
+        if (op.angle !== undefined) {
+            ctx.save();
+            ctx.translate(x + w / 2, y + h / 2);
+            ctx.rotate(number(op.angle, 0));
+            ctx.drawImage(image, -w / 2, -h / 2, w, h);
+            ctx.restore();
+        } else {
+            ctx.drawImage(image, x, y, w, h);
+        }
     }
 
     function paintOp(ctx, op) {
@@ -426,6 +437,24 @@ Item {
             ctx.strokeStyle = String(op.color ?? "#ffffff");
             ctx.lineCap = "round";
             ctx.stroke();
+        } else if (type === "polygon") {
+            const points = op.points ?? [];
+            if (points.length > 1) {
+                ctx.beginPath();
+                ctx.moveTo(number(points[0].x, 0), number(points[0].y, 0));
+                for (let i = 1; i < points.length; i++)
+                    ctx.lineTo(number(points[i].x, 0), number(points[i].y, 0));
+                ctx.closePath();
+                if (op.color !== undefined) {
+                    ctx.fillStyle = String(op.color);
+                    ctx.fill();
+                }
+                if (number(op.border, 0) > 0) {
+                    ctx.lineWidth = number(op.border, 1);
+                    ctx.strokeStyle = String(op.borderColor ?? "#ffffff");
+                    ctx.stroke();
+                }
+            }
         } else if (type === "text") {
             root.paintText(ctx, op);
         } else if (type === "image") {

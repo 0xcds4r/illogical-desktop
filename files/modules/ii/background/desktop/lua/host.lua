@@ -37,6 +37,7 @@
 --   { type = "arc",    x, y, r, from, to, width, color }
 --   { type = "input",  key, x, y, w, h, text, size, color, family,
 --                      align, multiline, selectionColor, selectedTextColor }
+--   { type = "polygon", points = {{x=,y=}, ...}, color, border, borderColor }
 --
 -- Helpers:
 --   desktop.notify(title, body)
@@ -176,6 +177,8 @@ local actions = {}
 
 desktop = {
     home = os.getenv("HOME") or "",
+    script_path = script_path,
+    dir = script_path:match("^(.*)[/\\][^/\\]*$") or ".",
     strings = {},
 }
 
@@ -236,16 +239,23 @@ local widget_cursor = tostring(widget.cursor or "pointing")
 local current_style = ""
 local current_id = ""
 
+local last_saved = nil
+
 local function save_state()
     if state_path == "" then
+        return
+    end
+    local encoded = "return " .. serialize(widget.state or {}) .. "\n"
+    if encoded == last_saved then
         return
     end
     local file = io.open(state_path, "w")
     if not file then
         return
     end
-    file:write("return ", serialize(widget.state or {}), "\n")
+    file:write(encoded)
     file:close()
+    last_saved = encoded
 end
 
 local function error_ops(message)

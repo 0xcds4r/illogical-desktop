@@ -155,10 +155,25 @@ Angles are radians; the stroke is open (no fill).
 
 ```lua
 { type = "image", src = "file:///home/me/picture.png", x = 8, y = 40, w = 120, h = 90 }
+
+-- rotated sprite (angle in radians, around the image centre)
+{ type = "image", src = "file:///home/me/car.png", x = x - 19, y = y - 12,
+  w = 38, h = 24, angle = heading }
 ```
 
 Loaded asynchronously; the widget repaints when the image becomes ready. Transparent
 PNGs work. Use an absolute `file://` URL.
+
+### `polygon`
+
+```lua
+{ type = "polygon",
+  points = { { x = 20, y = 10 }, { x = 60, y = 10 }, { x = 40, y = 40 } },
+  color = "#c0392b", border = 1, borderColor = "#7e2318" }
+```
+
+Closed path, filled when `color` is set, stroked when `border > 0`. Handy for cars,
+arrows, flags and other rotated shapes.
 
 ### `input`
 
@@ -255,6 +270,7 @@ Available as `desktop.*`:
 | `desktop.tr(key)` | Translate via the add-on’s language tables; unknown keys pass through. |
 | `desktop.log(...)` | Write to stderr. `print(...)` does the same. |
 | `desktop.home` | `$HOME`. |
+| `desktop.dir`, `desktop.script_path` | Directory of the running script and its full path — use them to locate your own assets. |
 | `desktop.strings` | The current translation dictionary. |
 
 Translations are delivered right after `init`, followed by one repaint, so the first
@@ -269,6 +285,37 @@ frame may briefly show untranslated keys.
 - Right-click anywhere opens the widget menu.
 - Built-in clock/calendar/date-time widgets set `drag = "all"` in their widget record,
   which makes the whole card draggable; widgets with interactive bodies keep the strip.
+
+## Assets and licensing
+
+Scripts can load their own PNGs with the `image` operation, for example:
+
+```lua
+local dir = (desktop.dir or ".") .. "/my-game-assets"
+local function asset(name)
+    local f = io.open(dir .. "/" .. name, "rb")
+    if f then f:close(); return "file://" .. dir .. "/" .. name end
+end
+```
+
+Do not redistribute copyrighted game art. The bundled `docs/examples` use only vector
+graphics or original placeholder art; the full Carmageddon widget accepts an optional
+local pack that you create from art you have the rights to use (see the next section).
+
+### Carmageddon art pack
+
+`docs/examples/carmageddon.lua` looks for `<its folder>/carmageddon-assets/`:
+
+| file | content |
+|---|---|
+| `asphalt.png` | arena background, stretched |
+| `car.png` | player car, faces **right** at angle 0 (transparent PNG) |
+| `ped.png` | pedestrian, faces **up** at angle 0 |
+| `blood.png` | blood splat, drawn rotated |
+
+Without the files the widget uses vector graphics. The original Carmageddon artwork is
+copyrighted: export or draw the sprites yourself, keep the pack local, and never add it
+to the repository.
 
 ## Errors and debugging
 
@@ -313,7 +360,9 @@ Ready-made scripts, all using the API above:
 - `docs/examples/minesweeper.lua` — complete 9×9 game: persistent state, first-click
   safety, flood reveal, flags (middle click or flag mode), timer, win/lose overlays;
 - `docs/examples/snake.lua` — animated game loop driven by `on_tick`: dynamic speed,
-  arrows/WASD steering, click/d-pad fallback, pause on blur, score and best score.
+  arrows/WASD steering, click/d-pad fallback, pause on blur, score and best score;
+- `docs/examples/carmageddon.lua` — top-down car game: vector car and pedestrians,
+  optional local art pack, physics in Lua, splats/particles, timer and best score.
 
 A minimal widget:
 
