@@ -21,7 +21,7 @@ local W = { width = 480, height = 392, tick = 0 }
 local ARENA = { x = 10, y = 66, w = 460, h = 270 }
 local WORLD = 48
 local HEIGHT = 24
-local RENDER_RADIUS = 11
+local RENDER_RADIUS = 10
 local FOCAL = 176
 
 local GRAVITY = 26
@@ -72,6 +72,7 @@ local FACES = {
 
 local held = {}
 local world = {}
+local tops = {}
 local generated = false
 local rng_state = 0
 local mode = "mine"
@@ -111,12 +112,36 @@ local function block(x, y, z)
     return world[index(x, y, z)] or 0
 end
 
+local function column_top_slot(x, z)
+    return x * WORLD + z + 1
+end
+
+local function recompute_top(x, z)
+    local slot = column_top_slot(x, z)
+    for y = HEIGHT - 1, 0, -1 do
+        if (world[index(x, y, z)] or 0) ~= 0 then
+            tops[slot] = y + 1
+            return
+        end
+    end
+    tops[slot] = 0
+end
+
 local function set_block(x, y, z, id)
     if x < 0 or x >= WORLD or z < 0 or z >= WORLD or y < 0 or y >= HEIGHT then
         return false
     end
     world[index(x, y, z)] = id
     W.state.edits[x .. "," .. y .. "," .. z] = id
+    local slot = column_top_slot(x, z)
+    local top = tops[slot] or 0
+    if id ~= 0 then
+        if y + 1 > top then
+            tops[slot] = y + 1
+        end
+    elseif y + 1 >= top then
+        recompute_top(x, z)
+    end
     return true
 end
 
@@ -220,6 +245,12 @@ local function generate()
         local x, y, z = key:match("(-?%d+),(-?%d+),(-?%d+)")
         if x then
             world[index(tonumber(x), tonumber(y), tonumber(z))] = id
+        end
+    end
+
+    for x = 0, WORLD - 1 do
+        for z = 0, WORLD - 1 do
+            recompute_top(x, z)
         end
     end
     generated = true
@@ -413,14 +444,27 @@ local function render_world(ops)
 
     local min_x, max_x = math.floor(player.x) - RENDER_RADIUS, math.floor(player.x) + RENDER_RADIUS
     local min_z, max_z = math.floor(player.z) - RENDER_RADIUS, math.floor(player.z) + RENDER_RADIUS
-    local min_y = math.max(0, math.floor(player.y) - 8)
-    local max_y = math.min(HEIGHT - 1, math.floor(player.y) + 10)
     local radius_sq = (RENDER_RADIUS + 1) ^ 2
+    local forward_x, forward_z = math.sin(player.yaw), math.cos(player.yaw)
+    local player_floor = math.floor(player.y)
 
     for bx = min_x, max_x do
         for bz = min_z, max_z do
             local dx, dz = bx + 0.5 - player.x, bz + 0.5 - player.z
-            if dx * dx + dz * dz <= radius_sq then
+            local distance_sq = dx * dx + dz * dz
+            -- Skip columns behind the camera (wide margin keeps the edges filled).
+            if distance_sq <= radius_sq
+                and dx * forward_x + dz * forward_z >= -0.32 * math.sqrt(distance_sq) then
+                local top = tops[column_top_slot(bx, bz)] or 0
+                local min_y, max_y
+                if player.y >= top - 1 then
+                    -- Above ground: no need to walk the enclosed underground.
+                    min_y = math.max(0, top - 5)
+                    max_y = math.min(HEIGHT - 1, top + 6)
+                else
+                    min_y = math.max(0, math.min(player_floor - 8, top - 5))
+                    max_y = math.min(HEIGHT - 1, math.max(player_floor + 10, top + 6))
+                end
                 for by = min_y, max_y do
                     local id = world[index(bx, by, bz)]
                     if id and id ~= 0 then
@@ -436,13 +480,25 @@ local function render_world(ops)
                                     local sx3, sy3, z3 = project(bx + face.verts[3][1], by + face.verts[3][2], bz + face.verts[3][3], sin_yaw, cos_yaw, sin_pitch, cos_pitch, ex, ey, ez)
                                     local sx4, sy4, z4 = project(bx + face.verts[4][1], by + face.verts[4][2], bz + face.verts[4][3], sin_yaw, cos_yaw, sin_pitch, cos_pitch, ex, ey, ez)
                                     if sx1 and sx2 and sx3 and sx4 then
+                                        -- Expand each quad by half a pixel so adjacent
+                                        -- faces overlap and no antialiasing seams show.
+                                        local mx = (sx1 + sx2 + sx3 + sx4) / 4
+                                        local my = (sy1 + sy2 + sy3 + sy4) / 4
                                         local depth = (z1 + z2 + z3 + z4) / 4
+                                        local ex1 = sx1 > mx and sx1 + 0.45 or sx1 - 0.45
+                                        local ey1 = sy1 > my and sy1 + 0.45 or sy1 - 0.45
+                                        local ex2 = sx2 > mx and sx2 + 0.45 or sx2 - 0.45
+                                        local ey2 = sy2 > my and sy2 + 0.45 or sy2 - 0.45
+                                        local ex3 = sx3 > mx and sx3 + 0.45 or sx3 - 0.45
+                                        local ey3 = sy3 > my and sy3 + 0.45 or sy3 - 0.45
+                                        local ex4 = sx4 > mx and sx4 + 0.45 or sx4 - 0.45
+                                        local ey4 = sy4 > my and sy4 + 0.45 or sy4 - 0.45
                                         faces[#faces + 1] = {
                                             z = depth,
-                                            x1 = math.floor(sx1 + 0.5), y1 = math.floor(sy1 + 0.5),
-                                            x2 = math.floor(sx2 + 0.5), y2 = math.floor(sy2 + 0.5),
-                                            x3 = math.floor(sx3 + 0.5), y3 = math.floor(sy3 + 0.5),
-                                            x4 = math.floor(sx4 + 0.5), y4 = math.floor(sy4 + 0.5),
+                                            x1 = math.floor(ex1 + 0.5), y1 = math.floor(ey1 + 0.5),
+                                            x2 = math.floor(ex2 + 0.5), y2 = math.floor(ey2 + 0.5),
+                                            x3 = math.floor(ex3 + 0.5), y3 = math.floor(ey3 + 0.5),
+                                            x4 = math.floor(ex4 + 0.5), y4 = math.floor(ey4 + 0.5),
                                             color = COLORS[id][face_index],
                                         }
                                     end
@@ -528,7 +584,7 @@ function W.render(w, h)
     local moving = held.w or held.a or held.s or held.d
         or held.left or held.right or held.up or held.down
         or not player.onGround
-    W.tick = moving and 40 or 0
+    W.tick = moving and 50 or 0
 
     local ops = {
         { type = "rect", x = 0, y = 0, w = w, h = h, radius = 18,
