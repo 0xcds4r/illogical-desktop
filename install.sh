@@ -12,7 +12,7 @@ set -euo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TARGET="${1:-$HOME/.config/quickshell/ii}"
 
-if [[ ! -d "$TARGET/modules/ii/background" || ! -d "$TARGET/scripts" ]]; then
+if [[ ! -d "$TARGET/modules/ii/background" || ! -d "$TARGET/scripts" || ! -f "$TARGET/modules/ii/background/Background.qml" ]]; then
 	echo "error: $TARGET does not look like an illogical-impulse config" >&2
 	exit 1
 fi

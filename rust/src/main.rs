@@ -650,7 +650,17 @@ fn compress(arguments: &[String]) -> io::Result<()> {
     Ok(())
 }
 
+#[cfg(unix)]
+extern "C" {
+    fn signal(signal: i32, handler: usize) -> usize;
+}
+
 fn main() {
+    // Behave like normal CLI tools when the reader closes the pipe.
+    #[cfg(unix)]
+    unsafe {
+        signal(13, 0); // SIGPIPE, SIG_DFL
+    }
     let arguments: Vec<String> = env::args().skip(1).collect();
     if arguments.is_empty() {
         eprintln!("usage: desktop-helper <trash|icon|open|open-with|open-trash|props|compress> ...");
