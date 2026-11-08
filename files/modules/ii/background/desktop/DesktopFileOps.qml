@@ -14,8 +14,10 @@ Singleton {
     property list<string> clipboard: []
     property bool clipboardCut: false
 
+    readonly property string helperPath: Directories.scriptPath + "/desktop-helper"
+
     function open(path) {
-        Quickshell.execDetached([Directories.scriptPath + "/desktop-open.sh", path]);
+        Quickshell.execDetached([root.helperPath, "open", path]);
     }
 
     function rename(from, to) {
@@ -25,25 +27,25 @@ Singleton {
     }
 
     function trash(paths) {
-        const args = ["python3", Directories.scriptPath + "/desktop-trash.py", "move"];
+        const args = [root.helperPath, "trash", "move"];
         for (const path of paths)
             args.push(path);
         Quickshell.execDetached(args);
     }
 
     function restoreTrash(paths) {
-        const args = ["python3", Directories.scriptPath + "/desktop-trash.py", "restore"];
+        const args = [root.helperPath, "trash", "restore"];
         for (const path of paths)
             args.push(path);
         Quickshell.execDetached(args);
     }
 
     function openTrash() {
-        Quickshell.execDetached([Directories.scriptPath + "/desktop-open-trash.sh"]);
+        Quickshell.execDetached([root.helperPath, "open-trash"]);
     }
 
     function emptyTrash() {
-        Quickshell.execDetached(["python3", Directories.scriptPath + "/desktop-trash.py", "empty"]);
+        Quickshell.execDetached([root.helperPath, "trash", "empty"]);
     }
 
     function copy(paths) {
@@ -97,15 +99,7 @@ Singleton {
     }
 
     function compress(destination, parentDir, names, format, level) {
-        if (format === "targz") {
-            const args = ["tar", "-I", `gzip -${level}`, "-cf", destination, "-C", parentDir];
-            for (const name of names)
-                args.push(name);
-            Quickshell.execDetached(args);
-            return;
-        }
-        const script = 'cd "$1" || exit 1; dest="$2"; level="$3"; shift 3; zip -r -"$level" "$dest" -- "$@"';
-        const args = ["bash", "-c", script, "compress", parentDir, destination, String(level)];
+        const args = [root.helperPath, "compress", destination, parentDir, format, String(level)];
         for (const name of names)
             args.push(name);
         Quickshell.execDetached(args);

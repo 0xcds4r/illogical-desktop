@@ -49,7 +49,7 @@ PanelWindow {
     Process {
         id: thumbProcess
         running: false
-        command: [Directories.scriptPath + "/desktop-file-icon.sh", root.filePath]
+        command: [Directories.scriptPath + "/desktop-helper", "icon", root.filePath]
         stdout: StdioCollector {
             onStreamFinished: {
                 const parts = String(text).split("\n")[0].split("\t");

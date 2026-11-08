@@ -112,7 +112,7 @@ Item {
 
     Process {
         id: iconProcess
-        command: [Directories.scriptPath + "/desktop-file-icon.sh", root.filePath]
+        command: [Directories.scriptPath + "/desktop-helper", "icon", root.filePath]
         stdout: StdioCollector {
             onStreamFinished: root.applyFileIcon(text)
         }

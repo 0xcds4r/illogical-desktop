@@ -40,7 +40,7 @@ PanelWindow {
     Process {
         id: propsProcess
         running: false
-        command: [Directories.scriptPath + "/desktop-file-props.sh", root.filePath]
+        command: [Directories.scriptPath + "/desktop-helper", "props", root.filePath]
         stdout: StdioCollector {
             onStreamFinished: root.applyProps(text)
         }

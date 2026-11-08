@@ -1134,7 +1134,7 @@ Item {
     Process {
         id: openWithProcess
         running: false
-        command: [Directories.scriptPath + "/desktop-open-with.sh", root.openWithPath]
+        command: [Directories.scriptPath + "/desktop-helper", "open-with", root.openWithPath]
         stdout: StdioCollector {
             onStreamFinished: root.showOpenWith(text)
         }
