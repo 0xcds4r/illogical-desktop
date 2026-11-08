@@ -9,7 +9,8 @@
 --   s <key> <value>            translation entry (percent-encoded)
 --   t <ms>                     animation tick
 --   p <x> <y> <button>         press
---   m <x> <y> <buttons>        pointer move
+--   m <x> <y> <buttons>        pointer move (button held)
+--   h <x> <y>                  pointer hover
 --   r <x> <y> <button>         release (calls on_release, then on_click)
 --   d <x> <y>                  double click
 --   w <dy>                     wheel
@@ -24,8 +25,8 @@
 --   render(w, h)               returns a list of drawing operations
 --   init(w, h, style, id)
 --   on_tick, on_press, on_move, on_release, on_click, on_double_click,
---   on_wheel, on_text(key, text), on_key(key, modifiers), on_key_release(key),
---   on_blur
+--   on_hover(x, y), on_wheel, on_text(key, text), on_key(key, modifiers),
+--   on_key_release(key), on_blur
 --   state                      persistent table (saved between restarts)
 --
 -- Drawing operations (widget-local pixels):
@@ -369,6 +370,9 @@ for line in io.lines() do
     elseif command == "m" then
         local x, y, buttons = rest:match("([^\t]*)\t([^\t]*)\t?(.*)")
         call("on_move", tonumber(x) or 0, tonumber(y) or 0, buttons)
+    elseif command == "h" then
+        local x, y = rest:match("([^\t]*)\t([^\t]*)")
+        call("on_hover", tonumber(x) or 0, tonumber(y) or 0)
     elseif command == "d" then
         local x, y = rest:match("([^\t]*)\t([^\t]*)")
         call("on_double_click", tonumber(x) or 0, tonumber(y) or 0)

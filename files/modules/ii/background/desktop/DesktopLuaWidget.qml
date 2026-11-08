@@ -311,9 +311,12 @@ Item {
                 + "\t" + root.buttonName(mouse.button));
         }
         onPositionChanged: mouse => {
-            if (pressed)
+            if (pressed) {
                 root.send("m\t" + Math.round(mouse.x) + "\t" + Math.round(mouse.y)
                     + "\t" + (mouse.buttons & Qt.LeftButton ? "left" : "other"));
+            } else {
+                root.send("h\t" + Math.round(mouse.x) + "\t" + Math.round(mouse.y));
+            }
         }
         onReleased: mouse => root.send("r\t" + Math.round(mouse.x) + "\t" + Math.round(mouse.y)
             + "\t" + root.buttonName(mouse.button))

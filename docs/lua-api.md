@@ -207,6 +207,22 @@ Places a native text editor inside the widget. This is how the notes widget edit
 Changes are reported on every edit and again when the editor loses focus. Keep the text
 in `W.state` inside `on_text`.
 
+## Pointer hover
+
+`on_hover(x, y)` fires whenever the pointer moves over the widget without a button
+pressed. Together with the `input`-free drawing API it is enough to build mouse-driven
+games (air hockey, drawing tools, sliders):
+
+```lua
+function W.on_hover(x, y)
+    paddle.x = clamp(x, arena.x, arena.x + arena.w)
+end
+```
+
+`on_move(x, y, buttons)` is the same while a button is held. Hover coordinates are local
+to the widget and work regardless of focus; clicks are still needed to give the widget
+keyboard focus.
+
 ## Keyboard
 
 Clicking a widget gives it keyboard focus; key presses then go to its script until you
@@ -359,7 +375,9 @@ Ready-made scripts, all using the API above:
   physics in Lua, splats/particles, timer and best score;
 - `docs/examples/desktocraft.lua` — DesktoCraft, a first-person voxel sandbox:
   software 3D renderer with `quad` faces, procedural world, collision,
-  mining/building and persistence.
+  mining/building and persistence;
+- `docs/examples/airhockey.lua` — air hockey: hover-driven paddle, keyboard
+  fallback, circle physics, AI opponent, match scoring and persistent wins.
 
 A minimal widget:
 
