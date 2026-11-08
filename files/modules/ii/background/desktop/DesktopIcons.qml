@@ -1441,6 +1441,7 @@ Item {
             }
             onOpenRequested: root.openPath(model.filePath)
             onContextRequested: (x, y) => {
+                root.forceActiveFocus();
                 if (!root.isNameSelected(model.fileName))
                     root.selectOnly(model.fileName);
                 root.lastMenuX = x;
