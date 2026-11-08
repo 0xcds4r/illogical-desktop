@@ -267,7 +267,9 @@ Ready-made scripts, all using the API above:
 - `lua/widgets/paint.lua` — pointer strokes, palette, persistent drawing;
 - `docs/examples/hello.lua` — minimal click counter with animation;
 - `docs/examples/minesweeper.lua` — complete 9×9 game: persistent state, first-click
-  safety, flood reveal, flags (middle click or flag mode), timer, win/lose overlays.
+  safety, flood reveal, flags (middle click or flag mode), timer, win/lose overlays;
+- `docs/examples/snake.lua` — animated game loop: dynamic `tick` speed, click/d-pad
+  steering, score and best score, pause and game-over states.
 
 A minimal widget:
 
