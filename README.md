@@ -109,6 +109,8 @@ Right-click the desktop → **Desktop settings**. Everything applies live, split
 
 ## Custom widgets (Lua)
 
+Full API reference: [`docs/lua-api.md`](docs/lua-api.md).
+
 Any `.lua` file in `<desktop folder>/.widgets/` (default `~/Desktop/.widgets/`) is a widget.
 The folder follows the desktop folder from the settings and is hidden from the icon grid. Add it
 from **Settings → Widgets → Custom widgets** (there is a **Create example** button and

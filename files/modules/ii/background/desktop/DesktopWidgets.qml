@@ -95,6 +95,7 @@ Singleton {
             type: "custom",
             style: style,
             script: root.builtinDir + "/" + name + ".lua",
+            drag: (name === "clock" || name === "calendar" || name === "datetime") ? "all" : "strip",
             x: 80 + (count % 4) * 430,
             y: 80 + Math.floor(count / 4) % 3 * 300,
             width: size.width,

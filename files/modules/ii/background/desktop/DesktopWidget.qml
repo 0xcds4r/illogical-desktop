@@ -20,8 +20,8 @@ Item {
     height: info.height ?? 0
     z: 10
 
-    readonly property bool topStrip: info.type === "notes" || info.type === "paint"
-        || info.type === "timer" || info.type === "custom"
+    readonly property bool topStrip: info.drag !== "all" && (info.type === "notes"
+        || info.type === "paint" || info.type === "timer" || info.type === "custom")
     readonly property int grabHeight: root.topStrip ? 34 : root.height
 
     // Drag in scene coordinates: the item moves under the cursor, so local
