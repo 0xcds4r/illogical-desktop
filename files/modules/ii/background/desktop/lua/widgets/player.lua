@@ -37,12 +37,32 @@ local function fmt(seconds)
     return string.format("%d:%02d", math.floor(seconds / 60), seconds % 60)
 end
 
-local function truncate(text, limit)
-    text = tostring(text or ""):gsub("%s+", " "):gsub("^%s+", ""):gsub("%s+$", "")
-    if #text > limit then
-        text = text:sub(1, limit - 1) .. "…"
+-- Cut by UTF-8 code points, not bytes: byte cuts leave a broken glyph in the
+-- title (a replacement box) for Cyrillic/Chinese/emoji.
+local function utf8_truncate(text, limit)
+    local index, count = 1, 0
+    while index <= #text do
+        local byte = text:byte(index)
+        local size = 1
+        if byte >= 240 then
+            size = 4
+        elseif byte >= 224 then
+            size = 3
+        elseif byte >= 192 then
+            size = 2
+        end
+        count = count + 1
+        if count > limit then
+            return text:sub(1, index - 1) .. "…"
+        end
+        index = index + size
     end
     return text
+end
+
+local function truncate(text, limit)
+    text = tostring(text or ""):gsub("%s+", " "):gsub("^%s+", ""):gsub("%s+$", "")
+    return utf8_truncate(text, limit)
 end
 
 local function clean_title(text)
@@ -173,7 +193,7 @@ function W.render(w, h)
         draw_art(ops, media, 12, 12, 64)
         ops[#ops + 1] = { type = "text", x = 86, y = 32,
             text = truncate(clean_title(media.title), 26), size = 13, weight = 600,
-            color = COLOR.text, elide = true }
+            color = COLOR.text }
         ops[#ops + 1] = { type = "text", x = 86, y = 50,
             text = truncate(media.artist, 28), size = 11, color = COLOR.muted }
         draw_progress(ops, BAR_COMPACT, media, false)
