@@ -355,7 +355,7 @@ Ready-made scripts, all using the API above:
   safety, flood reveal, flags (middle click or flag mode), timer, win/lose overlays;
 - `docs/examples/snake.lua` — animated game loop driven by `on_tick`: dynamic speed,
   arrows/WASD steering, click/d-pad fallback, pause on blur, score and best score;
-- `docs/examples/carmageddon.lua` — top-down car game: vector car and pedestrians,
+- `docs/examples/desktogeddon.lua` — DesktoGeddon, a top-down car game: vector car and pedestrians,
   physics in Lua, splats/particles, timer and best score;
 - `docs/examples/desktocraft.lua` — DesktoCraft, a first-person voxel sandbox:
   software 3D renderer with `quad` faces, procedural world, collision,

@@ -1,4 +1,4 @@
--- Carmageddon — a top-down vehicular mayhem widget for illogical-desktop.
+-- DesktoGeddon — a top-down vehicular mayhem widget for illogical-desktop.
 --
 -- Drive around the arena and run over pedestrians before the clock runs out.
 --
@@ -42,9 +42,9 @@ local COLOR = {
 local atan2 = math.atan2 or math.atan
 
 -- Optional local art pack (never shipped with the add-on):
--- <script dir>/carmageddon-assets/{asphalt,car,ped,blood}.png
+-- <script dir>/desktogeddon-assets/{asphalt,car,ped,blood}.png
 -- Sprite conventions: car faces right, pedestrian faces up, blood is a splat.
-local ASSET_DIR = ((desktop and desktop.dir) or ".") .. "/carmageddon-assets"
+local ASSET_DIR = ((desktop and desktop.dir) or ".") .. "/desktogeddon-assets"
 
 local function asset_file(name)
     local path = ASSET_DIR .. "/" .. name
@@ -409,7 +409,7 @@ function W.render(w, h)
     local ops = {
         { type = "rect", x = 0, y = 0, w = w, h = h, radius = 18,
           color = "rgba(18,18,21,0.86)", border = 1, borderColor = "rgba(255,255,255,0.10)" },
-        { type = "text", x = 16, y = 24, text = "Carmageddon", size = 15, weight = 600,
+        { type = "text", x = 16, y = 24, text = "DesktoGeddon", size = 15, weight = 600,
           color = COLOR.text },
         { type = "text", x = 16, y = 46,
           text = string.format("Score %d   Best %d   %02d s", game.score, best, math.ceil(game.timeLeft)),
