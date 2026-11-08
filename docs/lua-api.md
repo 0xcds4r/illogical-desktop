@@ -207,21 +207,36 @@ Places a native text editor inside the widget. This is how the notes widget edit
 Changes are reported on every edit and again when the editor loses focus. Keep the text
 in `W.state` inside `on_text`.
 
-## Pointer hover
+## Mouse
 
-`on_hover(x, y)` fires whenever the pointer moves over the widget without a button
-pressed. Together with the `input`-free drawing API it is enough to build mouse-driven
-games (air hockey, drawing tools, sliders):
+All coordinates are local to the widget; they can go negative while dragging outside it.
+Button names are `"left"` and `"middle"`; `mods` is a `+` set such as `"ctrl+shift"`
+(possible: `ctrl`, `alt`, `shift`, `meta`).
 
 ```lua
-function W.on_hover(x, y)
+function W.on_hover(x, y, mods)      -- no button held
     paddle.x = clamp(x, arena.x, arena.x + arena.w)
 end
+
+function W.on_move(x, y, buttons, mods)  -- while dragging
+    -- buttons: "left", "middle", "left+middle"
+end
+
+function W.on_wheel(dy, dx, mods)
+    zoom = clamp(zoom + dy / 120, 0.5, 4)
+end
+
+function W.on_enter(x, y) ... end
+function W.on_leave() ... end
 ```
 
-`on_move(x, y, buttons)` is the same while a button is held. Hover coordinates are local
-to the widget and work regardless of focus; clicks are still needed to give the widget
-keyboard focus.
+`on_press` / `on_release` / `on_click` / `on_double_click` also receive the button and
+modifier string. Clicks are still needed to give the widget keyboard focus; hover works
+without focus.
+
+The **right button is reserved** for the widget context menu (Duplicate / Reload /
+Remove), so scripts receive only left and middle button events. Use the middle button or
+a mode toggle for secondary actions.
 
 ## Keyboard
 

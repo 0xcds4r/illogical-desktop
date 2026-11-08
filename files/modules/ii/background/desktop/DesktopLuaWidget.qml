@@ -96,6 +96,17 @@ Item {
         return "left";
     }
 
+    function buttonsName(mask) {
+        const parts = [];
+        if (mask & Qt.LeftButton)
+            parts.push("left");
+        if (mask & Qt.MiddleButton)
+            parts.push("middle");
+        if (mask & Qt.RightButton)
+            parts.push("right");
+        return parts.join("+");
+    }
+
     function cursorFor(name) {
         switch (name) {
         case "arrow": return Qt.ArrowCursor;
@@ -305,23 +316,29 @@ Item {
         hoverEnabled: true
         cursorShape: root.cursorFor(root.cursorShape ?? "pointing")
 
+        onEntered: root.send("n\t" + Math.round(input.mouseX) + "\t" + Math.round(input.mouseY))
+        onExited: root.send("o")
+
         onPressed: mouse => {
             root.forceActiveFocus();
             root.send("p\t" + Math.round(mouse.x) + "\t" + Math.round(mouse.y)
-                + "\t" + root.buttonName(mouse.button));
+                + "\t" + root.buttonName(mouse.button) + "\t" + root.modifiers(mouse.modifiers));
         }
         onPositionChanged: mouse => {
             if (pressed) {
                 root.send("m\t" + Math.round(mouse.x) + "\t" + Math.round(mouse.y)
-                    + "\t" + (mouse.buttons & Qt.LeftButton ? "left" : "other"));
+                    + "\t" + root.buttonsName(mouse.buttons) + "\t" + root.modifiers(mouse.modifiers));
             } else {
-                root.send("h\t" + Math.round(mouse.x) + "\t" + Math.round(mouse.y));
+                root.send("h\t" + Math.round(mouse.x) + "\t" + Math.round(mouse.y)
+                    + "\t" + root.modifiers(mouse.modifiers));
             }
         }
         onReleased: mouse => root.send("r\t" + Math.round(mouse.x) + "\t" + Math.round(mouse.y)
-            + "\t" + root.buttonName(mouse.button))
-        onDoubleClicked: mouse => root.send("d\t" + Math.round(mouse.x) + "\t" + Math.round(mouse.y))
-        onWheel: wheel => root.send("w\t" + Math.round(wheel.angleDelta.y))
+            + "\t" + root.buttonName(mouse.button) + "\t" + root.modifiers(mouse.modifiers))
+        onDoubleClicked: mouse => root.send("d\t" + Math.round(mouse.x) + "\t" + Math.round(mouse.y)
+            + "\t" + root.buttonName(mouse.button) + "\t" + root.modifiers(mouse.modifiers))
+        onWheel: wheel => root.send("w\t" + Math.round(wheel.angleDelta.y)
+            + "\t" + Math.round(wheel.angleDelta.x) + "\t" + root.modifiers(wheel.modifiers))
     }
 
     property string cursorShape: "pointing"

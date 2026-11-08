@@ -8,12 +8,14 @@
 --   i <w> <h> <style> <id>     init
 --   s <key> <value>            translation entry (percent-encoded)
 --   t <ms>                     animation tick
---   p <x> <y> <button>         press
---   m <x> <y> <buttons>        pointer move (button held)
---   h <x> <y>                  pointer hover
---   r <x> <y> <button>         release (calls on_release, then on_click)
---   d <x> <y>                  double click
---   w <dy>                     wheel
+--   p <x> <y> <button> [mods]  press
+--   m <x> <y> <buttons> [mods] pointer move (button held)
+--   h <x> <y> [mods]           pointer hover
+--   n <x> <y>                  pointer entered
+--   o                          pointer left
+--   r <x> <y> <button> [mods]  release (calls on_release, then on_click)
+--   d <x> <y> [button] [mods]  double click
+--   w <dy> <dx> [mods]         wheel
 --   e <key> <text>             text input changed (percent-encoded)
 --   k <key> <modifiers>        key pressed
 --   u <key> <modifiers>        key released
@@ -24,9 +26,11 @@
 --   width, height, tick, rotation, cursor
 --   render(w, h)               returns a list of drawing operations
 --   init(w, h, style, id)
---   on_tick, on_press, on_move, on_release, on_click, on_double_click,
---   on_hover(x, y), on_wheel, on_text(key, text), on_key(key, modifiers),
---   on_key_release(key), on_blur
+--   on_tick, on_press(x, y, button, mods), on_move(x, y, buttons, mods),
+--   on_release(x, y, button, mods), on_click(x, y, button, mods),
+--   on_double_click(x, y, button, mods), on_hover(x, y, mods),
+--   on_enter(x, y), on_leave(), on_wheel(dy, dx, mods),
+--   on_text(key, text), on_key(key, modifiers), on_key_release(key), on_blur
 --   state                      persistent table (saved between restarts)
 --
 -- Drawing operations (widget-local pixels):
@@ -359,25 +363,31 @@ for line in io.lines() do
     elseif command == "t" then
         call("on_tick", tonumber(rest) or 0)
     elseif command == "p" or command == "r" then
-        local x, y, button = rest:match("([^\t]*)\t([^\t]*)\t?(.*)")
+        local x, y, button, mods = rest:match("([^\t]*)\t([^\t]*)\t?([^\t]*)\t?(.*)")
         x, y = tonumber(x) or 0, tonumber(y) or 0
         if command == "p" then
-            call("on_press", x, y, button)
+            call("on_press", x, y, button or "", mods or "")
         else
-            call("on_release", x, y, button)
-            call("on_click", x, y, button)
+            call("on_release", x, y, button or "", mods or "")
+            call("on_click", x, y, button or "", mods or "")
         end
     elseif command == "m" then
-        local x, y, buttons = rest:match("([^\t]*)\t([^\t]*)\t?(.*)")
-        call("on_move", tonumber(x) or 0, tonumber(y) or 0, buttons)
+        local x, y, buttons, mods = rest:match("([^\t]*)\t([^\t]*)\t?([^\t]*)\t?(.*)")
+        call("on_move", tonumber(x) or 0, tonumber(y) or 0, buttons or "", mods or "")
     elseif command == "h" then
+        local x, y, mods = rest:match("([^\t]*)\t([^\t]*)\t?(.*)")
+        call("on_hover", tonumber(x) or 0, tonumber(y) or 0, mods or "")
+    elseif command == "n" then
         local x, y = rest:match("([^\t]*)\t([^\t]*)")
-        call("on_hover", tonumber(x) or 0, tonumber(y) or 0)
+        call("on_enter", tonumber(x) or 0, tonumber(y) or 0)
+    elseif command == "o" then
+        call("on_leave")
     elseif command == "d" then
-        local x, y = rest:match("([^\t]*)\t([^\t]*)")
-        call("on_double_click", tonumber(x) or 0, tonumber(y) or 0)
+        local x, y, button, mods = rest:match("([^\t]*)\t([^\t]*)\t?([^\t]*)\t?(.*)")
+        call("on_double_click", tonumber(x) or 0, tonumber(y) or 0, button or "", mods or "")
     elseif command == "w" then
-        call("on_wheel", tonumber(rest) or 0)
+        local dy, dx, mods = rest:match("([^\t]*)\t?([^\t]*)\t?(.*)")
+        call("on_wheel", tonumber(dy) or 0, tonumber(dx) or 0, mods or "")
     elseif command == "e" then
         local key, text = rest:match("([^\t]*)\t?(.*)")
         if key and key ~= "" then
