@@ -36,141 +36,6 @@ Item {
     }
 
     readonly property var cfg: DesktopConfig
-    readonly property bool isGridStyle: cfg.styleMode === "grid"
-    property real styleAngle: 0
-    property real styleTilt: -0.28
-    property bool rotatingView: false
-    property real rotateStartX: 0
-    property real rotateStartY: 0
-    property real rotateStartAngle: 0
-    property real rotateStartTilt: 0
-
-    function resetView() {
-        root.styleAngle = 0;
-        root.styleTilt = -0.28;
-    }
-
-    Timer {
-        interval: 16
-        repeat: true
-        running: !root.isGridStyle && root.cfg.styleAutoRotate
-        onTriggered: root.styleAngle = (root.styleAngle + 0.25 * root.cfg.styleSpeed) % 360
-    }
-
-    function rotatePointY(point, angle) {
-        const c = Math.cos(angle);
-        const s = Math.sin(angle);
-        return { x: point.x * c + point.z * s, y: point.y, z: -point.x * s + point.z * c };
-    }
-
-    function rotatePointX(point, angle) {
-        const c = Math.cos(angle);
-        const s = Math.sin(angle);
-        return { x: point.x, y: point.y * c - point.z * s, z: point.y * s + point.z * c };
-    }
-
-    function octahedronBasePoints(radius) {
-        const r = radius;
-        const f = radius / Math.sqrt(3);
-        const points = [
-            { x: r, y: 0, z: 0 }, { x: -r, y: 0, z: 0 },
-            { x: 0, y: r, z: 0 }, { x: 0, y: -r, z: 0 },
-            { x: 0, y: 0, z: r }, { x: 0, y: 0, z: -r }
-        ];
-        for (const x of [-1, 1]) {
-            for (const y of [-1, 1]) {
-                for (const z of [-1, 1])
-                    points.push({ x: x * f, y: y * f, z: z * f });
-            }
-        }
-        return points;
-    }
-
-    function basePointFor(index, total) {
-        const mode = root.cfg.styleMode;
-        const radius = 250;
-
-        if (mode === "globe") {
-            const t = total <= 1 ? 0 : index / (total - 1);
-            const y = 1 - t * 2;
-            const circle = Math.sqrt(Math.max(0, 1 - y * y));
-            const phi = index * Math.PI * (3 - Math.sqrt(5));
-            return { x: Math.cos(phi) * circle * radius, y: y * radius, z: Math.sin(phi) * circle * radius };
-        }
-
-        if (mode === "cube") {
-            const slot = Math.floor(index / 6);
-            const face = index % 6;
-            const perFace = Math.max(1, Math.ceil(total / 6));
-            const side = Math.max(1, Math.ceil(Math.sqrt(perFace)));
-            const u = (side <= 1 ? 0 : (slot % side) / (side - 1) * 2 - 1) * radius * 0.62;
-            const v = (side <= 1 ? 0 : Math.floor(slot / side) / (side - 1) * 2 - 1) * radius * 0.62;
-            switch (face) {
-            case 0: return { x: u, y: v, z: radius };
-            case 1: return { x: -u, y: v, z: -radius };
-            case 2: return { x: radius, y: v, z: -u };
-            case 3: return { x: -radius, y: v, z: u };
-            case 4: return { x: u, y: radius, z: v };
-            default: return { x: u, y: -radius, z: v };
-            }
-        }
-
-        if (mode === "octahedron") {
-            const points = root.octahedronBasePoints(radius);
-            const ring = Math.floor(index / points.length);
-            const point = points[index % points.length];
-            const scale = 1 + ring * 0.11;
-            return { x: point.x * scale, y: point.y * scale, z: point.z * scale };
-        }
-
-        if (mode === "helix") {
-            const turns = 2.2;
-            const t = total <= 1 ? 0 : index / (total - 1);
-            const angle = t * Math.PI * 2 * turns;
-            const height = (index - (total - 1) / 2) * (radius * 1.4 / Math.max(1, total - 1));
-            return { x: Math.cos(angle) * radius * 0.75, y: height, z: Math.sin(angle) * radius * 0.75 };
-        }
-
-        if (mode === "orbit") {
-            const angle = index / Math.max(1, total) * Math.PI * 2;
-            const orbitRadius = radius * 1.25;
-            return { x: Math.cos(angle) * orbitRadius, y: 0, z: Math.sin(angle) * orbitRadius };
-        }
-
-        return { x: 0, y: 0, z: 0 };
-    }
-
-    function stylePointFor(index) {
-        const total = iconRepeater.count;
-        const angle = root.styleAngle * Math.PI / 180;
-        let point;
-
-        if (root.cfg.styleMode === "tunnel") {
-            const depth = ((index * (1500 / Math.max(1, total)) + root.styleAngle * 5) % 1500) - 750;
-            point = {
-                x: Math.cos(index * 1.7 + root.styleAngle * 0.02) * 220,
-                y: Math.sin(index * 1.7 + root.styleAngle * 0.02) * 220,
-                z: depth
-            };
-        } else {
-            point = root.basePointFor(index, total);
-            point = root.rotatePointY(point, angle);
-            point = root.rotatePointX(point, root.styleTilt);
-        }
-
-        const camera = 1200;
-        const factor = camera / Math.max(140, camera + point.z);
-        let opacity = Math.max(0.12, Math.min(1, factor * 1.05));
-        if (root.cfg.styleMode === "tunnel" && factor > 2.0)
-            opacity *= Math.max(0, (2.6 - factor) / 0.6);
-        return {
-            x: root.width / 2 + point.x * factor * 1.5,
-            y: root.height / 2 + point.y * factor * 1.5,
-            scale: Math.min(1.5, factor * 0.8),
-            opacity: opacity,
-            z: Math.round(1000 + point.z)
-        };
-    }
     readonly property int cellWidthValue: cfg.cellWidth
     readonly property int cellHeightValue: cfg.cellHeight
     readonly property int leftMargin: cfg.margin
@@ -1461,14 +1326,6 @@ Item {
         onPressed: event => {
             root.forceActiveFocus();
             menu.close();
-            if (!root.isGridStyle && event.button === Qt.LeftButton) {
-                root.rotatingView = true;
-                root.rotateStartX = event.x;
-                root.rotateStartY = event.y;
-                root.rotateStartAngle = root.styleAngle;
-                root.rotateStartTilt = root.styleTilt;
-                return;
-            }
             if (event.button === Qt.RightButton) {
                 root.clearSelection();
                 root.lastMenuX = event.x;
@@ -1487,12 +1344,6 @@ Item {
         }
 
         onPositionChanged: event => {
-            if (root.rotatingView && (event.buttons & Qt.LeftButton)) {
-                root.styleAngle = root.rotateStartAngle - (event.x - root.rotateStartX) * 0.35;
-                root.styleTilt = Math.max(-1.1, Math.min(0.5,
-                    root.rotateStartTilt - (event.y - root.rotateStartY) * 0.006));
-                return;
-            }
             if (!root.banding || !(event.buttons & Qt.LeftButton))
                 return;
             const x = Math.min(root.bandStartX, event.x);
@@ -1510,13 +1361,11 @@ Item {
         }
 
         onReleased: {
-            root.rotatingView = false;
             root.banding = false;
             bandRect.visible = false;
         }
 
         onCanceled: {
-            root.rotatingView = false;
             root.banding = false;
             bandRect.visible = false;
         }

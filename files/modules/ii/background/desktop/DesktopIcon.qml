@@ -79,18 +79,16 @@ Item {
         return Quickshell.iconPath(entryIcon, "application-x-executable");
     }
 
-    readonly property var stylePoint: root.container && !root.container.isGridStyle
-        ? root.container.stylePointFor(root.iconIndex) : null
     property real appearOpacity: 0
     property real appearScale: appearDelay > 0 ? 0.9 : 1
 
     width: container.cellWidthValue
     height: container.cellHeightValue
-    x: stylePoint ? stylePoint.x - root.width / 2 : container.iconXFor(fileName, iconIndex)
-    y: stylePoint ? stylePoint.y - root.height / 2 : container.iconYFor(fileName, iconIndex)
-    scale: (stylePoint ? stylePoint.scale : 1) * root.appearScale
-    opacity: (stylePoint ? stylePoint.opacity : 1) * root.appearOpacity
-    z: stylePoint ? stylePoint.z : (_dragging ? 100 : 1)
+    x: container.iconXFor(fileName, iconIndex)
+    y: container.iconYFor(fileName, iconIndex)
+    scale: root.appearScale
+    opacity: root.appearOpacity
+    z: _dragging ? 100 : 1
 
     function parseDesktopEntry(content) {
         let name = "";
@@ -185,15 +183,6 @@ Item {
     }
 
     Rectangle {
-        visible: root.container && !root.container.isGridStyle
-        anchors.fill: parent
-        radius: Appearance.rounding.normal
-        color: Qt.rgba(0, 0, 0, 0.4)
-        border.width: 1
-        border.color: Qt.rgba(1, 1, 1, 0.08)
-    }
-
-    Rectangle {
         anchors.fill: parent
         anchors.margins: 4
         radius: Appearance.rounding.normal
@@ -277,8 +266,7 @@ Item {
             leftMargin: 6
             rightMargin: 6
         }
-        visible: root.showLabel && (root.container.isGridStyle || !root.stylePoint
-            || root.stylePoint.opacity > 0.45 || root.isSelected || mouseArea.containsMouse)
+        visible: root.showLabel
         text: root.displayName
         color: root.textColor
         horizontalAlignment: Text.AlignHCenter
@@ -322,8 +310,6 @@ Item {
         }
 
         onPositionChanged: event => {
-            if (!root.container || !root.container.isGridStyle)
-                return;
             if (!pressStarted || !(event.buttons & Qt.LeftButton))
                 return;
             const dx = event.x - downX;

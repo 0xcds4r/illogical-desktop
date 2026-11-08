@@ -26,9 +26,6 @@ Singleton {
     property alias folder: adapter.folder
     property alias confirmDelete: adapter.confirmDelete
     property alias showTrash: adapter.showTrash
-    property alias styleMode: adapter.styleMode
-    property alias styleSpeed: adapter.styleSpeed
-    property alias styleAutoRotate: adapter.styleAutoRotate
     property alias selectionColor: adapter.selectionColor
     property alias selectionOpacity: adapter.selectionOpacity
     property alias textColor: adapter.textColor
@@ -77,9 +74,6 @@ Singleton {
             property string folder: ""
             property bool confirmDelete: false
             property bool showTrash: true
-            property string styleMode: "grid"
-            property real styleSpeed: 1.0
-            property bool styleAutoRotate: false
             property string selectionColor: "#4A90D9"
             property real selectionOpacity: 0.35
             property string textColor: "#FFFFFF"
