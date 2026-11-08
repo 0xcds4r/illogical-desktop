@@ -247,8 +247,8 @@ function W.render(w, h)
         ops[#ops + 1] = { type = "text", x = w / 2, y = GRID_Y + SIZE * CELL / 2 + 36,
             text = "Press Again or New", size = 10, color = COLOR.muted, align = "center" }
     elseif not state.running then
-        ops[#ops + 1] = { type = "text", x = w / 2, y = GRID_Y + SIZE * CELL / 2,
-            text = "Press Start", size = 13, color = COLOR.muted,
+        ops[#ops + 1] = { type = "text", x = w / 2, y = GRID_Y + SIZE * CELL - 14,
+            text = "Press Start", size = 11, color = COLOR.muted,
             align = "center", valign = "middle" }
     end
 
