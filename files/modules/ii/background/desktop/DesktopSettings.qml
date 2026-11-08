@@ -23,7 +23,11 @@ PanelWindow {
     exclusionMode: ExclusionMode.Ignore
     WlrLayershell.namespace: "quickshell:desktop-settings"
     WlrLayershell.layer: WlrLayer.Overlay
-    WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
+    WlrLayershell.keyboardFocus: WlrKeyboardFocus.OnDemand
+
+    mask: Region {
+        item: card
+    }
 
     anchors {
         top: true
@@ -151,11 +155,6 @@ PanelWindow {
             cursorShape: Qt.PointingHandCursor
             onClicked: button.activated()
         }
-    }
-
-    // Dim + swallow clicks outside the card.
-    MouseArea {
-        anchors.fill: parent
     }
 
     Rectangle {
