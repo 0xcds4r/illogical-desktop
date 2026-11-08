@@ -183,9 +183,29 @@ if not changed:
     print("  nothing to inject")
 PY
 
-# 5. Seed the example Lua widget for the current user (never overwrite it).
-custom_dir="$HOME/.config/illogical-impulse/desktop-widgets"
-mkdir -p "$custom_dir"
+# 5. Seed the example Lua widget in <desktop folder>/.widgets (never overwrite it).
+custom_dir="$(python3 - <<'PY'
+import json
+import os
+
+home = os.path.expanduser("~")
+folder = ""
+try:
+    with open(os.path.join(home, ".config/illogical-impulse/desktop-icons.json"), encoding="utf-8") as fh:
+        folder = (json.load(fh).get("folder") or "").strip()
+except Exception:
+    pass
+if folder.startswith("file://"):
+    folder = folder[7:]
+if folder.startswith("~/"):
+    folder = home + folder[1:]
+if not folder:
+    folder = os.path.join(home, "Desktop")
+path = os.path.join(folder, ".widgets")
+os.makedirs(path, exist_ok=True)
+print(path)
+PY
+)"
 if [[ ! -f "$custom_dir/example.lua" ]]; then
 	cp "$HERE/files/modules/ii/background/desktop/lua/example.lua" "$custom_dir/example.lua"
 	echo "  wrote $custom_dir/example.lua"

@@ -12,7 +12,16 @@ Singleton {
     readonly property string stateDir: `${Quickshell.env("HOME")}/.local/state/quickshell/user`
     readonly property string filePath: `${root.stateDir}/desktop-widgets.json`
     readonly property string paintDir: `${root.stateDir}/desktop-widgets`
-    readonly property string customDir: `${Quickshell.env("HOME")}/.config/illogical-impulse/desktop-widgets`
+    readonly property string desktopFolderPath: {
+        let folder = (DesktopConfig.folder ?? "").trim();
+        if (folder.startsWith("file://"))
+            folder = folder.substring(7);
+        if (folder.startsWith("~/"))
+            folder = Quickshell.env("HOME") + folder.substring(1);
+        return folder === "" ? `${Quickshell.env("HOME")}/Desktop` : folder;
+    }
+    readonly property string customDir: root.desktopFolderPath + "/.widgets"
+    readonly property string legacyCustomDir: `${Quickshell.env("HOME")}/.config/illogical-impulse/desktop-widgets`
     readonly property string customDirUrl: "file://" + root.customDir
     readonly property string luaRuntime: Quickshell.env("LUA") || "lua"
     readonly property string luaHostPath: String(Qt.resolvedUrl("lua/host.lua")).replace("file://", "")
@@ -26,6 +35,10 @@ Singleton {
     Component.onCompleted: {
         Quickshell.execDetached(["mkdir", "-p", root.paintDir]);
         Quickshell.execDetached(["mkdir", "-p", root.customDir]);
+        // Move scripts from the old location once, without overwriting anything.
+        Quickshell.execDetached(["bash", "-c",
+            `[ -d "$1" ] && for f in "$1"/*.lua; do [ -e "$f" ] && cp -n "$f" "$2"/; done; true`,
+            "migrate-widgets", root.legacyCustomDir, root.customDir]);
     }
 
     Timer {

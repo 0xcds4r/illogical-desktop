@@ -1,6 +1,6 @@
 -- Example Lua desktop widget.
 --
--- Put .lua files into ~/.config/illogical-impulse/desktop-widgets/ and add them
+-- Put .lua files into ~/Desktop/.widgets/ and add them
 -- from Settings -> Widgets -> Custom widgets. Right-click the widget for
 -- "Reload script" after editing it.
 --

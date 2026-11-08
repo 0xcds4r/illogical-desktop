@@ -108,7 +108,8 @@ Right-click the desktop → **Desktop settings**. Everything applies live, split
 
 ## Custom widgets (Lua)
 
-Any `.lua` file in `~/.config/illogical-impulse/desktop-widgets/` is a widget. Add it
+Any `.lua` file in `<desktop folder>/.widgets/` (default `~/Desktop/.widgets/`) is a widget.
+The folder follows the desktop folder from the settings and is hidden from the icon grid. Add it
 from **Settings → Widgets → Custom widgets** (there is a **Create example** button and
 **Open folder** shortcut). Right-click a custom widget → **Reload script** after editing.
 Each instance runs in its own `lua` process; a script error is shown on the widget and
