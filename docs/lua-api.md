@@ -265,7 +265,9 @@ Ready-made scripts, all using the API above:
 - `lua/widgets/notes.lua` — `input` op, rotation, per-instance state;
 - `lua/widgets/timer.lua` — dynamic tick, hit-testing, notifications, spawning Clocks;
 - `lua/widgets/paint.lua` — pointer strokes, palette, persistent drawing;
-- `docs/examples/hello.lua` — minimal click counter with animation.
+- `docs/examples/hello.lua` — minimal click counter with animation;
+- `docs/examples/minesweeper.lua` — complete 9×9 game: persistent state, first-click
+  safety, flood reveal, flags (middle click or flag mode), timer, win/lose overlays.
 
 A minimal widget:
 
