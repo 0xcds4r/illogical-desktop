@@ -208,15 +208,15 @@ Item {
         anchors.horizontalCenter: parent.horizontalCenter
         y: root.showLabel ? 8 * root.scaleFactor : (root.height - height) / 2
 
-        DirectoryIcon {
+        Image {
             anchors.fill: parent
             visible: !root.isDesktopEntry && !root.showFileIcon
-            fileModelData: ({
-                fileName: root.fileName,
-                filePath: root.filePath,
-                fileUrl: root.fileURL,
-                fileIsDir: root.fileIsDir
-            })
+            source: root.fileIsDir
+                ? Quickshell.iconPath("folder", "inode-directory")
+                : (root.resolvedIconKind === "thumb" ? "file://" + root.filePath : "")
+            fillMode: Image.PreserveAspectFit
+            asynchronous: true
+            smooth: true
         }
 
         Image {

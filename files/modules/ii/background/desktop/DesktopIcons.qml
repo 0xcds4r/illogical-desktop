@@ -128,7 +128,18 @@ Item {
     property var pendingTrashPaths: []
     property var undoStack: []
     property string selectionAnchor: ""
-    property int trashCount: 0
+
+    readonly property string trashFilesPath: (Quickshell.env("XDG_DATA_HOME") ?? (Quickshell.env("HOME") + "/.local/share")) + "/Trash/files"
+    readonly property int trashCount: trashFilesModel.count
+
+    FolderListModel {
+        id: trashFilesModel
+        folder: "file://" + root.trashFilesPath
+        showDirs: true
+        showFiles: true
+        showHidden: true
+        showDotAndDotDot: false
+    }
     property string openWithPath: ""
     property real lastMenuX: 0
     property real lastMenuY: 0
@@ -145,26 +156,7 @@ Item {
     // so keep item focus here for Delete / Ctrl+C / Ctrl+V / F2 / F5.
     focus: true
 
-    Component.onCompleted: {
-        root.loadPositions();
-        root.refreshTrashCount();
-    }
-
-    Process {
-        id: trashCountProcess
-        running: false
-        command: ["python3", Directories.scriptPath + "/desktop-trash.py", "count"]
-        stdout: StdioCollector {
-            onStreamFinished: root.trashCount = parseInt(text.trim()) || 0
-        }
-    }
-
-    Timer {
-        interval: 5000
-        running: true
-        repeat: true
-        onTriggered: root.refreshTrashCount()
-    }
+    Component.onCompleted: root.loadPositions()
 
     Keys.onDeletePressed: root.trashSelected()
     Keys.onPressed: event => {
@@ -476,12 +468,6 @@ Item {
                 Quickshell.execDetached(["mv", "-n", "--", pair.to, pair.from]);
         }
         root.scheduleRefresh();
-        root.refreshTrashCount();
-    }
-
-    function refreshTrashCount() {
-        trashCountProcess.running = false;
-        trashCountProcess.running = true;
     }
 
     function selectAll() {
@@ -871,12 +857,10 @@ Item {
         DesktopFileOps.trash(paths);
         root.pushUndo({ type: "trash", paths: paths });
         root.scheduleRefresh();
-        root.refreshTrashCount();
     }
 
     function emptyTrash() {
         DesktopFileOps.emptyTrash();
-        root.trashCount = 0;
         root.scheduleRefresh();
     }
 
