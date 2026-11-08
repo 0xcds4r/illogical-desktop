@@ -4,8 +4,6 @@ A Windows-like active desktop for **illogical-impulse** (quickshell `ii`) on Hyp
 icons for `~/Desktop`, selection, drag & drop, context menus, file operations and
 desktop-entry aware icons/launching.
 
-<p align="center"><img src="assets/screenshot.jpg" width="100%" alt="Desktop with icons"></p>
-
 ## Features
 
 - Icons for everything in `~/Desktop`, laid out on a grid (columns or rows).
@@ -55,7 +53,6 @@ desktop-entry aware icons/launching.
 ## Keyboard shortcuts
 
 | Action | Shortcut |
-|---|---|
 | Open selected icon | double click |
 | Toggle icon in selection | `Ctrl+Click` / `Ctrl+RightClick` |
 | Select all | `Ctrl+A` |
@@ -92,33 +89,9 @@ Right-click the desktop → **Desktop settings**. Everything applies live, split
 - **Done** closes the modal (it also closes from the `×` button or `Esc`; clicking the
   desktop does not dismiss it).
 
-<p align="center"><img src="assets/settings.jpg" width="100%" alt="Desktop settings — General"></p>
-
-Colors tab with the HSV picker:
-
-<p align="center"><img src="assets/colors.jpg" width="100%" alt="Desktop settings — Colors"></p>
-
-Language tab:
-
-<p align="center"><img src="assets/language.jpg" width="100%" alt="Desktop settings — Language"></p>
-
-## Context menus
-
-| Icon actions | Desktop actions |
-|---|---|
-| ![icon context menu](assets/context-icon.png) | ![desktop context menu](assets/context-desktop.png) |
-
-## File actions
-
-Properties dialog for any icon:
-
-<p align="center"><img src="assets/properties.jpg" width="100%" alt="Properties dialog"></p>
-
 ## Quick look
 
-Press `Space` on a file to preview it (images, text, video/PDF thumbnails):
-
-<p align="center"><img src="assets/preview.jpg" width="100%" alt="Quick look preview"></p>
+Press `Space` on a file to preview it (images, text, video/PDF thumbnails).
 
 ## Requirements
 
@@ -138,7 +111,7 @@ cd illogical-desktop
 pkill -x qs; setsid -f qs -c ii
 ```
 
-`install.sh` copies the module and scripts, writes the add-on's own settings/state
+`install.sh` copies the module and builds the helper, writes the add-on's own settings/state
 files (migrating values from older installs), and injects a single `Loader` into
 `Background.qml` using structural anchors. It is idempotent: running it again does
 nothing. Pass a path as the first argument for a non-default config location.
