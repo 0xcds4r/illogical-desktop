@@ -309,23 +309,7 @@ end
 ```
 
 Do not redistribute copyrighted game art. The bundled `docs/examples` use only vector
-graphics or original placeholder art; the full Carmageddon widget accepts an optional
-local pack that you create from art you have the rights to use (see the next section).
-
-### Carmageddon art pack
-
-`docs/examples/carmageddon.lua` looks for `<its folder>/carmageddon-assets/`:
-
-| file | content |
-|---|---|
-| `asphalt.png` | arena background, stretched |
-| `car.png` | player car, faces **right** at angle 0 (transparent PNG) |
-| `ped.png` | pedestrian, faces **up** at angle 0 |
-| `blood.png` | blood splat, drawn rotated |
-
-Without the files the widget uses vector graphics. The original Carmageddon artwork is
-copyrighted: export or draw the sprites yourself, keep the pack local, and never add it
-to the repository.
+graphics or original placeholder art.
 
 ## Errors and debugging
 
@@ -372,7 +356,7 @@ Ready-made scripts, all using the API above:
 - `docs/examples/snake.lua` — animated game loop driven by `on_tick`: dynamic speed,
   arrows/WASD steering, click/d-pad fallback, pause on blur, score and best score;
 - `docs/examples/carmageddon.lua` — top-down car game: vector car and pedestrians,
-  optional local art pack, physics in Lua, splats/particles, timer and best score;
+  physics in Lua, splats/particles, timer and best score;
 - `docs/examples/desktocraft.lua` — DesktoCraft, a first-person voxel sandbox:
   software 3D renderer with `quad` faces, procedural world, collision,
   mining/building and persistence.
