@@ -241,6 +241,63 @@ Item {
         }
     }
 
+    Keys.onPressed: event => {
+        if (event.isAutoRepeat) {
+            event.accepted = true;
+            return;
+        }
+        root.send("k\t" + root.keyName(event) + "\t" + root.modifiers(event.modifiers));
+        event.accepted = true;
+    }
+
+    Keys.onReleased: event => {
+        if (event.isAutoRepeat)
+            return;
+        root.send("u\t" + root.keyName(event) + "\t" + root.modifiers(event.modifiers));
+    }
+
+    onActiveFocusChanged: {
+        if (!activeFocus)
+            root.send("b");
+    }
+
+    function keyName(event) {
+        switch (event.key) {
+        case Qt.Key_Left: return "left";
+        case Qt.Key_Right: return "right";
+        case Qt.Key_Up: return "up";
+        case Qt.Key_Down: return "down";
+        case Qt.Key_Space: return "space";
+        case Qt.Key_Return: return "enter";
+        case Qt.Key_Enter: return "enter";
+        case Qt.Key_Escape: return "escape";
+        case Qt.Key_Tab: return "tab";
+        case Qt.Key_Backspace: return "backspace";
+        case Qt.Key_Delete: return "delete";
+        case Qt.Key_Home: return "home";
+        case Qt.Key_End: return "end";
+        case Qt.Key_PageUp: return "pageup";
+        case Qt.Key_PageDown: return "pagedown";
+        }
+        const text = event.text;
+        if (text && text.length === 1)
+            return text.toLowerCase();
+        return "key_" + event.key;
+    }
+
+    function modifiers(mask) {
+        const parts = [];
+        if (mask & Qt.ControlModifier)
+            parts.push("ctrl");
+        if (mask & Qt.AltModifier)
+            parts.push("alt");
+        if (mask & Qt.ShiftModifier)
+            parts.push("shift");
+        if (mask & Qt.MetaModifier)
+            parts.push("meta");
+        return parts.join("+");
+    }
+
     MouseArea {
         id: input
         anchors.fill: parent
@@ -248,8 +305,11 @@ Item {
         hoverEnabled: true
         cursorShape: root.cursorFor(root.cursorShape ?? "pointing")
 
-        onPressed: mouse => root.send("p\t" + Math.round(mouse.x) + "\t" + Math.round(mouse.y)
-            + "\t" + root.buttonName(mouse.button))
+        onPressed: mouse => {
+            root.forceActiveFocus();
+            root.send("p\t" + Math.round(mouse.x) + "\t" + Math.round(mouse.y)
+                + "\t" + root.buttonName(mouse.button));
+        }
         onPositionChanged: mouse => {
             if (pressed)
                 root.send("m\t" + Math.round(mouse.x) + "\t" + Math.round(mouse.y)

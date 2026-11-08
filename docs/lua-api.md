@@ -182,6 +182,50 @@ Places a native text editor inside the widget. This is how the notes widget edit
 Changes are reported on every edit and again when the editor loses focus. Keep the text
 in `W.state` inside `on_text`.
 
+## Keyboard
+
+Clicking a widget gives it keyboard focus; key presses then go to its script until you
+click somewhere else (the desktop or another widget). Losing focus calls `on_blur()`,
+which is handy to pause a game.
+
+```lua
+local DIRECTIONS = {
+    left = "left", right = "right", up = "up", down = "down",
+    a = "left", d = "right", w = "up", s = "down",
+}
+
+function W.on_key(key, modifiers)
+    local direction = DIRECTIONS[key]
+    if direction then
+        steer(direction)
+    elseif key == "space" then
+        toggle_pause()
+    elseif key == "enter" then
+        restart()
+    end
+end
+
+function W.on_blur()
+    pause()
+end
+```
+
+Key names:
+
+| keys | `key` value |
+|---|---|
+| arrows | `"left"`, `"right"`, `"up"`, `"down"` |
+| letters / digits | the character, lower-case (`"a"`, `"7"`) |
+| space, enter, escape, tab, backspace, delete | `"space"`, `"enter"`, `"escape"`, `"tab"`, `"backspace"`, `"delete"` |
+| home, end, page up/down | `"home"`, `"end"`, `"pageup"`, `"pagedown"` |
+| anything else | `"key_<Qt key code>"` |
+
+`modifiers` is a `+`-joined set such as `"ctrl+shift"` (possible: `ctrl`, `alt`, `shift`,
+`meta`), empty for none. Auto-repeat is suppressed: you get one press and one release per
+physical key press. `on_key_release` is useful for “hold to accelerate” mechanics.
+
+The key events are not forwarded while a text `input` is focused.
+
 ## Persistent state
 
 `W.state` is a table saved as a Lua literal next to the widget (after every event/tick)
@@ -268,8 +312,8 @@ Ready-made scripts, all using the API above:
 - `docs/examples/hello.lua` — minimal click counter with animation;
 - `docs/examples/minesweeper.lua` — complete 9×9 game: persistent state, first-click
   safety, flood reveal, flags (middle click or flag mode), timer, win/lose overlays;
-- `docs/examples/snake.lua` — animated game loop: dynamic `tick` speed, click/d-pad
-  steering, score and best score, pause and game-over states.
+- `docs/examples/snake.lua` — animated game loop driven by `on_tick`: dynamic speed,
+  arrows/WASD steering, click/d-pad fallback, pause on blur, score and best score.
 
 A minimal widget:
 

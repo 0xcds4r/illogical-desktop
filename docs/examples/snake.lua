@@ -245,10 +245,14 @@ function W.render(w, h)
             text = "Score " .. state.score .. "  -  Best " .. state.best,
             size = 12, color = COLOR.text, align = "center" }
         ops[#ops + 1] = { type = "text", x = w / 2, y = GRID_Y + SIZE * CELL / 2 + 36,
-            text = "Press Again or New", size = 10, color = COLOR.muted, align = "center" }
+            text = "Space / Again or New", size = 10, color = COLOR.muted, align = "center" }
     elseif not state.running then
         ops[#ops + 1] = { type = "text", x = w / 2, y = GRID_Y + SIZE * CELL - 14,
-            text = "Press Start", size = 11, color = COLOR.muted,
+            text = "Press Start or an arrow key", size = 10, color = COLOR.muted,
+            align = "center", valign = "middle" }
+    elseif not state.over then
+        ops[#ops + 1] = { type = "text", x = w / 2, y = GRID_Y + SIZE * CELL - 14,
+            text = "Arrows / WASD   Space pause", size = 9, color = COLOR.muted,
             align = "center", valign = "middle" }
     end
 
@@ -266,6 +270,41 @@ end
 function W.on_tick()
     ensure_state()
     tick(W.state)
+end
+
+local KEY_DIRECTIONS = {
+    left = "left", right = "right", up = "up", down = "down",
+    a = "left", d = "right", w = "up", s = "down",
+}
+
+function W.on_key(key, modifiers)
+    ensure_state()
+    local state = W.state
+    local direction = KEY_DIRECTIONS[key]
+    if direction then
+        if state.over then
+            W.state = fresh(state.best)
+            W.state.running = true
+        elseif not state.running then
+            state.running = true
+        end
+        steer(W.state, direction)
+    elseif key == "space" then
+        if state.over then
+            W.state = fresh(state.best)
+            W.state.running = true
+        else
+            state.running = not state.running
+        end
+    elseif key == "enter" or key == "r" then
+        W.state = fresh(state.best)
+    end
+end
+
+function W.on_blur()
+    if type(W.state) == "table" and W.state.running and not W.state.over then
+        W.state.running = false
+    end
 end
 
 function W.on_click(x, y, button)

@@ -14,6 +14,9 @@
 --   d <x> <y>                  double click
 --   w <dy>                     wheel
 --   e <key> <text>             text input changed (percent-encoded)
+--   k <key> <modifiers>        key pressed
+--   u <key> <modifiers>        key released
+--   b                          keyboard focus lost
 --   x                          close
 --
 -- A widget is a Lua table (returned by the script, or the global `widget`):
@@ -21,7 +24,8 @@
 --   render(w, h)               returns a list of drawing operations
 --   init(w, h, style, id)
 --   on_tick, on_press, on_move, on_release, on_click, on_double_click,
---   on_wheel, on_text(key, text)
+--   on_wheel, on_text(key, text), on_key(key, modifiers), on_key_release(key),
+--   on_blur
 --   state                      persistent table (saved between restarts)
 --
 -- Drawing operations (widget-local pixels):
@@ -365,6 +369,15 @@ for line in io.lines() do
         if key and key ~= "" then
             call("on_text", key, url_decode(text or ""))
         end
+    elseif command == "k" or command == "u" then
+        local key, mods = rest:match("([^\t]*)\t?(.*)")
+        if command == "k" then
+            call("on_key", key or "", mods or "")
+        else
+            call("on_key_release", key or "", mods or "")
+        end
+    elseif command == "b" then
+        call("on_blur")
     elseif command == "x" then
         save_state()
         os.exit(0)
