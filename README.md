@@ -54,6 +54,7 @@ desktop-entry aware icons/launching.
     their text;
   - timer — ring or pill, with a shortcut to GNOME Clocks for alarms;
   - mini paint — paper or board canvas, saved as PNG and copied on duplicate.
+  - custom widgets written in Lua (drawing, input, animation and persistent state).
   Widget state lives in `~/.local/state/quickshell/user/desktop-widgets.json`,
   drawings in `~/.local/state/quickshell/user/desktop-widgets/`.
 - `.desktop` entries show their real `Name=` and `Icon=` and are launched with
@@ -105,6 +106,58 @@ Right-click the desktop → **Desktop settings**. Everything applies live, split
 - **Done** closes the modal (it also closes from the `×` button or `Esc`; clicking the
   desktop does not dismiss it).
 
+## Custom widgets (Lua)
+
+Any `.lua` file in `~/.config/illogical-impulse/desktop-widgets/` is a widget. Add it
+from **Settings → Widgets → Custom widgets** (there is a **Create example** button and
+**Open folder** shortcut). Right-click a custom widget → **Reload script** after editing.
+Each instance runs in its own `lua` process; a script error is shown on the widget and
+its full message goes to stderr.
+
+A widget is a table returned by the script (or assigned to the global `widget`):
+
+```lua
+local W = {
+    width = 300,      -- preferred size (the host resizes the card to match)
+    height = 180,
+    tick = 50,        -- animation interval in ms, 0 = no timer
+}
+
+function W.render(w, h)
+    return {
+        { type = "rect",   x = 0, y = 0, w = w, h = h, radius = 16, color = "#12141a" },
+        { type = "circle", x = w / 2, y = 70, r = 30, color = "#82aaff" },
+        { type = "text",   x = w / 2, y = h - 24, text = "hello", size = 14,
+          color = "#ffffff", align = "center" },
+    }
+end
+
+function W.on_click(x, y, button)
+    W.state.clicks = (W.state.clicks or 0) + 1
+end
+
+return W
+```
+
+Drawing operations (widget-local pixels):
+
+| op | fields |
+|---|---|
+| `rect` | `x, y, w, h, radius, color, border, borderColor` |
+| `circle` | `x, y, r, color, border, borderColor` |
+| `line` | `x1, y1, x2, y2, width, color` |
+| `text` | `x, y, text, size, color, align, valign, font` |
+| `image` | `src, x, y, w, h` |
+| `arc` | `x, y, r, from, to, width, color` (radians) |
+
+Callbacks: `init(w, h, style)`, `render(w, h)`, `on_tick(ms)`, `on_press(x, y, button)`,
+`on_move(x, y, buttons)`, `on_release(x, y, button)`, `on_click(x, y, button)`,
+`on_double_click(x, y)`, `on_wheel(dy)`. `button` is `"left"`, `"right"` or `"middle"`.
+`W.state` is a persistent table, saved next to the widget state and restored on restart.
+
+The top 34 px of a custom widget are reserved for dragging the card; draw your content
+below that (or leave the area empty).
+
 ## Quick look
 
 Press `Space` on a file to preview it (images, text, video/PDF thumbnails).
@@ -139,6 +192,7 @@ Press `Space` on a file to preview it (images, text, video/PDF thumbnails).
 - Rust toolchain (`cargo`) — the helper is compiled during installation.
 - `ffmpeg` (video thumbnails) and `pdftoppm` from poppler (PDF thumbnails) — optional.
 - `Qt.labs.folderlistmodel` (ships with Qt 6 declarative).
+- `lua` in `PATH` for custom Lua widgets (Lua 5.1+; tested with 5.4/5.5).
 
 ## Install
 

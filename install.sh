@@ -20,8 +20,9 @@ fi
 echo "Installing into $TARGET"
 
 # 1. Module files.
-mkdir -p "$TARGET/modules/ii/background/desktop"
+mkdir -p "$TARGET/modules/ii/background/desktop/lua"
 cp "$HERE/files/modules/ii/background/desktop/"*.qml "$TARGET/modules/ii/background/desktop/"
+cp "$HERE/files/modules/ii/background/desktop/lua/"*.lua "$TARGET/modules/ii/background/desktop/lua/"
 
 # 2. Build and install the Rust helper.
 if ! command -v cargo >/dev/null 2>&1; then
@@ -181,6 +182,14 @@ else:
 if not changed:
     print("  nothing to inject")
 PY
+
+# 5. Seed the example Lua widget for the current user (never overwrite it).
+custom_dir="$HOME/.config/illogical-impulse/desktop-widgets"
+mkdir -p "$custom_dir"
+if [[ ! -f "$custom_dir/example.lua" ]]; then
+	cp "$HERE/files/modules/ii/background/desktop/lua/example.lua" "$custom_dir/example.lua"
+	echo "  wrote $custom_dir/example.lua"
+fi
 
 echo
 echo "Done. Restart quickshell to load the desktop:"

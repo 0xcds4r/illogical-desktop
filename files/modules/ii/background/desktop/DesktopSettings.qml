@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import Qt.labs.folderlistmodel
 import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
@@ -764,6 +765,59 @@ PanelWindow {
                         spacing: 5
 
                         StyledText {
+                            Layout.topMargin: 2
+                            text: DesktopTranslation.tr("Custom widgets (Lua)")
+                            font.pixelSize: Appearance.font.pixelSize.small
+                            font.weight: Font.DemiBold
+                            color: Appearance.colors.colPrimary
+                        }
+
+                        RowLayout {
+                            Layout.fillWidth: true
+                            spacing: 8
+                            ActionButton { label: DesktopTranslation.tr("Create example"); icon: "description"; onActivated: DesktopWidgets.createExample() }
+                            ActionButton { label: DesktopTranslation.tr("Open folder"); icon: "folder_open"; onActivated: DesktopWidgets.openCustomFolder() }
+                        }
+
+                        Repeater {
+                            model: customModel
+
+                            delegate: RowLayout {
+                                Layout.fillWidth: true
+                                spacing: 8
+
+                                MaterialSymbol {
+                                    text: "code"
+                                    iconSize: 16
+                                    color: Appearance.colors.colOnLayer2
+                                }
+
+                                StyledText {
+                                    Layout.fillWidth: true
+                                    text: model.fileName
+                                    elide: Text.ElideRight
+                                    color: Appearance.colors.colOnLayer1
+                                    font.pixelSize: Appearance.font.pixelSize.small
+                                }
+
+                                ActionButton {
+                                    Layout.fillWidth: false
+                                    Layout.preferredWidth: 120
+                                    label: DesktopTranslation.tr("Add")
+                                    icon: "add"
+                                    onActivated: DesktopWidgets.addCustom(model.filePath)
+                                }
+                            }
+                        }
+
+                        StyledText {
+                            visible: customModel.count === 0
+                            text: DesktopTranslation.tr("No custom widgets found")
+                            color: Appearance.colors.colOnLayer2
+                            font.pixelSize: Appearance.font.pixelSize.small
+                        }
+
+                        StyledText {
                             text: DesktopTranslation.tr("Clock")
                             font.pixelSize: Appearance.font.pixelSize.small
                             font.weight: Font.DemiBold
@@ -872,5 +926,13 @@ PanelWindow {
                 onActivated: root.dismissed()
             }
         }
+    }
+
+    FolderListModel {
+        id: customModel
+        folder: DesktopWidgets.customDirUrl
+        nameFilters: ["*.lua"]
+        showDirs: false
+        showHidden: false
     }
 }

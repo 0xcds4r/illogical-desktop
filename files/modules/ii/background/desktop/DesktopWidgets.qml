@@ -12,12 +12,20 @@ Singleton {
     readonly property string stateDir: `${Quickshell.env("HOME")}/.local/state/quickshell/user`
     readonly property string filePath: `${root.stateDir}/desktop-widgets.json`
     readonly property string paintDir: `${root.stateDir}/desktop-widgets`
+    readonly property string customDir: `${Quickshell.env("HOME")}/.config/illogical-impulse/desktop-widgets`
+    readonly property string customDirUrl: "file://" + root.customDir
+    readonly property string luaRuntime: Quickshell.env("LUA") || "lua"
+    readonly property string luaHostPath: String(Qt.resolvedUrl("lua/host.lua")).replace("file://", "")
+    readonly property string examplePath: root.customDir + "/example.lua"
+    property string reloadId: ""
+    property int reloadCounter: 0
     property bool ready: false
 
     property alias widgets: adapter.widgets
 
     Component.onCompleted: {
         Quickshell.execDetached(["mkdir", "-p", root.paintDir]);
+        Quickshell.execDetached(["mkdir", "-p", root.customDir]);
     }
 
     Timer {
@@ -59,7 +67,49 @@ Singleton {
             return style === "pill" ? { width: 380, height: 120 } : { width: 300, height: 330 };
         if (type === "paint")
             return { width: 380, height: 300 };
+        if (type === "custom")
+            return { width: 320, height: 220 };
         return { width: 300, height: 150 };
+    }
+
+    function addCustom(script) {
+        const id = "w" + Date.now().toString(36) + Math.floor(Math.random() * 10000).toString(36);
+        const size = root.defaultSize("custom");
+        const count = (root.widgets || []).length;
+        const widget = {
+            id: id,
+            type: "custom",
+            style: "custom",
+            script: script,
+            x: 80 + (count % 4) * 430,
+            y: 80 + Math.floor(count / 4) % 3 * 300,
+            width: size.width,
+            height: size.height,
+            text: "",
+            timerEnd: 0,
+            timerRunning: false,
+            timerDuration: 300000,
+            paintPath: root.paintDir + "/" + id + ".png"
+        };
+        root.widgets = (root.widgets || []).concat([widget]);
+    }
+
+    function createExample() {
+        Quickshell.execDetached(["mkdir", "-p", root.customDir]);
+        Quickshell.execDetached(["bash", "-c",
+            `[ -f "$1" ] || cp "$2" "$1"`,
+            "example", root.examplePath,
+            String(Qt.resolvedUrl("lua/example.lua")).replace("file://", "")]);
+    }
+
+    function openCustomFolder() {
+        Quickshell.execDetached(["mkdir", "-p", root.customDir]);
+        Quickshell.execDetached(["xdg-open", root.customDir]);
+    }
+
+    function reloadWidget(id) {
+        root.reloadId = id;
+        root.reloadCounter += 1;
     }
 
     function add(type, style) {
@@ -106,6 +156,11 @@ Singleton {
         });
         if (source.type === "paint" && source.paintPath)
             Quickshell.execDetached(["cp", "-f", source.paintPath, newPaintPath]);
+        if (source.type === "custom")
+            Quickshell.execDetached(["bash", "-c",
+                `[ -f "$1" ] && cp -f "$1" "$2" || true`,
+                "state", root.paintDir + "/lua-state-" + source.id + ".lua",
+                root.paintDir + "/lua-state-" + newId + ".lua"]);
         root.widgets = (root.widgets || []).concat([copy]);
     }
 

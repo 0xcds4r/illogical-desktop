@@ -20,7 +20,8 @@ Item {
     height: info.height ?? 0
     z: 10
 
-    readonly property bool topStrip: info.type === "notes" || info.type === "paint" || info.type === "timer"
+    readonly property bool topStrip: info.type === "notes" || info.type === "paint"
+        || info.type === "timer" || info.type === "custom"
     readonly property int grabHeight: root.topStrip ? 34 : root.height
 
     // Drag in scene coordinates: the item moves under the cursor, so local
@@ -67,7 +68,7 @@ Item {
     }
 
     Rectangle {
-        visible: info.type !== "notes" && info.type !== "paint"
+        visible: info.type !== "notes" && info.type !== "paint" && info.type !== "custom"
         anchors.fill: parent
         radius: 18
         color: Qt.rgba(0.07, 0.07, 0.08, 0.72)
@@ -86,6 +87,7 @@ Item {
             case "notes": return "DesktopNotesWidget.qml";
             case "timer": return "DesktopTimerWidget.qml";
             case "paint": return "DesktopPaintWidget.qml";
+            case "custom": return "DesktopLuaWidget.qml";
             default: return "";
             }
         }

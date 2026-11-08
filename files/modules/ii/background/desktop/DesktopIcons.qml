@@ -816,13 +816,17 @@ Item {
     function showWidgetMenu(widgetData, x, y) {
         root.lastMenuX = x;
         root.lastMenuY = y;
-        menu.openAt(x, y, [
+        const items = [
             { label: DesktopTranslation.tr("Duplicate widget"), icon: "content_copy",
-              action: () => DesktopWidgets.duplicate(widgetData.id) },
-            { separator: true },
-            { label: DesktopTranslation.tr("Remove widget"), icon: "delete",
-              action: () => DesktopWidgets.remove(widgetData.id) }
-        ]);
+              action: () => DesktopWidgets.duplicate(widgetData.id) }
+        ];
+        if (widgetData.type === "custom")
+            items.push({ label: DesktopTranslation.tr("Reload script"), icon: "refresh",
+                         action: () => DesktopWidgets.reloadWidget(widgetData.id) });
+        items.push({ separator: true });
+        items.push({ label: DesktopTranslation.tr("Remove widget"), icon: "delete",
+                     action: () => DesktopWidgets.remove(widgetData.id) });
+        menu.openAt(x, y, items);
     }
 
     function openProperties(path) {
