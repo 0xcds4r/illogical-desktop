@@ -121,7 +121,7 @@ Press `Space` on a file to preview it (images, text, video/PDF thumbnails):
 - illogical-impulse (quickshell `ii`) on Hyprland, tested with Quickshell 0.3.2.
 - `gio` (glib2), `file`, `xdg-utils` (`xdg-mime`).
 - `zip` for the Compress action, `tar` for tar.gz.
-- `python3` (trash helper).
+- Rust toolchain (`cargo`) — the helper is compiled during installation.
 - `ffmpeg` (video thumbnails) and `pdftoppm` from poppler (PDF thumbnails) — optional.
 - `Qt.labs.folderlistmodel` (ships with Qt 6 declarative).
 
@@ -143,8 +143,8 @@ Manual install:
 
 1. Copy `files/modules/ii/background/desktop/` into
    `~/.config/quickshell/ii/modules/ii/background/desktop/`.
-2. Copy `files/scripts/desktop-*.sh` into `~/.config/quickshell/ii/scripts/` and
-   `chmod +x` them.
+2. Build the helper: `cargo build --release --manifest-path rust/Cargo.toml` and copy
+   `rust/target/release/desktop-helper` into `~/.config/quickshell/ii/scripts/`.
 3. Add `import qs.modules.ii.background.desktop` to `Background.qml` and insert the
    `Loader` block from `install.sh` before `WidgetCanvas`.
 
@@ -208,13 +208,9 @@ files/modules/ii/background/desktop/
   DesktopIconCache.qml    metadata cache for smooth refreshes
   DesktopConfig.qml       own settings file
   DesktopPositions.qml    own icon-position state file
-files/scripts/
-  desktop-open.sh         open with the default application
-  desktop-open-with.sh    list applications for a file type
-  desktop-file-icon.sh    icon from the default application
-  desktop-file-props.sh   properties for the Properties dialog
-install.sh                installer (idempotent injection)
-uninstall.sh              removes the module and the injected loader
+rust/                     Rust helper (trash, icons, open, props, compress)
+install.sh                installer (builds helper, injects loader)
+uninstall.sh              removes the module, helper and injected loader
 ```
 
 ## Compatibility with shell updates

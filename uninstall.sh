@@ -13,7 +13,7 @@ if [[ ! -d "$TARGET/modules/ii/background" ]]; then
 fi
 
 rm -rf "$TARGET/modules/ii/background/desktop"
-rm -f "$TARGET/scripts/"desktop-*
+rm -f "$TARGET/scripts/desktop-helper" "$TARGET/scripts/"desktop-*.sh "$TARGET/scripts/"desktop-*.py
 
 python3 - "$TARGET" <<'PY'
 import os

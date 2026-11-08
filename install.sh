@@ -19,13 +19,21 @@ fi
 
 echo "Installing into $TARGET"
 
-# 1. Module files and helper scripts.
+# 1. Module files.
 mkdir -p "$TARGET/modules/ii/background/desktop"
 cp "$HERE/files/modules/ii/background/desktop/"*.qml "$TARGET/modules/ii/background/desktop/"
-cp "$HERE/files/scripts/"desktop-* "$TARGET/scripts/"
-chmod +x "$TARGET/scripts/"desktop-*
 
-# 2. Migrate settings/positions from the old location (only on first install).
+# 2. Build and install the Rust helper.
+if ! command -v cargo >/dev/null 2>&1; then
+	echo "error: Rust/cargo is required to build desktop-helper" >&2
+	exit 1
+fi
+cargo build --release --manifest-path "$HERE/rust/Cargo.toml"
+install -m755 "$HERE/rust/target/release/desktop-helper" "$TARGET/scripts/desktop-helper"
+# Remove helpers from older versions.
+rm -f "$TARGET/scripts/"desktop-*.sh "$TARGET/scripts/"desktop-*.py
+
+# 3. Migrate settings/positions from the old location (only on first install).
 python3 - "$TARGET" <<'PY'
 import json
 import os
@@ -95,7 +103,7 @@ else:
     print("  keeping existing", positions_path)
 PY
 
-# 3. Inject the loader into Background.qml using structural anchors.
+# 4. Inject the loader into Background.qml using structural anchors.
 python3 - "$TARGET" <<'PY'
 import os
 import re
