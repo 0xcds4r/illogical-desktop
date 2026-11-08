@@ -229,7 +229,8 @@ PanelWindow {
                     { displayName: DesktopTranslation.tr("Colors"), icon: "palette", value: 2 },
                     { displayName: DesktopTranslation.tr("Arrange"), icon: "sort", value: 3 },
                     { displayName: DesktopTranslation.tr("Language"), icon: "translate", value: 4 },
-                    { displayName: DesktopTranslation.tr("Applications"), icon: "apps", value: 5 }
+                    { displayName: DesktopTranslation.tr("Applications"), icon: "apps", value: 5 },
+                    { displayName: DesktopTranslation.tr("Widgets"), icon: "widgets", value: 6 }
                 ]
                 onSelected: newValue => root.settingsTab = newValue
             }
@@ -712,6 +713,112 @@ PanelWindow {
                             text: root.shortcutStatus
                             color: Appearance.colors.colPrimary
                             font.pixelSize: Appearance.font.pixelSize.small
+                        }
+                    }
+
+                    // -------------------------------------------------------- Widgets
+                    ColumnLayout {
+                        visible: root.settingsTab === 6
+                        Layout.fillWidth: true
+                        spacing: 5
+
+                        StyledText {
+                            text: DesktopTranslation.tr("Clock")
+                            font.pixelSize: Appearance.font.pixelSize.small
+                            font.weight: Font.DemiBold
+                            color: Appearance.colors.colPrimary
+                        }
+
+                        RowLayout {
+                            Layout.fillWidth: true
+                            spacing: 8
+                            ActionButton { label: "Digital"; icon: "schedule"; onActivated: DesktopWidgets.add("clock", "digital") }
+                            ActionButton { label: "Analog"; icon: "watch"; onActivated: DesktopWidgets.add("clock", "analog") }
+                            ActionButton { label: "Minimal"; icon: "more_horiz"; onActivated: DesktopWidgets.add("clock", "minimal") }
+                        }
+
+                        StyledText {
+                            Layout.topMargin: 2
+                            text: DesktopTranslation.tr("Calendar")
+                            font.pixelSize: Appearance.font.pixelSize.small
+                            font.weight: Font.DemiBold
+                            color: Appearance.colors.colPrimary
+                        }
+
+                        RowLayout {
+                            Layout.fillWidth: true
+                            spacing: 8
+                            ActionButton { label: "Month"; icon: "calendar_month"; onActivated: DesktopWidgets.add("calendar", "month") }
+                            ActionButton { label: "Compact"; icon: "today"; onActivated: DesktopWidgets.add("calendar", "compact") }
+                        }
+
+                        StyledText {
+                            Layout.topMargin: 2
+                            text: DesktopTranslation.tr("Date & time")
+                            font.pixelSize: Appearance.font.pixelSize.small
+                            font.weight: Font.DemiBold
+                            color: Appearance.colors.colPrimary
+                        }
+
+                        RowLayout {
+                            Layout.fillWidth: true
+                            spacing: 8
+                            ActionButton { label: "Stacked"; icon: "view_agenda"; onActivated: DesktopWidgets.add("datetime", "stacked") }
+                            ActionButton { label: "Inline"; icon: "view_stream"; onActivated: DesktopWidgets.add("datetime", "inline") }
+                        }
+
+                        StyledText {
+                            Layout.topMargin: 2
+                            text: DesktopTranslation.tr("Notes")
+                            font.pixelSize: Appearance.font.pixelSize.small
+                            font.weight: Font.DemiBold
+                            color: Appearance.colors.colPrimary
+                        }
+
+                        RowLayout {
+                            Layout.fillWidth: true
+                            spacing: 8
+                            ActionButton { label: "Yellow"; icon: "sticky_note_2"; onActivated: DesktopWidgets.add("notes", "yellow") }
+                            ActionButton { label: "Pink"; icon: "sticky_note_2"; onActivated: DesktopWidgets.add("notes", "pink") }
+                            ActionButton { label: "Blue"; icon: "sticky_note_2"; onActivated: DesktopWidgets.add("notes", "blue") }
+                            ActionButton { label: "Green"; icon: "sticky_note_2"; onActivated: DesktopWidgets.add("notes", "green") }
+                        }
+
+                        StyledText {
+                            Layout.topMargin: 2
+                            text: DesktopTranslation.tr("Timer / Alarm")
+                            font.pixelSize: Appearance.font.pixelSize.small
+                            font.weight: Font.DemiBold
+                            color: Appearance.colors.colPrimary
+                        }
+
+                        RowLayout {
+                            Layout.fillWidth: true
+                            spacing: 8
+                            ActionButton { label: "Ring"; icon: "timer"; onActivated: DesktopWidgets.add("timer", "ring") }
+                            ActionButton { label: "Pill"; icon: "hourglass_empty"; onActivated: DesktopWidgets.add("timer", "pill") }
+                        }
+
+                        StyledText {
+                            Layout.topMargin: 2
+                            text: DesktopTranslation.tr("Mini paint")
+                            font.pixelSize: Appearance.font.pixelSize.small
+                            font.weight: Font.DemiBold
+                            color: Appearance.colors.colPrimary
+                        }
+
+                        RowLayout {
+                            Layout.fillWidth: true
+                            spacing: 8
+                            ActionButton { label: "Paper"; icon: "palette"; onActivated: DesktopWidgets.add("paint", "paper") }
+                            ActionButton { label: "Board"; icon: "draw"; onActivated: DesktopWidgets.add("paint", "board") }
+                        }
+
+                        ActionButton {
+                            Layout.topMargin: 4
+                            label: DesktopTranslation.tr("Remove all widgets")
+                            icon: "delete_sweep"
+                            onActivated: DesktopWidgets.removeAll()
                         }
                     }
 

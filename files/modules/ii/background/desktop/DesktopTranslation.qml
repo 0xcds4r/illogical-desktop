@@ -336,7 +336,7 @@ Singleton {
             "Open Trash": "Открыть корзину", "Empty Trash": "Очистить корзину",
             "No preview available": "Предпросмотр недоступен",
             "ZIP (fast)": "ZIP (быстро)", "ZIP (normal)": "ZIP (обычно)", "ZIP (max)": "ZIP (максимум)", "tar.gz": "tar.gz",
-            "Undo": "Отменить", "Show trash icon": "Показывать корзину", "Applications": "Приложения", "Search applications": "Поиск приложений", "Create shortcuts": "Создать ярлыки", "Clear selection": "Снять выделение", "Created shortcuts": "Ярлыки созданы"
+            "Undo": "Отменить", "Show trash icon": "Показывать корзину", "Applications": "Приложения", "Search applications": "Поиск приложений", "Create shortcuts": "Создать ярлыки", "Clear selection": "Снять выделение", "Created shortcuts": "Ярлыки созданы", "Widgets": "Виджеты", "Clock": "Часы", "Calendar": "Календарь", "Date & time": "Дата и время", "Notes": "Заметки", "Timer / Alarm": "Таймер / будильник", "Mini paint": "Мини-рисование", "Start": "Старт", "Pause": "Пауза", "Reset": "Сброс", "Clear": "Очистить", "Duplicate widget": "Дублировать виджет", "Remove widget": "Удалить виджет", "Remove all widgets": "Удалить все виджеты"
         },
         "uk": {
             "Desktop folder": "Тека робочого столу", "Confirm before deleting": "Підтверджувати видалення",
@@ -344,7 +344,7 @@ Singleton {
             "Open Trash": "Відкрити кошик", "Empty Trash": "Очистити кошик",
             "No preview available": "Попередній перегляд недоступний",
             "ZIP (fast)": "ZIP (швидко)", "ZIP (normal)": "ZIP (звичайно)", "ZIP (max)": "ZIP (максимум)", "tar.gz": "tar.gz",
-            "Undo": "Скасувати дію", "Show trash icon": "Показувати кошик", "Applications": "Програми", "Search applications": "Пошук програм", "Create shortcuts": "Створити ярлики", "Clear selection": "Зняти виділення", "Created shortcuts": "Ярлики створено"
+            "Undo": "Скасувати дію", "Show trash icon": "Показувати кошик", "Applications": "Програми", "Search applications": "Пошук програм", "Create shortcuts": "Створити ярлики", "Clear selection": "Зняти виділення", "Created shortcuts": "Ярлики створено", "Widgets": "Віджети", "Clock": "Годинник", "Calendar": "Календар", "Date & time": "Дата й час", "Notes": "Нотатки", "Timer / Alarm": "Таймер / будильник", "Mini paint": "Міні-малювання", "Start": "Старт", "Pause": "Пауза", "Reset": "Скидання", "Clear": "Очистити", "Duplicate widget": "Дублювати віджет", "Remove widget": "Видалити віджет", "Remove all widgets": "Видалити всі віджети"
         },
         "be": {
             "Desktop folder": "Папка працоўнага стала", "Confirm before deleting": "Пацвярджаць выдаленне",
@@ -352,7 +352,7 @@ Singleton {
             "Open Trash": "Адкрыць кошык", "Empty Trash": "Ачысціць кошык",
             "No preview available": "Прадпрагляд недоступны",
             "ZIP (fast)": "ZIP (хутка)", "ZIP (normal)": "ZIP (звычайна)", "ZIP (max)": "ZIP (максімум)", "tar.gz": "tar.gz",
-            "Undo": "Адмяніць", "Show trash icon": "Паказваць кошык", "Applications": "Праграмы", "Search applications": "Пошук праграм", "Create shortcuts": "Стварыць ярлыкі", "Clear selection": "Зняць вылучэнне", "Created shortcuts": "Ярлыкі створаны"
+            "Undo": "Адмяніць", "Show trash icon": "Паказваць кошык", "Applications": "Праграмы", "Search applications": "Пошук праграм", "Create shortcuts": "Стварыць ярлыкі", "Clear selection": "Зняць вылучэнне", "Created shortcuts": "Ярлыкі створаны", "Widgets": "Віджэты", "Clock": "Гадзіннік", "Calendar": "Каляндар", "Date & time": "Дата і час", "Notes": "Нататкі", "Timer / Alarm": "Таймер / будзільнік", "Mini paint": "Міні-маляванне", "Start": "Старт", "Pause": "Пауза", "Reset": "Скід", "Clear": "Ачысціць", "Duplicate widget": "Дубляваць віджэт", "Remove widget": "Выдаліць віджэт", "Remove all widgets": "Выдаліць усе віджэты"
         },
         "pl": {
             "Desktop folder": "Folder pulpitu", "Confirm before deleting": "Potwierdzaj usuwanie",
@@ -360,7 +360,7 @@ Singleton {
             "Open Trash": "Otwórz kosz", "Empty Trash": "Opróżnij kosz",
             "No preview available": "Podgląd niedostępny",
             "ZIP (fast)": "ZIP (szybko)", "ZIP (normal)": "ZIP (normalnie)", "ZIP (max)": "ZIP (maks.)", "tar.gz": "tar.gz",
-            "Undo": "Cofnij", "Show trash icon": "Pokaż kosz", "Applications": "Aplikacje", "Search applications": "Szukaj aplikacji", "Create shortcuts": "Utwórz skróty", "Clear selection": "Wyczyść zaznaczenie", "Created shortcuts": "Utworzono skróty"
+            "Undo": "Cofnij", "Show trash icon": "Pokaż kosz", "Applications": "Aplikacje", "Search applications": "Szukaj aplikacji", "Create shortcuts": "Utwórz skróty", "Clear selection": "Wyczyść zaznaczenie", "Created shortcuts": "Utworzono skróty", "Widgets": "Widgety", "Clock": "Zegar", "Calendar": "Kalendarz", "Date & time": "Data i godzina", "Notes": "Notatki", "Timer / Alarm": "Timer / budzik", "Mini paint": "Mini-malowanie", "Start": "Start", "Pause": "Pauza", "Reset": "Resetuj", "Clear": "Wyczyść", "Duplicate widget": "Duplikuj widget", "Remove widget": "Usuń widget", "Remove all widgets": "Usuń wszystkie widgety"
         },
         "de": {
             "Desktop folder": "Desktopordner", "Confirm before deleting": "Löschen bestätigen",
@@ -368,7 +368,7 @@ Singleton {
             "Open Trash": "Papierkorb öffnen", "Empty Trash": "Papierkorb leeren",
             "No preview available": "Keine Vorschau verfügbar",
             "ZIP (fast)": "ZIP (schnell)", "ZIP (normal)": "ZIP (normal)", "ZIP (max)": "ZIP (maximal)", "tar.gz": "tar.gz",
-            "Undo": "Rückgängig", "Show trash icon": "Papierkorb anzeigen", "Applications": "Anwendungen", "Search applications": "Anwendungen suchen", "Create shortcuts": "Verknüpfungen erstellen", "Clear selection": "Auswahl aufheben", "Created shortcuts": "Verknüpfungen erstellt"
+            "Undo": "Rückgängig", "Show trash icon": "Papierkorb anzeigen", "Applications": "Anwendungen", "Search applications": "Anwendungen suchen", "Create shortcuts": "Verknüpfungen erstellen", "Clear selection": "Auswahl aufheben", "Created shortcuts": "Verknüpfungen erstellt", "Widgets": "Widgets", "Clock": "Uhr", "Calendar": "Kalender", "Date & time": "Datum & Uhrzeit", "Notes": "Notizen", "Timer / Alarm": "Timer / Wecker", "Mini paint": "Mini-Malen", "Start": "Start", "Pause": "Pause", "Reset": "Zurücksetzen", "Clear": "Leeren", "Duplicate widget": "Widget duplizieren", "Remove widget": "Widget entfernen", "Remove all widgets": "Alle Widgets entfernen"
         },
         "fr": {
             "Desktop folder": "Dossier du bureau", "Confirm before deleting": "Confirmer la suppression",
@@ -376,7 +376,7 @@ Singleton {
             "Open Trash": "Ouvrir la corbeille", "Empty Trash": "Vider la corbeille",
             "No preview available": "Aperçu indisponible",
             "ZIP (fast)": "ZIP (rapide)", "ZIP (normal)": "ZIP (normal)", "ZIP (max)": "ZIP (maximal)", "tar.gz": "tar.gz",
-            "Undo": "Annuler", "Show trash icon": "Afficher la corbeille", "Applications": "Applications", "Search applications": "Rechercher des applications", "Create shortcuts": "Créer des raccourcis", "Clear selection": "Effacer la sélection", "Created shortcuts": "Raccourcis créés"
+            "Undo": "Annuler", "Show trash icon": "Afficher la corbeille", "Applications": "Applications", "Search applications": "Rechercher des applications", "Create shortcuts": "Créer des raccourcis", "Clear selection": "Effacer la sélection", "Created shortcuts": "Raccourcis créés", "Widgets": "Widgets", "Clock": "Horloge", "Calendar": "Calendrier", "Date & time": "Date et heure", "Notes": "Notes", "Timer / Alarm": "Minuteur / réveil", "Mini paint": "Mini-peinture", "Start": "Démarrer", "Pause": "Pause", "Reset": "Réinitialiser", "Clear": "Effacer", "Duplicate widget": "Dupliquer le widget", "Remove widget": "Supprimer le widget", "Remove all widgets": "Supprimer tous les widgets"
         },
         "es": {
             "Desktop folder": "Carpeta del escritorio", "Confirm before deleting": "Confirmar eliminación",
@@ -384,7 +384,7 @@ Singleton {
             "Open Trash": "Abrir papelera", "Empty Trash": "Vaciar papelera",
             "No preview available": "Vista previa no disponible",
             "ZIP (fast)": "ZIP (rápido)", "ZIP (normal)": "ZIP (normal)", "ZIP (max)": "ZIP (máximo)", "tar.gz": "tar.gz",
-            "Undo": "Deshacer", "Show trash icon": "Mostrar papelera", "Applications": "Aplicaciones", "Search applications": "Buscar aplicaciones", "Create shortcuts": "Crear accesos directos", "Clear selection": "Borrar selección", "Created shortcuts": "Accesos creados"
+            "Undo": "Deshacer", "Show trash icon": "Mostrar papelera", "Applications": "Aplicaciones", "Search applications": "Buscar aplicaciones", "Create shortcuts": "Crear accesos directos", "Clear selection": "Borrar selección", "Created shortcuts": "Accesos creados", "Widgets": "Widgets", "Clock": "Reloj", "Calendar": "Calendario", "Date & time": "Fecha y hora", "Notes": "Notas", "Timer / Alarm": "Temporizador / alarma", "Mini paint": "Mini-pintura", "Start": "Iniciar", "Pause": "Pausa", "Reset": "Restablecer", "Clear": "Borrar", "Duplicate widget": "Duplicar widget", "Remove widget": "Eliminar widget", "Remove all widgets": "Eliminar todos los widgets"
         },
         "ja": {
             "Desktop folder": "デスクトップフォルダー", "Confirm before deleting": "削除前に確認",
@@ -392,7 +392,7 @@ Singleton {
             "Open Trash": "ゴミ箱を開く", "Empty Trash": "ゴミ箱を空にする",
             "No preview available": "プレビューできません",
             "ZIP (fast)": "ZIP (高速)", "ZIP (normal)": "ZIP (標準)", "ZIP (max)": "ZIP (最大)", "tar.gz": "tar.gz",
-            "Undo": "元に戻す", "Show trash icon": "ゴミ箱を表示", "Applications": "アプリ", "Search applications": "アプリを検索", "Create shortcuts": "ショートカットを作成", "Clear selection": "選択を解除", "Created shortcuts": "ショートカットを作成しました"
+            "Undo": "元に戻す", "Show trash icon": "ゴミ箱を表示", "Applications": "アプリ", "Search applications": "アプリを検索", "Create shortcuts": "ショートカットを作成", "Clear selection": "選択を解除", "Created shortcuts": "ショートカットを作成しました", "Widgets": "ウィジェット", "Clock": "時計", "Calendar": "カレンダー", "Date & time": "日付と時刻", "Notes": "メモ", "Timer / Alarm": "タイマー / アラーム", "Mini paint": "ミニペイント", "Start": "開始", "Pause": "一時停止", "Reset": "リセット", "Clear": "クリア", "Duplicate widget": "ウィジェットを複製", "Remove widget": "ウィジェットを削除", "Remove all widgets": "すべてのウィジェットを削除"
         },
         "zh": {
             "Desktop folder": "桌面文件夹", "Confirm before deleting": "删除前确认",
@@ -400,7 +400,7 @@ Singleton {
             "Open Trash": "打开回收站", "Empty Trash": "清空回收站",
             "No preview available": "无法预览",
             "ZIP (fast)": "ZIP（快速）", "ZIP (normal)": "ZIP（标准）", "ZIP (max)": "ZIP（最大）", "tar.gz": "tar.gz",
-            "Undo": "撤销", "Show trash icon": "显示回收站", "Applications": "应用程序", "Search applications": "搜索应用", "Create shortcuts": "创建快捷方式", "Clear selection": "清除选择", "Created shortcuts": "已创建快捷方式"
+            "Undo": "撤销", "Show trash icon": "显示回收站", "Applications": "应用程序", "Search applications": "搜索应用", "Create shortcuts": "创建快捷方式", "Clear selection": "清除选择", "Created shortcuts": "已创建快捷方式", "Widgets": "小组件", "Clock": "时钟", "Calendar": "日历", "Date & time": "日期和时间", "Notes": "便签", "Timer / Alarm": "计时器 / 闹钟", "Mini paint": "迷你画板", "Start": "开始", "Pause": "暂停", "Reset": "重置", "Clear": "清除", "Duplicate widget": "复制小组件", "Remove widget": "删除小组件", "Remove all widgets": "删除所有小组件"
         },
         "ko": {
             "Desktop folder": "데스크톱 폴더", "Confirm before deleting": "삭제 전 확인",
@@ -408,7 +408,7 @@ Singleton {
             "Open Trash": "휴지통 열기", "Empty Trash": "휴지통 비우기",
             "No preview available": "미리보기를 사용할 수 없음",
             "ZIP (fast)": "ZIP (빠름)", "ZIP (normal)": "ZIP (보통)", "ZIP (max)": "ZIP (최대)", "tar.gz": "tar.gz",
-            "Undo": "실행 취소", "Show trash icon": "휴지통 표시", "Applications": "앱", "Search applications": "앱 검색", "Create shortcuts": "바로가기 만들기", "Clear selection": "선택 해제", "Created shortcuts": "바로가기 생성됨"
+            "Undo": "실행 취소", "Show trash icon": "휴지통 표시", "Applications": "앱", "Search applications": "앱 검색", "Create shortcuts": "바로가기 만들기", "Clear selection": "선택 해제", "Created shortcuts": "바로가기 생성됨", "Widgets": "위젯", "Clock": "시계", "Calendar": "달력", "Date & time": "날짜 및 시간", "Notes": "메모", "Timer / Alarm": "타이머 / 알람", "Mini paint": "미니 페인트", "Start": "시작", "Pause": "일시정지", "Reset": "초기화", "Clear": "지우기", "Duplicate widget": "위젯 복제", "Remove widget": "위젯 삭제", "Remove all widgets": "모든 위젯 삭제"
         }
     })
 

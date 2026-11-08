@@ -45,6 +45,17 @@ desktop-entry aware icons/launching.
   (the extension is preserved), `F5` refreshes.
 - **Applications tab**: list of installed apps (with search), multi-select and
   "Create shortcuts" writes executable `.desktop` files to the desktop.
+- **Desktop widgets** (Widgets tab), any number of instances, each draggable and
+  right-clickable (duplicate / remove):
+  - clock — digital, analog or minimal;
+  - calendar — full month or compact;
+  - date & time — stacked or inline;
+  - sticky notes in yellow/pink/blue/green, duplicated like fridge stickers with
+    their text;
+  - timer — ring or pill, with a shortcut to GNOME Clocks for alarms;
+  - mini paint — paper or board canvas, saved as PNG and copied on duplicate.
+  Widget state lives in `~/.local/state/quickshell/user/desktop-widgets.json`,
+  drawings in `~/.local/state/quickshell/user/desktop-widgets/`.
 - `.desktop` entries show their real `Name=` and `Icon=` and are launched with
   `gio launch` (so `Exec`, `Terminal`, placeholders work).
 - Regular files use the icon of their default application for that MIME type
@@ -88,6 +99,9 @@ Right-click the desktop → **Desktop settings**. Everything applies live, split
   the shell keeps its own language.
 - **Applications**: search installed applications, select one or several and create
   `.desktop` shortcuts for them on the desktop.
+- **Widgets**: add clock, calendar, date & time, notes, timer and mini-paint widgets
+  (with style variants), remove all of them, or use the desktop right-click menu on a
+  widget to duplicate or remove it.
 - **Done** closes the modal (it also closes from the `×` button or `Esc`; clicking the
   desktop does not dismiss it).
 

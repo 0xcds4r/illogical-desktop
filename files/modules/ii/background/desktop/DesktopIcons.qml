@@ -813,6 +813,18 @@ Item {
         menu.openAt(root.lastMenuX, root.lastMenuY, items);
     }
 
+    function showWidgetMenu(widgetData, x, y) {
+        root.lastMenuX = x;
+        root.lastMenuY = y;
+        menu.openAt(x, y, [
+            { label: DesktopTranslation.tr("Duplicate widget"), icon: "content_copy",
+              action: () => DesktopWidgets.duplicate(widgetData.id) },
+            { separator: true },
+            { label: DesktopTranslation.tr("Remove widget"), icon: "delete",
+              action: () => DesktopWidgets.remove(widgetData.id) }
+        ]);
+    }
+
     function openProperties(path) {
         root.propertiesPath = path;
         root.propertiesOpen = true;
@@ -1366,6 +1378,22 @@ Item {
         color: root.bandFill(root.cfg.bandOpacity)
         border.width: 1
         border.color: root.bandFill(Math.min(1, root.cfg.bandOpacity * 3))
+    }
+
+    Item {
+        id: widgetLayer
+        anchors.fill: parent
+        visible: root.cfg.enable
+        z: 20
+
+        Repeater {
+            model: DesktopWidgets.widgets
+
+            delegate: DesktopWidget {
+                widgetData: modelData
+                host: root
+            }
+        }
     }
 
     Item {
