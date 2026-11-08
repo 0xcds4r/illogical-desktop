@@ -48,6 +48,9 @@ should only build the operation list. Put mutation in the callbacks.
 
 The process is restarted when the widget is reloaded or when the declared size changes.
 
+Scripts can opt into media state by setting `media = true` in the widget table; the shell
+then pushes the active MPRIS player's state (see **Media** below) and repaints on change.
+
 ## The widget table
 
 A script returns a table (or assigns the global `widget`):
@@ -346,6 +349,44 @@ frame may briefly show untranslated keys.
 - Built-in clock/calendar/date-time widgets set `drag = "all"` in their widget record,
   which makes the whole card draggable; widgets with interactive bodies keep the strip.
 
+## Media (MPRIS)
+
+Set `media = true` in the widget table to receive the active player's state:
+
+```lua
+local W = { width = 400, height = 160, tick = 0, media = true }
+
+function W.render(w, h)
+    local m = desktop.media
+    -- m = { playing, position, length, canSeek, title, artist, album, art, player }
+end
+```
+
+| field | meaning |
+|---|---|
+| `playing` | boolean |
+| `position`, `length` | seconds |
+| `canSeek` | boolean |
+| `title`, `artist`, `album` | metadata strings |
+| `art` | album-art URL (pass straight to the `image` op) |
+| `player` | MPRIS bus name |
+
+State is refreshed every 500 ms and whenever the metadata or track changes. Before the
+first update `desktop.media` is `nil`.
+
+Control the player with:
+
+```lua
+desktop.media_action("play_pause")
+desktop.media_action("next")
+desktop.media_action("previous")
+desktop.media_action("seek", 0.5)  -- 0..1 of the track length
+```
+
+Each call is forwarded to the active MPRIS player. The bundled `lua/widgets/player.lua`
+builds a full media card (album art, title/artist, seek bar, prev/play/next, card and
+compact layouts) from this API and is a good reference.
+
 ## Assets and licensing
 
 Scripts can load their own PNGs with the `image` operation, for example:
@@ -400,6 +441,7 @@ Ready-made scripts, all using the API above:
 - `lua/widgets/notes.lua` — `input` op, rotation, per-instance state;
 - `lua/widgets/timer.lua` — dynamic tick, hit-testing, notifications, spawning Clocks;
 - `lua/widgets/paint.lua` — pointer strokes, palette, persistent drawing;
+- `lua/widgets/player.lua` — MPRIS media player card (album art, seek, controls);
 - `docs/examples/hello.lua` — minimal click counter with animation;
 - `docs/examples/minesweeper.lua` — complete 9×9 game: persistent state, first-click
   safety, flood reveal, flags (middle click or flag mode), timer, win/lose overlays;

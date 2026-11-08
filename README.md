@@ -53,7 +53,9 @@ desktop-entry aware icons/launching.
   - sticky notes in yellow/pink/blue/green, duplicated like fridge stickers with
     their text;
   - timer — ring or pill, with a shortcut to GNOME Clocks for alarms;
-  - mini paint — paper or board canvas, saved as PNG and copied on duplicate.
+  - mini paint — paper or board canvas, saved as PNG and copied on duplicate;
+  - media player — MPRIS album art, title/artist, seek bar, prev/play/next,
+    card or compact layout.
   - all of the above are implemented as Lua scripts (`lua/widgets/`), and you can add
     your own Lua widgets with drawing, input, animation and persistent state.
   Widget state lives in `~/.local/state/quickshell/user/desktop-widgets.json`,

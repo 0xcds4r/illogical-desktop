@@ -766,6 +766,21 @@ PanelWindow {
 
                         StyledText {
                             Layout.topMargin: 2
+                            text: DesktopTranslation.tr("Player")
+                            font.pixelSize: Appearance.font.pixelSize.small
+                            font.weight: Font.DemiBold
+                            color: Appearance.colors.colPrimary
+                        }
+
+                        RowLayout {
+                            Layout.fillWidth: true
+                            spacing: 8
+                            ActionButton { label: "Card"; icon: "smart_display"; onActivated: DesktopWidgets.addBuiltin("player", "card") }
+                            ActionButton { label: "Compact"; icon: "view_stream"; onActivated: DesktopWidgets.addBuiltin("player", "compact") }
+                        }
+
+                        StyledText {
+                            Layout.topMargin: 2
                             text: DesktopTranslation.tr("Custom widgets (Lua)")
                             font.pixelSize: Appearance.font.pixelSize.small
                             font.weight: Font.DemiBold

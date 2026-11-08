@@ -25,6 +25,8 @@ Item {
     property real luaRotation: 0
     property string errorText: ""
     property bool started: false
+    property bool wantsMedia: false
+    property string lastMediaKey: ""
     property string menuButton: "right"
 
     readonly property bool menuOnRight: root.menuButton === "right"
@@ -63,6 +65,22 @@ Item {
             if (action.path)
                 Quickshell.execDetached(["xdg-open", String(action.path)]);
             break;
+        case "media": {
+            const player = MprisController.activePlayer;
+            if (!player)
+                break;
+            const command = String(action.command ?? "");
+            if (command === "play_pause") {
+                player.togglePlaying();
+            } else if (command === "next") {
+                player.next();
+            } else if (command === "previous") {
+                player.previous();
+            } else if (command === "seek" && (player.length ?? 0) > 0) {
+                player.position = Math.max(0, Math.min(1, Number(action.value ?? 0))) * player.length;
+            }
+            break;
+        }
         }
     }
 
@@ -83,6 +101,10 @@ Item {
             root.tickInterval = Math.max(0, Math.round(meta.tick ?? 0));
             root.luaRotation = Number(meta.rotation ?? 0);
             root.cursorShape = String(meta.cursor ?? "pointing");
+            if (message.meta.media === true && !root.wantsMedia) {
+                root.wantsMedia = true;
+                root.sendMedia();
+            }
             const context = String(meta.context ?? "right");
             if (context !== root.menuButton && (context === "right" || context === "middle"
                     || context === "none" || /^[a-z0-9+_-]+$/.test(context))) {
@@ -130,6 +152,28 @@ Item {
         case "hand": return Qt.OpenHandCursor;
         default: return Qt.PointingHandCursor;
         }
+    }
+
+    function sendMedia() {
+        const player = MprisController.activePlayer;
+        const playing = player ? (player.isPlaying ?? false) : false;
+        const position = player ? (player.position ?? 0) : 0;
+        const length = player ? (player.length ?? 0) : 0;
+        const seekable = player ? (player.canSeek ?? false) : false;
+        const title = player ? (player.trackTitle ?? "") : "";
+        const artist = player ? (player.trackArtist ?? "") : "";
+        const album = player ? (player.trackAlbum ?? "") : "";
+        const art = player ? (player.trackArtUrl ?? "") : "";
+        const name = player ? (player.dbusName ?? "") : "";
+        const key = [playing, Math.round(position * 2), Math.round(length), seekable,
+            title, artist, album, art, name].join("|");
+        if (key === root.lastMediaKey)
+            return;
+        root.lastMediaKey = key;
+        root.send("j\t" + (playing ? 1 : 0) + "\t" + position + "\t" + length
+            + "\t" + (seekable ? 1 : 0) + "\t" + encodeURIComponent(title)
+            + "\t" + encodeURIComponent(artist) + "\t" + encodeURIComponent(album)
+            + "\t" + encodeURIComponent(art) + "\t" + encodeURIComponent(name));
     }
 
     function startHost() {
@@ -252,6 +296,21 @@ Item {
         repeat: true
         running: root.tickInterval > 0
         onTriggered: root.send("t\t" + Date.now())
+    }
+
+    Timer {
+        interval: 500
+        repeat: true
+        running: root.wantsMedia
+        onTriggered: root.sendMedia()
+    }
+
+    Connections {
+        target: MprisController
+        function onActivePlayerChanged() {
+            if (root.wantsMedia)
+                root.sendMedia();
+        }
     }
 
     Canvas {

@@ -16,6 +16,8 @@
 --   r <x> <y> <button> [mods]  release (calls on_release, then on_click)
 --   d <x> <y> [button] [mods]  double click
 --   w <dy> <dx> [mods]         wheel
+--   j <playing> <pos> <len> <seekable> <title> <artist> <album> <art> <player>
+--                              media state from the shell (strings percent-encoded)
 --   e <key> <text>             text input changed (percent-encoded)
 --   k <key> <modifiers>        key pressed
 --   u <key> <modifiers>        key released
@@ -52,6 +54,9 @@
 --   desktop.log(...)
 --   desktop.strings                     -- translations table
 --   desktop.home                        -- $HOME
+--   desktop.media                       -- {playing, position, length, canSeek,
+--                                          title, artist, album, art, player}
+--   desktop.media_action("play_pause" | "next" | "previous" | "seek", value)
 
 local script_path = arg[1]
 local state_path = arg[2] or ""
@@ -205,6 +210,14 @@ function desktop.open(path)
     actions[#actions + 1] = { type = "open", path = tostring(path or "") }
 end
 
+function desktop.media_action(command, value)
+    actions[#actions + 1] = {
+        type = "media",
+        command = tostring(command or ""),
+        value = tonumber(value) or 0
+    }
+end
+
 function desktop.tr(key)
     return desktop.strings[tostring(key)] or tostring(key)
 end
@@ -319,7 +332,8 @@ local function respond()
             tick = tick_interval,
             rotation = widget_rotation,
             cursor = widget_cursor,
-            context = tostring(widget.context_button or "right")
+            context = tostring(widget.context_button or "right"),
+            media = widget.media and true or false
         },
         actions = actions
     }
@@ -389,6 +403,23 @@ for line in io.lines() do
     elseif command == "w" then
         local dy, dx, mods = rest:match("([^\t]*)\t?([^\t]*)\t?(.*)")
         call("on_wheel", tonumber(dy) or 0, tonumber(dx) or 0, mods or "")
+    elseif command == "j" then
+        local fields = {}
+        for part in (rest .. "\t"):gmatch("([^\t]*)\t") do
+            fields[#fields + 1] = part
+        end
+        desktop.media = {
+            playing = fields[1] == "1",
+            position = tonumber(fields[2]) or 0,
+            length = tonumber(fields[3]) or 0,
+            canSeek = fields[4] == "1",
+            title = url_decode(fields[5] or ""),
+            artist = url_decode(fields[6] or ""),
+            album = url_decode(fields[7] or ""),
+            art = url_decode(fields[8] or ""),
+            player = url_decode(fields[9] or "")
+        }
+        call("on_media", desktop.media)
     elseif command == "e" then
         local key, text = rest:match("([^\t]*)\t?(.*)")
         if key and key ~= "" then
