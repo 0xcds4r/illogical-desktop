@@ -162,6 +162,51 @@ local function collide_paddle(paddle)
     end
 end
 
+-- Mouse hovers can jump the paddle across several pixels in one event. Sweep the
+-- movement segment so the paddle cannot pass through the puck between ticks.
+local function resolve_hover_hit(old_x, old_y, new_x, new_y)
+    local puck = game.puck
+    if game.over or game.serveTimer > 0 then
+        return
+    end
+    local min_dist = PADDLE_R + PUCK_R
+    local seg_x, seg_y = new_x - old_x, new_y - old_y
+    local len2 = seg_x * seg_x + seg_y * seg_y
+    local closest_x, closest_y = new_x, new_y
+    if len2 > 0.0001 then
+        local t = clamp(((puck.x - old_x) * seg_x + (puck.y - old_y) * seg_y) / len2, 0, 1)
+        closest_x, closest_y = old_x + seg_x * t, old_y + seg_y * t
+    end
+
+    local dx, dy = puck.x - closest_x, puck.y - closest_y
+    local dist_sq = dx * dx + dy * dy
+    if dist_sq >= min_dist * min_dist then
+        return
+    end
+
+    local dist = math.sqrt(math.max(dist_sq, 0.0001))
+    local nx, ny = dx / dist, dy / dist
+    puck.x = closest_x + nx * (min_dist + 0.05)
+    puck.y = closest_y + ny * (min_dist + 0.05)
+
+    local rel = puck.vx * nx + puck.vy * ny
+    if rel < 0 then
+        puck.vx = puck.vx - 2 * rel * nx
+        puck.vy = puck.vy - 2 * rel * ny
+    end
+
+    local speed = clamp(math.sqrt(len2) * 45, 240, 900)
+    local along = puck.vx * nx + puck.vy * ny
+    if along < speed then
+        puck.vx = puck.vx + nx * (speed - along)
+        puck.vy = puck.vy + ny * (speed - along)
+    end
+    local total = math.sqrt(puck.vx * puck.vx + puck.vy * puck.vy)
+    if total > MAX_SPEED then
+        puck.vx, puck.vy = puck.vx / total * MAX_SPEED, puck.vy / total * MAX_SPEED
+    end
+end
+
 local function physics(dt)
     local puck = game.puck
     local goal_left = TABLE.x + (TABLE.w - GOAL_W) / 2
@@ -397,9 +442,13 @@ function W.on_hover(x, y)
     if game.over then
         return
     end
+    local old_x, old_y = game.player.x, game.player.y
     mouse_active = true
     game.player.x = clamp(x, TABLE.x + PADDLE_R, TABLE.x + TABLE.w - PADDLE_R)
     game.player.y = clamp(y, TABLE.y + TABLE.h / 2 + PADDLE_R, TABLE.y + TABLE.h - PADDLE_R)
+    if game.running then
+        resolve_hover_hit(old_x, old_y, game.player.x, game.player.y)
+    end
     if not game.running then
         game.running = true
         lastMs = nil
