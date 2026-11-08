@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
+import Quickshell.Io
 import Quickshell.Wayland
 import qs.services
 import qs.modules.common
@@ -32,6 +33,82 @@ PanelWindow {
     }
 
     readonly property var cfg: DesktopConfig
+    readonly property string helperPath: Directories.scriptPath + "/desktop-helper"
+    property var appList: []
+    property var selectedApps: ({})
+    property string appSearch: ""
+    property string shortcutStatus: ""
+    readonly property int selectedAppCount: Object.keys(selectedApps).length
+    readonly property var filteredApps: {
+        const query = root.appSearch.toLowerCase().trim();
+        if (query === "")
+            return root.appList;
+        return root.appList.filter(app =>
+            app.name.toLowerCase().includes(query) || app.id.toLowerCase().includes(query));
+    }
+
+    Process {
+        id: appsProcess
+        running: false
+        command: [root.helperPath, "apps"]
+        stdout: StdioCollector {
+            onStreamFinished: root.applyApps(text)
+        }
+    }
+
+    function loadApps() {
+        if (root.appList.length === 0 && !appsProcess.running)
+            appsProcess.running = true;
+    }
+
+    function applyApps(output) {
+        const apps = [];
+        for (const line of String(output).split("\n")) {
+            if (line.trim() === "")
+                continue;
+            const parts = line.split("\t");
+            if (parts.length < 4)
+                continue;
+            apps.push({ id: parts[0], name: parts[1], icon: parts[2], path: parts[3] });
+        }
+        root.appList = apps;
+    }
+
+    function toggleApp(path) {
+        const map = Object.assign({}, root.selectedApps);
+        if (map[path])
+            delete map[path];
+        else
+            map[path] = true;
+        root.selectedApps = map;
+    }
+
+    function selectAllApps() {
+        const map = Object.assign({}, root.selectedApps);
+        for (const app of root.filteredApps)
+            map[app.path] = true;
+        root.selectedApps = map;
+    }
+
+    function clearApps() {
+        root.selectedApps = ({});
+    }
+
+    function createShortcuts() {
+        let count = 0;
+        for (const path of Object.keys(root.selectedApps)) {
+            Quickshell.execDetached([root.helperPath, "shortcut", path, root.desktop.desktopFolderPath]);
+            count++;
+        }
+        root.selectedApps = ({});
+        root.shortcutStatus = DesktopTranslation.tr("Created shortcuts") + ": " + count;
+        root.desktop.scheduleRefresh();
+    }
+
+    onSettingsTabChanged: {
+        if (root.settingsTab === 5)
+            root.loadApps();
+    }
     readonly property int cardWidth: Math.min(1000, width - 80)
     readonly property int cardMaxHeight: height - 100
     property int settingsTab: 0
@@ -152,7 +229,8 @@ PanelWindow {
                     { displayName: DesktopTranslation.tr("Grid"), icon: "grid_view", value: 1 },
                     { displayName: DesktopTranslation.tr("Colors"), icon: "palette", value: 2 },
                     { displayName: DesktopTranslation.tr("Arrange"), icon: "sort", value: 3 },
-                    { displayName: DesktopTranslation.tr("Language"), icon: "translate", value: 4 }
+                    { displayName: DesktopTranslation.tr("Language"), icon: "translate", value: 4 },
+                    { displayName: DesktopTranslation.tr("Applications"), icon: "apps", value: 5 }
                 ]
                 onSelected: newValue => root.settingsTab = newValue
             }
@@ -484,6 +562,157 @@ PanelWindow {
                                 value: option.code
                             }))
                             onSelected: newValue => DesktopConfig.language = newValue
+                        }
+                    }
+
+                    // -------------------------------------------------- Applications
+                    ColumnLayout {
+                        visible: root.settingsTab === 5
+                        Layout.fillWidth: true
+                        spacing: 8
+
+                        Rectangle {
+                            Layout.fillWidth: true
+                            implicitHeight: 34
+                            radius: Appearance.rounding.verysmall
+                            color: Appearance.colors.colLayer1
+                            border.width: 1
+                            border.color: Appearance.colors.colLayer0Border
+
+                            Text {
+                                anchors {
+                                    left: parent.left
+                                    verticalCenter: parent.verticalCenter
+                                    leftMargin: 10
+                                }
+                                visible: appSearchInput.text === ""
+                                text: DesktopTranslation.tr("Search applications")
+                                color: Appearance.colors.colOnLayer2
+                                font.pixelSize: Appearance.font.pixelSize.small
+                            }
+
+                            TextInput {
+                                id: appSearchInput
+                                anchors {
+                                    fill: parent
+                                    leftMargin: 10
+                                    rightMargin: 10
+                                }
+                                verticalAlignment: TextInput.AlignVCenter
+                                text: root.appSearch
+                                color: Appearance.colors.colOnLayer1
+                                font.pixelSize: Appearance.font.pixelSize.small
+                                selectByMouse: true
+                                onTextChanged: root.appSearch = text
+                            }
+                        }
+
+                        ListView {
+                            id: appsView
+                            Layout.fillWidth: true
+                            Layout.preferredHeight: 260
+                            clip: true
+                            spacing: 2
+                            boundsBehavior: Flickable.StopAtBounds
+                            model: root.filteredApps
+
+                            delegate: Rectangle {
+                                id: appRow
+                                width: ListView.view.width
+                                height: 46
+                                radius: Appearance.rounding.verysmall
+                                color: root.selectedApps[modelData.path] ? Appearance.colors.colPrimaryContainer
+                                     : rowMouse.containsMouse ? Appearance.colors.colLayer1Hover
+                                     : "transparent"
+
+                                RowLayout {
+                                    anchors {
+                                        fill: parent
+                                        leftMargin: 8
+                                        rightMargin: 10
+                                    }
+                                    spacing: 10
+
+                                    Image {
+                                        Layout.preferredWidth: 26
+                                        Layout.preferredHeight: 26
+                                        sourceSize.width: 26
+                                        sourceSize.height: 26
+                                        fillMode: Image.PreserveAspectFit
+                                        source: modelData.icon === ""
+                                            ? Quickshell.iconPath("application-x-executable", "application-x-executable")
+                                            : modelData.icon.startsWith("/")
+                                                ? "file://" + modelData.icon
+                                                : Quickshell.iconPath(modelData.icon, "application-x-executable")
+                                    }
+
+                                    ColumnLayout {
+                                        Layout.fillWidth: true
+                                        spacing: 0
+
+                                        StyledText {
+                                            Layout.fillWidth: true
+                                            text: modelData.name
+                                            elide: Text.ElideRight
+                                            color: Appearance.colors.colOnLayer1
+                                            font.pixelSize: Appearance.font.pixelSize.small
+                                        }
+
+                                        StyledText {
+                                            Layout.fillWidth: true
+                                            text: modelData.id
+                                            elide: Text.ElideRight
+                                            color: Appearance.colors.colOnLayer2
+                                            font.pixelSize: Appearance.font.pixelSize.smaller
+                                        }
+                                    }
+
+                                    MaterialSymbol {
+                                        text: root.selectedApps[modelData.path] ? "check_box" : "check_box_outline_blank"
+                                        iconSize: 20
+                                        color: root.selectedApps[modelData.path] ? Appearance.colors.colPrimary : Appearance.colors.colOnLayer2
+                                    }
+                                }
+
+                                MouseArea {
+                                    id: rowMouse
+                                    anchors.fill: parent
+                                    hoverEnabled: true
+                                    cursorShape: Qt.PointingHandCursor
+                                    onClicked: root.toggleApp(modelData.path)
+                                }
+                            }
+                        }
+
+                        RowLayout {
+                            Layout.fillWidth: true
+                            spacing: 8
+
+                            ActionButton {
+                                label: DesktopTranslation.tr("Select all")
+                                icon: "done_all"
+                                onActivated: root.selectAllApps()
+                            }
+
+                            ActionButton {
+                                label: DesktopTranslation.tr("Clear selection")
+                                icon: "close"
+                                onActivated: root.clearApps()
+                            }
+                        }
+
+                        ActionButton {
+                            label: DesktopTranslation.tr("Create shortcuts")
+                                + (root.selectedAppCount > 0 ? " (" + root.selectedAppCount + ")" : "")
+                            icon: "add"
+                            onActivated: root.createShortcuts()
+                        }
+
+                        StyledText {
+                            visible: root.shortcutStatus !== ""
+                            text: root.shortcutStatus
+                            color: Appearance.colors.colPrimary
+                            font.pixelSize: Appearance.font.pixelSize.small
                         }
                     }
 

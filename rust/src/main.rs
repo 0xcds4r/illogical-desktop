@@ -655,6 +655,126 @@ extern "C" {
     fn signal(signal: i32, handler: usize) -> usize;
 }
 
+
+fn desktop_dirs() -> Vec<PathBuf> {
+    let home = home();
+    vec![
+        PathBuf::from(format!("{home}/.local/share/applications")),
+        PathBuf::from("/usr/share/applications"),
+        PathBuf::from("/var/lib/flatpak/exports/share/applications"),
+        PathBuf::from(format!("{home}/.local/share/flatpak/exports/share/applications")),
+    ]
+}
+
+fn parse_desktop_entry(path: &Path) -> Option<(String, String)> {
+    let contents = fs::read_to_string(path).ok()?;
+    let mut in_entry = false;
+    let mut name = String::new();
+    let mut icon = String::new();
+    let mut kind = String::new();
+    let mut hidden = false;
+    for line in contents.lines() {
+        let line = line.trim();
+        if line.starts_with('[') {
+            in_entry = line == "[Desktop Entry]";
+            continue;
+        }
+        if !in_entry {
+            continue;
+        }
+        if let Some(value) = line.strip_prefix("Name=") {
+            if name.is_empty() {
+                name = value.to_string();
+            }
+        } else if let Some(value) = line.strip_prefix("Icon=") {
+            if icon.is_empty() {
+                icon = value.to_string();
+            }
+        } else if let Some(value) = line.strip_prefix("Type=") {
+            kind = value.to_string();
+        } else if line == "NoDisplay=true" || line == "Hidden=true" {
+            hidden = true;
+        }
+    }
+    if kind != "Application" || hidden || name.is_empty() {
+        None
+    } else {
+        Some((name, icon))
+    }
+}
+
+fn list_apps() {
+    let mut seen = std::collections::HashSet::new();
+    let mut entries: Vec<(String, String, String, String)> = Vec::new();
+    for directory in desktop_dirs() {
+        let iterator = match fs::read_dir(&directory) {
+            Ok(value) => value,
+            Err(_) => continue,
+        };
+        for entry in iterator.flatten() {
+            let path = entry.path();
+            if path.extension().and_then(|value| value.to_str()) != Some("desktop") {
+                continue;
+            }
+            let id = match path.file_name() {
+                Some(value) => value.to_string_lossy().to_string(),
+                None => continue,
+            };
+            if !seen.insert(id.clone()) {
+                continue;
+            }
+            if let Some((name, icon)) = parse_desktop_entry(&path) {
+                entries.push((id, name, icon, path.to_string_lossy().to_string()));
+            }
+        }
+    }
+    entries.sort_by(|a, b| a.1.to_lowercase().cmp(&b.1.to_lowercase()));
+    for (id, name, icon, path) in entries {
+        println!("{id}\t{name}\t{icon}\t{path}");
+    }
+}
+
+fn unique_shortcut(directory: &Path, name: &str) -> PathBuf {
+    let mut candidate = directory.join(name);
+    if fs::symlink_metadata(&candidate).is_err() {
+        return candidate;
+    }
+    let path = Path::new(name);
+    let stem = path
+        .file_stem()
+        .map(|value| value.to_string_lossy().to_string())
+        .unwrap_or_else(|| name.to_string());
+    let extension = path
+        .extension()
+        .map(|value| format!(".{}", value.to_string_lossy()))
+        .unwrap_or_default();
+    let mut counter = 2;
+    loop {
+        candidate = directory.join(format!("{stem} ({counter}){extension}"));
+        if fs::symlink_metadata(&candidate).is_err() {
+            return candidate;
+        }
+        counter += 1;
+    }
+}
+
+fn create_shortcut(source: &str, directory: &str) -> io::Result<()> {
+    let source_path = Path::new(source);
+    let name = source_path
+        .file_name()
+        .map(|value| value.to_string_lossy().to_string())
+        .ok_or_else(|| io::Error::new(io::ErrorKind::InvalidInput, "invalid shortcut path"))?;
+    let target = unique_shortcut(Path::new(directory), &name);
+    fs::copy(source_path, &target)?;
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        let _ = fs::set_permissions(&target, fs::Permissions::from_mode(0o755));
+    }
+    println!("{}", target.to_string_lossy());
+    Ok(())
+}
+
 fn main() {
     // Behave like normal CLI tools when the reader closes the pipe.
     #[cfg(unix)]
@@ -701,6 +821,17 @@ fn main() {
             None => Ok(()),
         },
         "compress" => compress(rest),
+        "apps" => {
+            list_apps();
+            Ok(())
+        }
+        "shortcut" => {
+            if rest.len() >= 2 {
+                create_shortcut(&rest[0], &rest[1])
+            } else {
+                Ok(())
+            }
+        }
         _ => {
             eprintln!("unknown command: {command}");
             std::process::exit(2);

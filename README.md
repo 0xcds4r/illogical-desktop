@@ -43,6 +43,8 @@ desktop-entry aware icons/launching.
 - Icon metadata is cached, so refreshing the desktop does not re-run MIME lookups.
 - `Delete` moves the selection to trash (optional confirmation), `F2` renames
   (the extension is preserved), `F5` refreshes.
+- **Applications tab**: list of installed apps (with search), multi-select and
+  "Create shortcuts" writes executable `.desktop` files to the desktop.
 - `.desktop` entries show their real `Name=` and `Icon=` and are launched with
   `gio launch` (so `Exec`, `Terminal`, placeholders work).
 - Regular files use the icon of their default application for that MIME type
@@ -85,6 +87,8 @@ Right-click the desktop → **Desktop settings**. Everything applies live, split
 - **Language**: switches the add-on's language only (English, Russian, Ukrainian,
   Belarusian, Polish, German, French, Spanish, Japanese, Chinese, Korean). The rest of
   the shell keeps its own language.
+- **Applications**: search installed applications, select one or several and create
+  `.desktop` shortcuts for them on the desktop.
 - **Done** closes the modal (it also closes from the `×` button or `Esc`; clicking the
   desktop does not dismiss it).
 
